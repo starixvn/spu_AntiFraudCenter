@@ -4,14 +4,14 @@
     "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\AntiFraudCenter.csproj": {}
   },
   "projects": {
-    "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\AntiFraudCenter.csproj": {
+    "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenterService\\AntiFraudCenterService.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\AntiFraudCenter.csproj",
-        "projectName": "AntiFraudCenter",
-        "projectPath": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\AntiFraudCenter.csproj",
+        "projectUniqueName": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenterService\\AntiFraudCenterService.csproj",
+        "projectName": "AntiFraudCenterService",
+        "projectPath": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenterService\\AntiFraudCenterService.csproj",
         "packagesPath": "C:\\Users\\jonas.huynh\\.nuget\\packages\\",
-        "outputPath": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\obj\\",
+        "outputPath": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenterService\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
@@ -48,6 +48,130 @@
         "net5.0": {
           "targetAlias": "net5.0",
           "dependencies": {
+            "Fanex.Data": {
+              "target": "Package",
+              "version": "[4.2.2, )"
+            },
+            "Fanex.Data.MySql": {
+              "target": "Package",
+              "version": "[4.2.2, )"
+            },
+            "Fanex.Data.Repository": {
+              "target": "Package",
+              "version": "[4.2.2, )"
+            },
+            "Fanex.Data.SqlServer": {
+              "target": "Package",
+              "version": "[4.2.2, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.401\\RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\AntiFraudCenter.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\AntiFraudCenter.csproj",
+        "projectName": "AntiFraudCenter",
+        "projectPath": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\AntiFraudCenter.csproj",
+        "packagesPath": "C:\\Users\\jonas.huynh\\.nuget\\packages\\",
+        "outputPath": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\jonas.huynh\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net5.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "http://nuget.nexdev.net/api/v2/": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net5.0": {
+            "targetAlias": "net5.0",
+            "projectReferences": {
+              "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenterService\\AntiFraudCenterService.csproj": {
+                "projectPath": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenterService\\AntiFraudCenterService.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net5.0": {
+          "targetAlias": "net5.0",
+          "dependencies": {
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[8.1.1, )"
+            },
+            "Fanex.Logging": {
+              "target": "Package",
+              "version": "[2.0.1, )"
+            },
+            "Fanex.Logging.Extensions.AspNetCore": {
+              "target": "Package",
+              "version": "[1.0.0, )"
+            },
+            "Fanex.Logging.Sentry": {
+              "target": "Package",
+              "version": "[1.0.6, )"
+            },
+            "Fanex.NAP.SPU.AspNetCore.Notification": {
+              "target": "Package",
+              "version": "[1.0.9, )"
+            },
+            "Microsoft.AspNetCore.DataProtection.StackExchangeRedis": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "ONEbook.UM.AspNetCore": {
+              "target": "Package",
+              "version": "[1.0.0.12, )"
+            },
+            "ONEbook.UM.Transport": {
+              "target": "Package",
+              "version": "[3.1.1, )"
+            },
+            "Sentry.AspNetCore": {
+              "target": "Package",
+              "version": "[3.11.1, )"
+            },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[5.6.3, )"

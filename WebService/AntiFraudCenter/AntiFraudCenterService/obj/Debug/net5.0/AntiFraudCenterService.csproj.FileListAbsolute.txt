@@ -1,0 +1,12 @@
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\bin\Debug\net5.0\AntiFraudCenterService.deps.json
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\bin\Debug\net5.0\AntiFraudCenterService.dll
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\bin\Debug\net5.0\ref\AntiFraudCenterService.dll
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\bin\Debug\net5.0\AntiFraudCenterService.pdb
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.GeneratedMSBuildEditorConfig.editorconfig
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.AssemblyInfoInputs.cache
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.AssemblyInfo.cs
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.csproj.CoreCompileInputs.cache
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.dll
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\ref\AntiFraudCenterService.dll
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.pdb
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.csproj.AssemblyReference.cache

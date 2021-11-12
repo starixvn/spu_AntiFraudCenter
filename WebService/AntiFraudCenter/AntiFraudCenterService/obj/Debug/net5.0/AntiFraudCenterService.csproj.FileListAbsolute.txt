@@ -9,4 +9,3 @@ D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Deb
 D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.dll
 D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\ref\AntiFraudCenterService.dll
 D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.pdb
-D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\net5.0\AntiFraudCenterService.csproj.AssemblyReference.cache

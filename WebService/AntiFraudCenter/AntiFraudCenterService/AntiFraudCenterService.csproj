@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Model\" />
     <Folder Include="Services\" />
-    <Folder Include="Shares\" />
   </ItemGroup>
 
 </Project>

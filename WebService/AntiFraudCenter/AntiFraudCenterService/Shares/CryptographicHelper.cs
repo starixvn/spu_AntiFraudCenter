@@ -1,5 +1,6 @@
 ﻿namespace AntiFraudCenterService.Shares
 {
+    using System;
     using System.IO;
     using System.Linq;
     using System.Security.Cryptography;
@@ -7,12 +8,12 @@
 
     public static class CryptographicHelper
     {
-        public static byte[] ÂesEncrypt(string plainText, string serectKey, string participantName)
+        public static string AESEncrypt(string plainText, string serectKey, string participantName)
         {
             byte[] keyBytes = Encoding.UTF8.GetBytes(serectKey);
             byte[] saltBytes = Encoding.UTF8.GetBytes(string.Concat(participantName, serectKey));
 
-            byte[] encrypted;
+            string encrypted;
 
             using (Aes aes = Aes.Create())
             {
@@ -31,17 +32,19 @@
                         }
                     }
 
-                    encrypted = ms.ToArray();
+                    encrypted = Convert.ToBase64String(ms.ToArray());
                 }
             }
 
             return encrypted;
         }
 
-        public static string AesDecrypt(byte[] cipherBytes, string serectKey, string participantName)
+        public static string AESDecrypt(string cipherString, string serectKey, string participantName)
         {
             byte[] keyBytes = Encoding.UTF8.GetBytes(serectKey);
             byte[] saltBytes = Encoding.UTF8.GetBytes(string.Concat(participantName, serectKey));
+
+            var cipherBytes = Convert.FromBase64String(cipherString);
 
             string plaintext = string.Empty;
 

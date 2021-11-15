@@ -137,6 +137,19 @@
           "lib/netstandard2.0/Fanex.Logging.Extensions.AspNetCore.dll": {}
         }
       },
+      "Fanex.Logging.Extensions.Database/1.0.8": {
+        "type": "package",
+        "dependencies": {
+          "Fanex.Data": "4.0.1",
+          "Fanex.Logging.Extensions": "1.0.6"
+        },
+        "compile": {
+          "lib/netcoreapp2.1/Fanex.Logging.Extensions.Database.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/Fanex.Logging.Extensions.Database.dll": {}
+        }
+      },
       "Fanex.Logging.Sentry/1.0.6": {
         "type": "package",
         "dependencies": {
@@ -1600,6 +1613,9 @@
           "Fanex.Data.MySql": "4.2.2",
           "Fanex.Data.Repository": "4.2.2",
           "Fanex.Data.SqlServer": "4.2.2",
+          "Fanex.Logging.Extensions": "1.0.6",
+          "Fanex.Logging.Extensions.Database": "1.0.8",
+          "Fanex.Logging.Sentry": "1.0.6",
           "Newtonsoft.Json": "13.0.1"
         },
         "compile": {
@@ -1750,6 +1766,18 @@
         "fanex.logging.extensions.aspnetcore.1.0.0.nupkg.sha512",
         "fanex.logging.extensions.aspnetcore.nuspec",
         "lib/netstandard2.0/Fanex.Logging.Extensions.AspNetCore.dll"
+      ]
+    },
+    "Fanex.Logging.Extensions.Database/1.0.8": {
+      "sha512": "3RCbvjot6FQXaXBghJVUi16VC7mNBZeVofXGrQpl+o0yF0ryBMiimKUtU537B7QtbXlL2rAsZpZ/g5/AlO3fYg==",
+      "type": "package",
+      "path": "fanex.logging.extensions.database/1.0.8",
+      "files": [
+        ".nupkg.metadata",
+        "Fanex.Logging.Extensions.Database.1.0.8.nupkg.sha512",
+        "Fanex.Logging.Extensions.Database.nuspec",
+        "lib/net461/Fanex.Logging.Extensions.Database.dll",
+        "lib/netcoreapp2.1/Fanex.Logging.Extensions.Database.dll"
       ]
     },
     "Fanex.Logging.Sentry/1.0.6": {

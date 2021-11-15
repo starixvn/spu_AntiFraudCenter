@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "9S+PqlmTzKipQQHxW6wVYdMuF4eOBfXlx1gZosuqtwAdZdZI71RMsVgABp7H98nskIfnsMiwkgHZ6aYkuh2tDA==",
+  "dgSpecHash": "UISzKmVgt7wGA/yAQrT58d8NwEbpMAn/DJtmz2UcTCiylf0Tjuhwl8ZsU/BnXz6FdX1ykpN9TtEJcFZK9Kmhwg==",
   "success": true,
   "projectFilePath": "D:\\GIT\\AntiFraudCenter\\WebService\\AntiFraudCenter\\AntiFraudCenter\\AntiFraudCenter.csproj",
   "expectedPackageFiles": [
@@ -15,6 +15,7 @@
     "C:\\Users\\jonas.huynh\\.nuget\\packages\\fanex.logging\\2.0.1\\fanex.logging.2.0.1.nupkg.sha512",
     "C:\\Users\\jonas.huynh\\.nuget\\packages\\fanex.logging.extensions\\1.0.6\\fanex.logging.extensions.1.0.6.nupkg.sha512",
     "C:\\Users\\jonas.huynh\\.nuget\\packages\\fanex.logging.extensions.aspnetcore\\1.0.0\\fanex.logging.extensions.aspnetcore.1.0.0.nupkg.sha512",
+    "C:\\Users\\jonas.huynh\\.nuget\\packages\\fanex.logging.extensions.database\\1.0.8\\fanex.logging.extensions.database.1.0.8.nupkg.sha512",
     "C:\\Users\\jonas.huynh\\.nuget\\packages\\fanex.logging.sentry\\1.0.6\\fanex.logging.sentry.1.0.6.nupkg.sha512",
     "C:\\Users\\jonas.huynh\\.nuget\\packages\\fanex.nap.spu.aspnetcore.notification\\1.0.9\\fanex.nap.spu.aspnetcore.notification.1.0.9.nupkg.sha512",
     "C:\\Users\\jonas.huynh\\.nuget\\packages\\microsoft.aspnetcore\\2.1.4\\microsoft.aspnetcore.2.1.4.nupkg.sha512",

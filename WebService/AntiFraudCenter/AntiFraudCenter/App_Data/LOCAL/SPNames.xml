@@ -3,6 +3,13 @@
 <Functions>
 	<Function Name="FraudCustomer">
 		<Setting Key="AFC_DC_Account_Get" SpName="AFC_DC_Account_Get" DbName="MySQL.AFC_DataCenter.afcAPI" />
+		<Setting Key="AFC_DC_Account_Insert" SpName="AFC_DC_Account_Insert" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
+		<Setting Key="AFC_DC_Account_Update" SpName="AFC_DC_Account_Update" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
+		<Setting Key="AFC_DC_Account_Delete" SpName="AFC_DC_Account_Delete" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
+	</Function>
+
+	<Function Name="ParticipantInformation">
+		<Setting Key="AFC_DC_Participant_UpdateSecretKey" SpName="AFC_DC_Participant_UpdateSecretKey" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
 		<Setting Key="AFC_DC_Participant_Get" SpName="AFC_DC_Participant_Get" DbName="MySQL.AFC_DataCenter.afcAPI" />
 	</Function>
 </Functions>

@@ -9,7 +9,9 @@
             Unauthorized = 401,
             BadRequest = 400,
             NotFound = 404,
-            OK= 200
+            OK = 200,
+            ServerUnavailable = 503,
+            ServerNotImplemented = 501
         };
     }
 }

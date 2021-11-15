@@ -21,5 +21,7 @@
         public string BankName { get; set; }
 
         public string BankAccountID { get; set; }
+
+        public int FraudID { get; set; }
     }
 }

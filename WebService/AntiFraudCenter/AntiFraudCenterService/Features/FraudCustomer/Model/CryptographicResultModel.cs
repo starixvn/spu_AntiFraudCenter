@@ -1,5 +1,4 @@
-﻿
-namespace AntiFraudCenterService.Shares.ViewModel
+﻿namespace AntiFraudCenterService.Shares.Model
 {
     using static AntiFraudCenterService.Shares.Constants;
 

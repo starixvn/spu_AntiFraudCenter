@@ -1,11 +1,8 @@
 ﻿namespace AntiFraudCenter.Controllers
 {
-    using AntiFraudCenterService.Features.FraudCustomer;
     using AntiFraudCenterService.Features.FraudCustomer.Model;
     using Microsoft.AspNetCore.Mvc;
     using Sentry;
-    using System.Collections.Generic;
-    using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
 
     [ApiController]
@@ -27,12 +24,12 @@
         {
             if (string.IsNullOrEmpty(paras.EncryptedData) || paras.ParticipantID == null)
             {
-                return BadRequest("Data input invalid");
+                return BadRequest("Invalid input data");
             }
 
             var result = this.fraudCustomerService.GetFraudCustomer(paras.ParticipantID, paras.EncryptedData);
 
-            if(result.ErrorCode == HttpStatus.OK)
+            if (result.ErrorCode == HttpStatus.OK)
             {
                 return Ok(result.FraudCusts);
             }
@@ -43,7 +40,25 @@
         [HttpGet("GetFraudCustomerDescryption")]
         public IActionResult GetFraudCustomerDecryption(int participantID)
         {
-           return Ok(this.fraudCustomerService.GetFraudCustomerDecryption(participantID));
+            return Ok(this.fraudCustomerService.GetFraudCustomerDecryption(participantID));
+        }
+
+        [HttpPost("AddFraudCustomer")]
+        public IActionResult AddFraudCustomer([FromBody] FraudCustomerParasModel paras)
+        {
+            if (string.IsNullOrEmpty(paras.EncryptedData) || paras.ParticipantID == null)
+            {
+                return BadRequest("Invalid input data");
+            }
+
+            var result = this.fraudCustomerService.AddFraudCustomer(paras.ParticipantID, paras.EncryptedData);
+
+            if (result.ErrorCode == HttpStatus.OK)
+            {
+                return Ok(true);
+            }
+
+            return result.ErrorCode == HttpStatus.BadRequest ? BadRequest(result.ErrorMsg) : StatusCode((int)result.ErrorCode, result.ErrorMsg);
         }
     }
 }

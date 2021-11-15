@@ -16,6 +16,10 @@
         string GetFraudCustomerDecryption(int? participantID);
 
         DBResult AddFraudCustomer(int? participantID, string encryptedData);
+
+        DBResult UpdateFraudCustomer(int? participantID, string encryptedData);
+
+        DBResult DeleteFraudCustomer(int? participantID, string encryptedData);
     }
 
     public class FraudCustomerService : IFraudCustomerService

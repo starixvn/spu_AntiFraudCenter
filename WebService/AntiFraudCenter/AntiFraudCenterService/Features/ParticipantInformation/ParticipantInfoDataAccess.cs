@@ -1,13 +1,19 @@
 ﻿namespace AntiFraudCenterService.Features.FraudCustomer
 {
     using AntiFraudCenterService.Features.FraudCustomer.Criteria;
+    using AntiFraudCenterService.Features.ParticipantInformation.Model;
     using AntiFraudCenterService.Shares.Model;
     using Fanex.Data.Repository;
+    using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IParticipantInfoDataAccess
     {
         DBResult UpdateParticipantSecretKey(int? participantID, string secretKey);
+
+        IEnumerable<FraudCasesModel> GetFraudCases();
+
+        IEnumerable<DocumentModel> GetDocumentTypes();
     }
 
     public class ParticipantInfoDataAccess : IParticipantInfoDataAccess
@@ -34,6 +40,20 @@
                 ErrorCode = HttpStatus.OK,
                 ErrorMsg = string.Empty
             };
+        }
+
+        public IEnumerable<FraudCasesModel> GetFraudCases()
+        {
+            var criteria = new FraudCasesGetCriteria();
+
+            return repository.Fetch<FraudCasesModel>(criteria);
+        }
+
+        public IEnumerable<DocumentModel> GetDocumentTypes()
+        {
+            var criteria = new DocumentTypesGetCriteria();
+
+            return repository.Fetch<DocumentModel>(criteria);
         }
     }
 }

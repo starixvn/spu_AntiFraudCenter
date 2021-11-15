@@ -1,11 +1,17 @@
 ﻿namespace AntiFraudCenterService.Features.FraudCustomer
 {
+    using AntiFraudCenterService.Features.ParticipantInformation.Model;
     using AntiFraudCenterService.Shares.Model;
+    using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IParticipantInfoDBService
     {
         DBResult UpdateParticipantSecretKey(int? participantID, string newSecretKey);
+
+        IEnumerable<FraudCasesModel> GetFraudCases();
+
+        IEnumerable<DocumentModel> GetDocumentTypes();
     }
 
     public class ParticipantInfoDBService : IParticipantInfoDBService
@@ -36,5 +42,16 @@
                 ErrorMsg = "Data input invalid"
             };
         }
+
+        public IEnumerable<FraudCasesModel> GetFraudCases()
+        {
+            return participantInfoDataAccess.GetFraudCases();
+        }
+
+        public IEnumerable<DocumentModel> GetDocumentTypes()
+        {
+            return participantInfoDataAccess.GetDocumentTypes();
+        }
+
     }
 }

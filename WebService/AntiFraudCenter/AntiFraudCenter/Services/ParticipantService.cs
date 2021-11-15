@@ -1,15 +1,20 @@
 ﻿namespace AntiFraudCenter
 {
     using AntiFraudCenterService.Features.FraudCustomer;
+    using AntiFraudCenterService.Features.ParticipantInformation.Model;
     using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.Model;
+    using AntiFraudCenterService.Shares.ViewModel;
     using Sentry;
     using System;
+    using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IParticipantService
     {
         DBResult UpdateParticipantSecretKey(int? participantID, string encryptedSecretKey);
+
+        ConventionViewModel GetConventionInfo();
     }
 
     public class ParticipantService : IParticipantService
@@ -60,6 +65,22 @@
 
                 rs.ErrorCode = HttpStatus.BadRequest;
                 rs.ErrorMsg = ex.Message;
+            }
+
+            return rs;
+        }
+
+        public ConventionViewModel GetConventionInfo()
+        {
+            var rs = new ConventionViewModel { DocumentTypes = new List<DocumentModel>(), FraudCases = new List<FraudCasesModel>()};
+            try
+            {
+                rs.DocumentTypes = participantInfoDBService.GetDocumentTypes();
+                rs.FraudCases = participantInfoDBService.GetFraudCases();
+            }
+            catch (Exception ex)
+            {
+                Utilities.LogSentryError("AFC - GetConventionInfo", string.Empty, string.Empty, ex, sentryClient);
             }
 
             return rs;

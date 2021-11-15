@@ -12,6 +12,9 @@
           "Fanex.Data.MySql": "4.2.2",
           "Fanex.Data.Repository": "4.2.2",
           "Fanex.Data.SqlServer": "4.2.2",
+          "Fanex.Logging.Extensions": "1.0.6",
+          "Fanex.Logging.Extensions.Database": "1.0.8",
+          "Fanex.Logging.Sentry": "1.0.6",
           "Newtonsoft.Json": "13.0.1"
         },
         "runtime": {
@@ -77,6 +80,49 @@
           }
         }
       },
+      "Fanex.Logging/2.0.0": {
+        "runtime": {
+          "lib/netstandard2.0/Fanex.Logging.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
+      },
+      "Fanex.Logging.Extensions/1.0.6": {
+        "dependencies": {
+          "System.Data.SqlClient": "4.6.1"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Fanex.Logging.Extensions.dll": {
+            "assemblyVersion": "1.0.6.0",
+            "fileVersion": "1.0.6.0"
+          }
+        }
+      },
+      "Fanex.Logging.Extensions.Database/1.0.8": {
+        "dependencies": {
+          "Fanex.Data": "4.2.2",
+          "Fanex.Logging.Extensions": "1.0.6"
+        },
+        "runtime": {
+          "lib/netcoreapp2.1/Fanex.Logging.Extensions.Database.dll": {
+            "assemblyVersion": "1.0.8.0",
+            "fileVersion": "1.0.8.0"
+          }
+        }
+      },
+      "Fanex.Logging.Sentry/1.0.6": {
+        "dependencies": {
+          "Fanex.Logging": "2.0.0",
+          "Sentry": "1.1.2"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Fanex.Logging.Sentry.dll": {
+            "assemblyVersion": "1.0.6.0",
+            "fileVersion": "1.0.6.0"
+          }
+        }
+      },
       "Microsoft.NETCore.Platforms/2.0.0": {},
       "Microsoft.Win32.Registry/4.5.0": {
         "dependencies": {
@@ -134,6 +180,37 @@
           }
         }
       },
+      "Sentry/1.1.2": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.1",
+          "Sentry.PlatformAbstractions": "1.0.0",
+          "Sentry.Protocol": "1.0.3",
+          "System.Collections.Immutable": "1.5.0"
+        },
+        "runtime": {
+          "lib/netstandard2.0/Sentry.dll": {
+            "assemblyVersion": "1.1.2.0",
+            "fileVersion": "1.1.2.0"
+          }
+        }
+      },
+      "Sentry.PlatformAbstractions/1.0.0": {
+        "runtime": {
+          "lib/netstandard2.0/Sentry.PlatformAbstractions.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "Sentry.Protocol/1.0.3": {
+        "runtime": {
+          "lib/netstandard2.0/Sentry.Protocol.dll": {
+            "assemblyVersion": "1.0.3.0",
+            "fileVersion": "1.0.3.0"
+          }
+        }
+      },
+      "System.Collections.Immutable/1.5.0": {},
       "System.Configuration.ConfigurationManager/4.5.0": {
         "dependencies": {
           "System.Security.Cryptography.ProtectedData": "4.5.0",
@@ -263,6 +340,34 @@
       "path": "fanex.data.sqlserver/4.2.2",
       "hashPath": "fanex.data.sqlserver.4.2.2.nupkg.sha512"
     },
+    "Fanex.Logging/2.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MRL/DRa/C0KsVaomJDhz9eYTo189ymRMkswU73yVmtbLUqxTmIAB2gZQrpwL+EY3Vt46beQB158TNQ70TjBfLw==",
+      "path": "fanex.logging/2.0.0",
+      "hashPath": "fanex.logging.2.0.0.nupkg.sha512"
+    },
+    "Fanex.Logging.Extensions/1.0.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-JKDj+ez2OwyxdCHvAchfDxoGcqALsgpW+fjzTpv8qrkGti94ELNn5eOPpl7nLNhCljsy9pxNl+oN+dEJMOVTZw==",
+      "path": "fanex.logging.extensions/1.0.6",
+      "hashPath": "fanex.logging.extensions.1.0.6.nupkg.sha512"
+    },
+    "Fanex.Logging.Extensions.Database/1.0.8": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3RCbvjot6FQXaXBghJVUi16VC7mNBZeVofXGrQpl+o0yF0ryBMiimKUtU537B7QtbXlL2rAsZpZ/g5/AlO3fYg==",
+      "path": "fanex.logging.extensions.database/1.0.8",
+      "hashPath": "fanex.logging.extensions.database.1.0.8.nupkg.sha512"
+    },
+    "Fanex.Logging.Sentry/1.0.6": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-dnyNCxCoU9z3joaG+MNqyf6gRh404U4UqHiqVKSFeXMglKhkPk7IYyINlcwJRB3wY+escEYSHo6eOOpw7GoBbA==",
+      "path": "fanex.logging.sentry/1.0.6",
+      "hashPath": "fanex.logging.sentry.1.0.6.nupkg.sha512"
+    },
     "Microsoft.NETCore.Platforms/2.0.0": {
       "type": "package",
       "serviceable": true,
@@ -318,6 +423,34 @@
       "sha512": "sha512-YhEdSQUsTx+C8m8Bw7ar5/VesXvCFMItyZF7G1AUY+OM0VPZUOeAVpJ4Wl6fydBGUYZxojTDR3I6Bj/+BPkJNA==",
       "path": "runtime.win-x86.runtime.native.system.data.sqlclient.sni/4.4.0",
       "hashPath": "runtime.win-x86.runtime.native.system.data.sqlclient.sni.4.4.0.nupkg.sha512"
+    },
+    "Sentry/1.1.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-LWPQ9F7gFLyttSZh9h/Kd77zlwVCcq2j/hWVmqZRoZKRMvTbWXcPbEfN0Im+nuJW88z2XOzQdhwDD1qJGHlJUA==",
+      "path": "sentry/1.1.2",
+      "hashPath": "sentry.1.1.2.nupkg.sha512"
+    },
+    "Sentry.PlatformAbstractions/1.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NgcYNgZfIQNcMSFZTmgOria9/cqgKrV3ICNoC7iS/mmBZojLbdQMnnD7Tg5lfCKH1myk3AjU91VGDct88uw1Ow==",
+      "path": "sentry.platformabstractions/1.0.0",
+      "hashPath": "sentry.platformabstractions.1.0.0.nupkg.sha512"
+    },
+    "Sentry.Protocol/1.0.3": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-SvPtwBs6mrJ+p6oEUo4pedM+5jWawy7T90/r2p5KgRXiQKDcaiX8pRy0XJZoV+WPjbAKc0pHpJUVSFeaxE+ogQ==",
+      "path": "sentry.protocol/1.0.3",
+      "hashPath": "sentry.protocol.1.0.3.nupkg.sha512"
+    },
+    "System.Collections.Immutable/1.5.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EXKiDFsChZW0RjrZ4FYHu9aW6+P4MCgEDCklsVseRfhoO0F+dXeMSsMRAlVXIo06kGJ/zv+2w1a2uc2+kxxSaQ==",
+      "path": "system.collections.immutable/1.5.0",
+      "hashPath": "system.collections.immutable.1.5.0.nupkg.sha512"
     },
     "System.Configuration.ConfigurationManager/4.5.0": {
       "type": "package",

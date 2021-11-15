@@ -64,6 +64,18 @@
               "target": "Package",
               "version": "[4.2.2, )"
             },
+            "Fanex.Logging.Extensions": {
+              "target": "Package",
+              "version": "[1.0.6, )"
+            },
+            "Fanex.Logging.Extensions.Database": {
+              "target": "Package",
+              "version": "[1.0.8, )"
+            },
+            "Fanex.Logging.Sentry": {
+              "target": "Package",
+              "version": "[1.0.6, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.1, )"

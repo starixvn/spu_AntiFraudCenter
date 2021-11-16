@@ -23,4 +23,16 @@
     <ProjectReference Include="..\AntiFraudCenterService\AntiFraudCenterService.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="App_Data\LOCAL\SPNames.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="App_Data\PROD\SPNames.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="App_Data\UAT\SPNames.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

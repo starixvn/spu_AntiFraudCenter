@@ -23,3 +23,6 @@ D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenter\bin\Debug\netco
 D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenter\bin\Debug\netcoreapp2.1\appsettings.LOCAL.json
 D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenter\bin\Debug\netcoreapp2.1\appsettings.PRO.Development.json
 D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenter\bin\Debug\netcoreapp2.1\appsettings.PRO.json
+D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenter\bin\Debug\netcoreapp2.1\App_Data\LOCAL\SPNames.xml
+D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenter\bin\Debug\netcoreapp2.1\App_Data\PROD\SPNames.xml
+D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenter\bin\Debug\netcoreapp2.1\App_Data\UAT\SPNames.xml

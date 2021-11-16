@@ -7,4 +7,3 @@ D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenterService\obj\Debu
 D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.csproj.CoreCompileInputs.cache
 D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.dll
 D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.pdb
-D:\GIT\AntiFraudCenter\PortalAPI\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.csproj.AssemblyReference.cache

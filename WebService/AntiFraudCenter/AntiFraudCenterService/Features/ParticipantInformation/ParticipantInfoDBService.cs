@@ -4,15 +4,18 @@
     using AntiFraudCenterService.Shares.ViewModel;
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IParticipantInfoDBService
     {
         RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey);
 
-        IEnumerable<FraudCasesModel> GetFraudCases();
+        IEnumerable<FraudCasesMappingModel> GetFraudCases();
 
-        IEnumerable<DocumentModel> GetDocumentTypes();
+        IEnumerable<DocumentMappingModel> GetDocumentTypes();
+
+        IEnumerable<CountryMappingModel> GetCountryCodes();
     }
 
     public class ParticipantInfoDBService : IParticipantInfoDBService
@@ -32,7 +35,7 @@
                 {
                     return participantInfoDataAccess.UpdateParticipantSecretKey(participantID, newSecretKey);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     return new RegenerateKeyResultModel() { StatusCode = HttpStatus.ServerNotImplemented, ErrorMessage = ex.Message };
                 }
@@ -41,15 +44,34 @@
             return new RegenerateKeyResultModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public IEnumerable<FraudCasesModel> GetFraudCases()
+        public IEnumerable<FraudCasesMappingModel> GetFraudCases()
         {
             return participantInfoDataAccess.GetFraudCases();
         }
 
-        public IEnumerable<DocumentModel> GetDocumentTypes()
+        public IEnumerable<DocumentMappingModel> GetDocumentTypes()
         {
             return participantInfoDataAccess.GetDocumentTypes();
         }
 
+        public IEnumerable<CountryMappingModel> GetCountryCodes()
+        {
+            var countryCodes = new List<CountryMappingModel>();
+
+            CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+
+            foreach (var culture in cultures)
+            {
+                var region = new RegionInfo(culture.LCID);
+
+                countryCodes.Add(new CountryMappingModel
+                {
+                    CountryName = culture.EnglishName,
+                    CountryCode = region?.ThreeLetterISORegionName ?? string.Empty
+                });
+            }
+
+            return countryCodes;
+        }
     }
 }

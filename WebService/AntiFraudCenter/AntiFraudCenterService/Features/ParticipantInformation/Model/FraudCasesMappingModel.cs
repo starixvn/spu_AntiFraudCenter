@@ -1,6 +1,6 @@
 ﻿namespace AntiFraudCenterService.Features.ParticipantInformation.Model
 {
-    public class FraudCasesModel
+    public class FraudCasesMappingModel
     {
         public int FraudID { get; set; }
 

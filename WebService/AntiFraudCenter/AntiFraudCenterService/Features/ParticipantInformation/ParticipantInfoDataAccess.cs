@@ -11,9 +11,9 @@
     {
         RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey);
 
-        IEnumerable<FraudCasesModel> GetFraudCases();
+        IEnumerable<FraudCasesMappingModel> GetFraudCases();
 
-        IEnumerable<DocumentModel> GetDocumentTypes();
+        IEnumerable<DocumentMappingModel> GetDocumentTypes();
     }
 
     public class ParticipantInfoDataAccess : IParticipantInfoDataAccess
@@ -38,18 +38,18 @@
             return new RegenerateKeyResultModel { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
 
-        public IEnumerable<FraudCasesModel> GetFraudCases()
+        public IEnumerable<FraudCasesMappingModel> GetFraudCases()
         {
             var criteria = new FraudCasesGetCriteria();
 
-            return repository.Fetch<FraudCasesModel>(criteria);
+            return repository.Fetch<FraudCasesMappingModel>(criteria);
         }
 
-        public IEnumerable<DocumentModel> GetDocumentTypes()
+        public IEnumerable<DocumentMappingModel> GetDocumentTypes()
         {
             var criteria = new DocumentTypesGetCriteria();
 
-            return repository.Fetch<DocumentModel>(criteria);
+            return repository.Fetch<DocumentMappingModel>(criteria);
         }
     }
 }

@@ -77,14 +77,17 @@
         public ConventionViewModel GetConventionInfo()
         {
             var rs = new ConventionViewModel { 
-                DocumentTypes = new List<DocumentModel>(), FraudCases = new List<FraudCasesModel>(),
+                DocumentMapping = new List<DocumentMappingModel>(), 
+                FraudCasesMapping = new List<FraudCasesMappingModel>(),
+                CountryMapping = new List<CountryMappingModel>(),
                 StatusCode = HttpStatus.OK, ErrorMessage = string.Empty
             };
 
             try
             {
-                rs.DocumentTypes = participantInfoDBService.GetDocumentTypes();
-                rs.FraudCases = participantInfoDBService.GetFraudCases();
+                rs.DocumentMapping = participantInfoDBService.GetDocumentTypes();
+                rs.FraudCasesMapping = participantInfoDBService.GetFraudCases();
+                rs.CountryMapping = participantInfoDBService.GetCountryCodes();
             }
             catch (Exception ex)
             {

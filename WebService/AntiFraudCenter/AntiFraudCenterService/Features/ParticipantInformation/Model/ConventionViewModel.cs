@@ -5,9 +5,11 @@
 
     public class ConventionViewModel
     {
-        public IEnumerable<FraudCasesModel> FraudCases { get; set; }
+        public IEnumerable<FraudCasesMappingModel> FraudCasesMapping { get; set; }
 
-        public IEnumerable<DocumentModel> DocumentTypes { get; set; }
+        public IEnumerable<DocumentMappingModel> DocumentMapping { get; set; }
+
+        public IEnumerable<CountryMappingModel> CountryMapping { get; set; }
 
         public HttpStatus StatusCode { get; set; }
 

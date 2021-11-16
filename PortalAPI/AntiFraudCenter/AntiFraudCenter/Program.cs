@@ -36,7 +36,8 @@
 
                     config.AddEnvironmentVariables();
                 })
-                .UseStartup<Startup>()
-                .UseSentry();
+                .UseSentry()
+                .UseStartup<Startup>();
+              
     }
 }

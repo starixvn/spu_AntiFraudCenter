@@ -3,7 +3,6 @@
     using AntiFraudCenterService.Features.FraudCustomer;
     using AntiFraudCenterService.Features.ParticipantInformation.Model;
     using AntiFraudCenterService.Shares;
-    using AntiFraudCenterService.Shares.Model;
     using AntiFraudCenterService.Shares.ViewModel;
     using Sentry;
     using System;
@@ -59,7 +58,9 @@
 
                         var enscryptedNewKey = CryptographicHelper.AESEncrypt(newSecretKey, participant.SecretKey, participant.ParticipantName);
 
-                        rs = participantInfoDBService.UpdateParticipantSecretKey(participantID, newSecretKey, enscryptedNewKey);
+                        rs = participantInfoDBService.UpdateParticipantSecretKey(participantID, newSecretKey);
+
+                        rs.EncryptedData = enscryptedNewKey;
                     }
                 }
             }

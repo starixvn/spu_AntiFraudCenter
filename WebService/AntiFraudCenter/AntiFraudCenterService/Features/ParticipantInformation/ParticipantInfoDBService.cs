@@ -1,14 +1,14 @@
 ﻿namespace AntiFraudCenterService.Features.FraudCustomer
 {
     using AntiFraudCenterService.Features.ParticipantInformation.Model;
-    using AntiFraudCenterService.Shares.Model;
     using AntiFraudCenterService.Shares.ViewModel;
+    using System;
     using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IParticipantInfoDBService
     {
-        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey, string enscryptedNewKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey);
 
         IEnumerable<FraudCasesModel> GetFraudCases();
 
@@ -24,18 +24,18 @@
             this.participantInfoDataAccess = participantInfoDataAccess;
         }
 
-        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey, string enscryptedNewKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey)
         {
             if (!string.IsNullOrEmpty(newSecretKey) && participantID != null)
             {
-                var rs = participantInfoDataAccess.UpdateParticipantSecretKey(participantID, newSecretKey);
-
-                return new RegenerateKeyResultModel
+                try
                 {
-                    StatusCode = rs.StatusCode,
-                    ErrorMessage = rs.ErrorMessage,
-                    EncryptedData = rs.StatusCode == HttpStatus.OK ? enscryptedNewKey : string.Empty
-                };
+                    return participantInfoDataAccess.UpdateParticipantSecretKey(participantID, newSecretKey);
+                }
+                catch(Exception ex)
+                {
+                    return new RegenerateKeyResultModel() { StatusCode = HttpStatus.ServerNotImplemented, ErrorMessage = ex.Message };
+                }
             }
 
             return new RegenerateKeyResultModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };

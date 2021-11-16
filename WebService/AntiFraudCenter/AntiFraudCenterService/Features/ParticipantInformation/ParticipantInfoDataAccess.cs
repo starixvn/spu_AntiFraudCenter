@@ -2,14 +2,14 @@
 {
     using AntiFraudCenterService.Features.FraudCustomer.Criteria;
     using AntiFraudCenterService.Features.ParticipantInformation.Model;
-    using AntiFraudCenterService.Shares.Model;
+    using AntiFraudCenterService.Shares.ViewModel;
     using Fanex.Data.Repository;
     using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IParticipantInfoDataAccess
     {
-        FraudCustDBResult UpdateParticipantSecretKey(int? participantID, string secretKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey);
 
         IEnumerable<FraudCasesModel> GetFraudCases();
 
@@ -25,7 +25,7 @@
             repository = new DynamicRepository();
         }
 
-        public FraudCustDBResult UpdateParticipantSecretKey(int? participantID, string secretKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey)
         {
             var criteria = new ParticipantSecretKeyUpdateCriteria
             {
@@ -35,11 +35,7 @@
 
             repository.Execute(criteria);
 
-            return new FraudCustDBResult
-            {
-                StatusCode = HttpStatus.OK,
-                ErrorMessage = string.Empty
-            };
+            return new RegenerateKeyResultModel { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
 
         public IEnumerable<FraudCasesModel> GetFraudCases()

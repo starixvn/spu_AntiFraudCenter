@@ -13,11 +13,11 @@
 
         IEnumerable<ParticipantModel> GetParticipant();
 
-        DBResult AddFraudCustomers(int? participantID, string decryptData);
+        FraudCustDBResult AddFraudCustomers(int? participantID, string decryptData);
 
-        DBResult UpdateFraudCustomers(int? participantID, string decryptData);
+        FraudCustDBResult UpdateFraudCustomers(int? participantID, string decryptData);
 
-        DBResult DeleteFraudCustomers(int? participantID, string decryptData);
+        FraudCustDBResult DeleteFraudCustomers(int? participantID, string decryptData);
     }
 
     public class FraudCustomerDataAccess : IFraudCustomerDataAccess
@@ -46,7 +46,7 @@
             return repository.Fetch<ParticipantModel>(criteria);
         }
 
-        public DBResult AddFraudCustomers(int? participantID, string decryptData)
+        public FraudCustDBResult AddFraudCustomers(int? participantID, string decryptData)
         {
             var criteria = new FraudCustomerAddCriteria
             {
@@ -56,14 +56,14 @@
 
             repository.Execute(criteria);
 
-            return new DBResult
+            return new FraudCustDBResult
             {
-                ErrorCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
-                ErrorMsg = criteria.ErrorMessage
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
+                ErrorMessage = criteria.ErrorMessage
             };
         }
 
-        public DBResult UpdateFraudCustomers(int? participantID, string decryptData)
+        public FraudCustDBResult UpdateFraudCustomers(int? participantID, string decryptData)
         {
             var criteria = new FraudCustomerUpdateCriteria
             {
@@ -73,14 +73,14 @@
 
             repository.Execute(criteria);
 
-            return new DBResult
+            return new FraudCustDBResult
             {
-                ErrorCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
-                ErrorMsg = criteria.ErrorMessage
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
+                ErrorMessage = criteria.ErrorMessage
             };
         }
 
-        public DBResult DeleteFraudCustomers(int? participantID, string decryptData)
+        public FraudCustDBResult DeleteFraudCustomers(int? participantID, string decryptData)
         {
             var criteria = new FraudCustomerDeleteCriteria
             {
@@ -90,10 +90,10 @@
 
             repository.Execute(criteria);
 
-            return new DBResult
+            return new FraudCustDBResult
             {
-                ErrorCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
-                ErrorMsg = criteria.ErrorMessage
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
+                ErrorMessage = criteria.ErrorMessage
             };
         }
     }

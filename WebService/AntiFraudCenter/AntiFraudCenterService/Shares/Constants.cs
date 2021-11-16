@@ -13,5 +13,7 @@
             ServerUnavailable = 503,
             ServerNotImplemented = 501
         };
+
+        public const string InvalidInput = "Invalid data input.";
     }
 }

@@ -15,11 +15,11 @@
 
         string GetFraudCustomerDecryption(int? participantID);
 
-        DBResult AddFraudCustomers(string decryptedData, int? participantID);
+        FraudCustDBResult AddFraudCustomers(string decryptedData, int? participantID);
 
-        DBResult UpdateFraudCustomers(string decryptedData, int? participantID);
+        FraudCustDBResult UpdateFraudCustomers(string decryptedData, int? participantID);
 
-        DBResult DeleteFraudCustomers(string decryptedData, int? participantID);
+        FraudCustDBResult DeleteFraudCustomers(string decryptedData, int? participantID);
     }
 
     public class FraudCustomerDBService : IFraudCustomerDBService
@@ -102,61 +102,34 @@
             return string.Empty;
         }
 
-        public DBResult AddFraudCustomers(string decryptedData, int? participantID)
+        public FraudCustDBResult AddFraudCustomers(string decryptedData, int? participantID)
         {
             if (!string.IsNullOrEmpty(decryptedData) && participantID != null)
             {
-                var rs = fraudCustomerDataAccess.AddFraudCustomers(participantID, decryptedData);
-                return new DBResult
-                {
-                    ErrorCode = string.IsNullOrEmpty(rs.ErrorMsg) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
-                    ErrorMsg = rs.ErrorMsg
-                };
+                return fraudCustomerDataAccess.AddFraudCustomers(participantID, decryptedData);
             }
 
-            return new DBResult
-            {
-                ErrorCode = HttpStatus.BadRequest,
-                ErrorMsg = "Data input invalid"
-            };
+            return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public DBResult UpdateFraudCustomers(string decryptedData, int? participantID)
+        public FraudCustDBResult UpdateFraudCustomers(string decryptedData, int? participantID)
         {
             if (!string.IsNullOrEmpty(decryptedData) && participantID != null)
             {
-                var rs = fraudCustomerDataAccess.UpdateFraudCustomers(participantID, decryptedData);
-                return new DBResult
-                {
-                    ErrorCode = string.IsNullOrEmpty(rs.ErrorMsg) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
-                    ErrorMsg = rs.ErrorMsg
-                };
+                return fraudCustomerDataAccess.UpdateFraudCustomers(participantID, decryptedData);
             }
 
-            return new DBResult
-            {
-                ErrorCode = HttpStatus.BadRequest,
-                ErrorMsg = "Data input invalid"
-            };
+            return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public DBResult DeleteFraudCustomers(string decryptedData, int? participantID)
+        public FraudCustDBResult DeleteFraudCustomers(string decryptedData, int? participantID)
         {
             if (!string.IsNullOrEmpty(decryptedData) && participantID != null)
             {
-                var rs = fraudCustomerDataAccess.DeleteFraudCustomers(participantID, decryptedData);
-                return new DBResult
-                {
-                    ErrorCode = string.IsNullOrEmpty(rs.ErrorMsg) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
-                    ErrorMsg = rs.ErrorMsg
-                };
+                return fraudCustomerDataAccess.DeleteFraudCustomers(participantID, decryptedData);
             }
 
-            return new DBResult
-            {
-                ErrorCode = HttpStatus.BadRequest,
-                ErrorMsg = "Data input invalid"
-            };
+            return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
     }
 }

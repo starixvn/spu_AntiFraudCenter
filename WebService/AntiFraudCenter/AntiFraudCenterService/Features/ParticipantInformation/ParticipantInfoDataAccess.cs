@@ -9,7 +9,7 @@
 
     public interface IParticipantInfoDataAccess
     {
-        DBResult UpdateParticipantSecretKey(int? participantID, string secretKey);
+        FraudCustDBResult UpdateParticipantSecretKey(int? participantID, string secretKey);
 
         IEnumerable<FraudCasesModel> GetFraudCases();
 
@@ -25,7 +25,7 @@
             repository = new DynamicRepository();
         }
 
-        public DBResult UpdateParticipantSecretKey(int? participantID, string secretKey)
+        public FraudCustDBResult UpdateParticipantSecretKey(int? participantID, string secretKey)
         {
             var criteria = new ParticipantSecretKeyUpdateCriteria
             {
@@ -35,10 +35,10 @@
 
             repository.Execute(criteria);
 
-            return new DBResult
+            return new FraudCustDBResult
             {
-                ErrorCode = HttpStatus.OK,
-                ErrorMsg = string.Empty
+                StatusCode = HttpStatus.OK,
+                ErrorMessage = string.Empty
             };
         }
 

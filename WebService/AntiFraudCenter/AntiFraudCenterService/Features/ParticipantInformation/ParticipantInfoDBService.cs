@@ -2,12 +2,13 @@
 {
     using AntiFraudCenterService.Features.ParticipantInformation.Model;
     using AntiFraudCenterService.Shares.Model;
+    using AntiFraudCenterService.Shares.ViewModel;
     using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IParticipantInfoDBService
     {
-        DBResult UpdateParticipantSecretKey(int? participantID, string newSecretKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey, string enscryptedNewKey);
 
         IEnumerable<FraudCasesModel> GetFraudCases();
 
@@ -23,24 +24,21 @@
             this.participantInfoDataAccess = participantInfoDataAccess;
         }
 
-        public DBResult UpdateParticipantSecretKey(int? participantID, string newSecretKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey, string enscryptedNewKey)
         {
             if (!string.IsNullOrEmpty(newSecretKey) && participantID != null)
             {
                 var rs = participantInfoDataAccess.UpdateParticipantSecretKey(participantID, newSecretKey);
 
-                return new DBResult
+                return new RegenerateKeyResultModel
                 {
-                    ErrorCode = string.IsNullOrEmpty(rs.ErrorMsg) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
-                    ErrorMsg = rs.ErrorMsg
+                    StatusCode = rs.StatusCode,
+                    ErrorMessage = rs.ErrorMessage,
+                    EncryptedData = rs.StatusCode == HttpStatus.OK ? enscryptedNewKey : string.Empty
                 };
             }
 
-            return new DBResult
-            {
-                ErrorCode = HttpStatus.BadRequest,
-                ErrorMsg = "Data input invalid"
-            };
+            return new RegenerateKeyResultModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
         public IEnumerable<FraudCasesModel> GetFraudCases()

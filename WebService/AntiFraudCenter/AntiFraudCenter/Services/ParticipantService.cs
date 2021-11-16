@@ -12,7 +12,7 @@
 
     public interface IParticipantService
     {
-        DBResult UpdateParticipantSecretKey(int? participantID, string encryptedSecretKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string encryptedSecretKey);
 
         ConventionViewModel GetConventionInfo();
     }
@@ -36,35 +36,38 @@
             this.appSettings = appSettings;
         }
 
-        public DBResult UpdateParticipantSecretKey(int? participantID, string encryptedSecretKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string encryptedSecretKey)
         {
-            var rs = new DBResult() { ErrorCode = HttpStatus.BadRequest, ErrorMsg = "Invalid input data" };
+            var rs = new RegenerateKeyResultModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
 
             try
             {
-                if (participantID != null && !string.IsNullOrEmpty(encryptedSecretKey))
+                if (string.IsNullOrEmpty(encryptedSecretKey) || participantID == null)
                 {
-                    var participant = fraudCustomerDBService.GetParticipant(participantID);
+                    return rs;
+                }
 
-                    if (participant != null)
+                var participant = fraudCustomerDBService.GetParticipant(participantID);
+
+                if (participant != null)
+                {
+                    var decryptedSecketKey = CryptographicHelper.AESDecrypt(encryptedSecretKey, participant.SecretKey, participant.ParticipantName);
+
+                    if (string.Equals(decryptedSecketKey, participant.SecretKey))
                     {
-                        var decryptedSecketKey = CryptographicHelper.AESDecrypt(encryptedSecretKey, participant.SecretKey, participant.ParticipantName);
+                        var newSecretKey = CryptographicHelper.GetRandomHexNumber();
 
-                        if (string.Equals(decryptedSecketKey, participant.SecretKey))
-                        {
-                            var newSecretKey = CryptographicHelper.GetRandomHexNumber();
+                        var enscryptedNewKey = CryptographicHelper.AESEncrypt(newSecretKey, participant.SecretKey, participant.ParticipantName);
 
-                            rs = participantInfoDBService.UpdateParticipantSecretKey(participantID, newSecretKey);
-                        }
+                        rs = participantInfoDBService.UpdateParticipantSecretKey(participantID, newSecretKey, enscryptedNewKey);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Utilities.LogSentryError("AFC - DeleteFraudCustomer", string.Empty, (participantID, encryptedSecretKey), ex, sentryClient);
+                Utilities.LogSentryError("AFC - UpdateParticipantSecretKey", string.Empty, (participantID, encryptedSecretKey), ex, sentryClient);
 
-                rs.ErrorCode = HttpStatus.BadRequest;
-                rs.ErrorMsg = ex.Message;
+                rs.ErrorMessage = ex.Message;
             }
 
             return rs;
@@ -72,7 +75,11 @@
 
         public ConventionViewModel GetConventionInfo()
         {
-            var rs = new ConventionViewModel { DocumentTypes = new List<DocumentModel>(), FraudCases = new List<FraudCasesModel>()};
+            var rs = new ConventionViewModel { 
+                DocumentTypes = new List<DocumentModel>(), FraudCases = new List<FraudCasesModel>(),
+                StatusCode = HttpStatus.OK, ErrorMessage = string.Empty
+            };
+
             try
             {
                 rs.DocumentTypes = participantInfoDBService.GetDocumentTypes();
@@ -81,6 +88,8 @@
             catch (Exception ex)
             {
                 Utilities.LogSentryError("AFC - GetConventionInfo", string.Empty, string.Empty, ex, sentryClient);
+                rs.ErrorMessage = ex.Message;
+                rs.StatusCode = HttpStatus.ServerNotImplemented;
             }
 
             return rs;

@@ -21,5 +21,7 @@
         public const string IVKey = "@/adhtsknccr&";
 
         public const string InternalPassword = "Welcome1";
+
+        public const int SecretKey_NumberOfByte = 8;
     }
 }

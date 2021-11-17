@@ -52,7 +52,7 @@
 
                 if (participant != null)
                 {
-                    var newKey = CryptographicHelper.GetRandomHexNumber();
+                    var newKey = CryptographicHelper.GetRandomHexNumber(SecretKey_NumberOfByte);
 
                     rs = participantInfoDBService.UpdateParticipantSecretKey(participant.ParticipantID, newKey);
                 }
@@ -106,7 +106,7 @@
 
                     if(isValid)
                     {
-                        var generateKey = CryptographicHelper.GetRandomHexNumber();
+                        var generateKey = CryptographicHelper.GetRandomHexNumber(SecretKey_NumberOfByte);
 
                         rs = participantInfoDBService.InitParticipant(participantName, generateKey);
                     }

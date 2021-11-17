@@ -72,11 +72,11 @@
             return plaintext;
         }
 
-        public static string GetRandomHexNumber()
+        public static string GetRandomHexNumber(int numberOfByte)
         {
             var csprng = new RNGCryptoServiceProvider();
 
-            var bytes = new byte[8];
+            var bytes = new byte[numberOfByte];
 
             csprng.GetNonZeroBytes(bytes);
 

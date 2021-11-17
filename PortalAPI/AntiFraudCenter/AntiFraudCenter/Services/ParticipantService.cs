@@ -11,7 +11,7 @@
 
     public interface IParticipantService
     {
-        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string encryptedSecretKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(string key);
 
         ConventionViewModel GetConventionInfo();
     }
@@ -35,38 +35,29 @@
             this.appSettings = appSettings;
         }
 
-        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string encryptedSecretKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(string key)
         {
             var rs = new RegenerateKeyResultModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
 
             try
             {
-                if (string.IsNullOrEmpty(encryptedSecretKey) || participantID == null)
+                if (string.IsNullOrEmpty(key))
                 {
                     return rs;
                 }
 
-                var participant = fraudCustomerDBService.GetParticipant(participantID);
+                var participant = fraudCustomerDBService.CheckAuthentication(key);
 
                 if (participant != null)
                 {
-                    var decryptedSecketKey = CryptographicHelper.AESDecrypt(encryptedSecretKey, participant.SecretKey, participant.ParticipantName);
+                    var newKey = CryptographicHelper.GetRandomHexNumber();
 
-                    if (string.Equals(decryptedSecketKey, participant.SecretKey))
-                    {
-                        var newSecretKey = CryptographicHelper.GetRandomHexNumber();
-
-                        var enscryptedNewKey = CryptographicHelper.AESEncrypt(newSecretKey, participant.SecretKey, participant.ParticipantName);
-
-                        rs = participantInfoDBService.UpdateParticipantSecretKey(participantID, newSecretKey);
-
-                        rs.EncryptedData = enscryptedNewKey;
-                    }
+                    rs = participantInfoDBService.UpdateParticipantSecretKey(participant.ParticipantID, newKey);
                 }
             }
             catch (Exception ex)
             {
-                Utilities.LogSentryError("AFC - UpdateParticipantSecretKey", string.Empty, (participantID, encryptedSecretKey), ex, sentryClient);
+                Utilities.LogSentryError("AFC - UpdateParticipantSecretKey", string.Empty, (key), ex, sentryClient);
 
                 rs.ErrorMessage = ex.Message;
             }

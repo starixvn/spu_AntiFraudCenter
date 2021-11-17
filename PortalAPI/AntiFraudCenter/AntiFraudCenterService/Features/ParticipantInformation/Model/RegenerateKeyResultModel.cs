@@ -8,6 +8,6 @@
 
         public string ErrorMessage { get; set; }
 
-        public string EncryptedData { get; set; }
+        public string Data { get; set; }
     }
 }

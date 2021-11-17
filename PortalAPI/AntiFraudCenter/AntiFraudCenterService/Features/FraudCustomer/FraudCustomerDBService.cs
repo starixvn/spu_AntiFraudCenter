@@ -11,9 +11,9 @@
     {
         IEnumerable<GetFraudCustomerModel> GetFraudCustomers(string decryptedData);
 
-        ParticipantModel GetParticipant(int? participantID);
+        IEnumerable<ParticipantModel> GetParticipant();
 
-        string GetFraudCustomerDecryption(int? participantID);
+        ParticipantModel CheckAuthentication(string key);
 
         FraudCustDBResult AddFraudCustomers(string decryptedData, int? participantID);
 
@@ -21,7 +21,9 @@
 
         FraudCustDBResult DeleteFraudCustomers(string decryptedData, int? participantID);
 
-        string EncryptedFieldsToInsertDB(string decryptedData);
+        string EncryptedFieldsToInsertDB(string jsonData);
+
+        string EncryptedFieldsToGetDB(string jsonData);
 
         IEnumerable<GetFraudCustomerModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustomerModel> fraudCusts);
     }
@@ -45,65 +47,23 @@
             return new List<GetFraudCustomerModel>();
         }
 
-        public ParticipantModel GetParticipant(int? participantID)
+        public IEnumerable<ParticipantModel> GetParticipant()
         {
             var participants = fraudCustomerDataAccess.GetParticipant();
 
+            return participants ?? new List<ParticipantModel>();
+        }
+
+        public ParticipantModel CheckAuthentication(string key)
+        {
+            var participants = GetParticipant();
+
             if (participants != null && participants.Any())
             {
-                return participants.SingleOrDefault(c => c.ParticipantID == participantID);
+                return participants.SingleOrDefault(c => string.Equals(c.SecretKey,key));
             }
 
             return null;
-        }
-
-        public string GetFraudCustomerDecryption(int? participantID)
-        {
-            if (participantID != null)
-            {
-                var participant = GetParticipant(participantID);
-
-                if (participant != null)
-                {
-                    var dummy = new GetFraudCustomerModel
-                    {
-                        AccountID = "AccountID_Vaule_Test",
-                        FullName = "FullName_Vaule_Test",
-                        Phone = "Phone_Vaule_Test",
-                        CountryCode = "CountryCode_Vaule_Test",
-                        Email = "Email_Vaule_Test",
-                        DocumentID = "DocumentID_Vaule_Test",
-                        DocumentTypeID = 1,
-                        BankName = "BankName_Vaule_Test",
-                        BankAccountID = "BankAccountID_Vaule_Test",
-                        FraudID = 2
-                    };
-
-                    var dummy2 = new List<GetFraudCustomerModel>
-                    {
-                        new GetFraudCustomerModel
-                        {
-                            AccountID = "AccountID_Vaule_Test",
-                            FullName = "FullName_Vaule_Test",
-                            Phone = "Phone_Vaule_Test",
-                            CountryCode = "CountryCode_Vaule_Test",
-                            Email = "Email_Vaule_Test",
-                            DocumentID = "DocumentID_Vaule_Test",
-                            DocumentTypeID = 1,
-                            BankName = "BankName_Vaule_Test",
-                            BankAccountID = "BankAccountID_Vaule_Test",
-                            FraudID = 2
-                        },
-                        dummy
-                    };
-
-                    string json = JsonConvert.SerializeObject(dummy2);
-
-                    return CryptographicHelper.AESEncrypt(json, participant.SecretKey, participant.ParticipantName);
-                }
-            }
-
-            return string.Empty;
         }
 
         public FraudCustDBResult AddFraudCustomers(string decryptedData, int? participantID)
@@ -136,11 +96,31 @@
             return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public string EncryptedFieldsToInsertDB(string decryptedData)
+        public string EncryptedFieldsToGetDB(string jsonData)
         {
-            if (!string.IsNullOrEmpty(decryptedData))
+            if (!string.IsNullOrEmpty(jsonData))
             {
-                var fraudCusts = JsonConvert.DeserializeObject<List<InsertFraudCustomerModel>>(decryptedData);
+                var para = JsonConvert.DeserializeObject<GetFraudCustomerParasModel>(jsonData);
+
+                if (para != null)
+                {
+                    para.Phone = CryptographicHelper.AESDecrypt(para.Phone, EncryptedKey, IVKey);
+                    para.Email = CryptographicHelper.AESDecrypt(para.Email, EncryptedKey, IVKey);
+                    para.DocumentID = CryptographicHelper.AESDecrypt(para.DocumentID, EncryptedKey, IVKey);
+                    para.BankAccountID = CryptographicHelper.AESDecrypt(para.BankAccountID, EncryptedKey, IVKey);
+
+                    return JsonConvert.SerializeObject(para);
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public string EncryptedFieldsToInsertDB(string jsonData)
+        {
+            if (!string.IsNullOrEmpty(jsonData))
+            {
+                var fraudCusts = JsonConvert.DeserializeObject<List<InsertFraudCustomerModel>>(jsonData);
 
                 if (fraudCusts.Any())
                 {

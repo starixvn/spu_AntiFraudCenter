@@ -20,9 +20,9 @@
         }
 
         [HttpPut("ReGenerateSecretKey")]
-        public IActionResult ReGenerateSecretKey([FromBody] GenerateKeyParasModel paras)
+        public IActionResult ReGenerateSecretKey([FromBody] string key)
         {
-            var result = this.participantService.UpdateParticipantSecretKey(paras.ParticipantID, paras.EncryptedSecretKey);
+            var result = this.participantService.UpdateParticipantSecretKey(key);
 
             return StatusCode((int)result.StatusCode, result);
         }

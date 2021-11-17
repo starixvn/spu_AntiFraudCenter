@@ -21,21 +21,15 @@
         [HttpPost("GetFraudCustomer")]
         public IActionResult GetFraudCustomer([FromBody] FraudCustomerParasModel paras)
         {
-            var result = this.fraudCustomerService.GetFraudCustomer(paras.ParticipantID, paras.EncryptedData);
+            var result = this.fraudCustomerService.GetFraudCustomer(paras.Key, paras.EncryptedData);
 
             return StatusCode((int)result.StatusCode, result);
-        }
-
-        [HttpGet("GetFraudCustomerDescryption")]
-        public IActionResult GetFraudCustomerDecryption(int participantID)
-        {
-            return Ok(this.fraudCustomerService.GetFraudCustomerDecryption(participantID));
         }
 
         [HttpPost("AddFraudCustomer")]
         public IActionResult AddFraudCustomer([FromBody] FraudCustomerParasModel paras)
         {
-            var result = this.fraudCustomerService.AddFraudCustomer(paras.ParticipantID, paras.EncryptedData);
+            var result = this.fraudCustomerService.AddFraudCustomer(paras.Key, paras.EncryptedData);
 
             return StatusCode((int)result.StatusCode, result);
         }
@@ -43,7 +37,7 @@
         [HttpPut("UpdateFraudCustomer")]
         public IActionResult UpdateFraudCustomer([FromBody] FraudCustomerParasModel paras)
         {
-            var result = this.fraudCustomerService.UpdateFraudCustomer(paras.ParticipantID, paras.EncryptedData);
+            var result = this.fraudCustomerService.UpdateFraudCustomer(paras.Key, paras.EncryptedData);
 
             return StatusCode((int)result.StatusCode, result);
         }
@@ -51,7 +45,7 @@
         [HttpDelete("DeleteFraudCustomer")]
         public IActionResult DeleteFraudCustomer([FromBody] FraudCustomerParasModel paras)
         {
-            var result = this.fraudCustomerService.DeleteFraudCustomer(paras.ParticipantID, paras.EncryptedData);
+            var result = this.fraudCustomerService.DeleteFraudCustomer(paras.Key, paras.EncryptedData);
 
             return StatusCode((int)result.StatusCode, result);
         }

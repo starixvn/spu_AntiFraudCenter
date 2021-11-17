@@ -2,7 +2,7 @@
 {
     public class FraudCustomerParasModel
     {
-        public int? ParticipantID { get; set; }
+        public string Key { get; set; }
 
         public string EncryptedData { get; set; }
     }

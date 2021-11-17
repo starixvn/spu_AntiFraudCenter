@@ -55,7 +55,10 @@
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AntiFraudCenter v1"));
+            app.UseSwaggerUI(c => {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "AntiFraudCenter v1");
+                c.DefaultModelsExpandDepth(-1);
+            });
 
             app.UseAuthentication();
 

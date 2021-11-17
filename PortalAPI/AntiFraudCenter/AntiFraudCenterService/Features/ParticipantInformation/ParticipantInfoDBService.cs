@@ -42,7 +42,7 @@
                 }
                 catch (Exception ex)
                 {
-                    return new RegenerateKeyResultModel() { StatusCode = HttpStatus.ServerNotImplemented, ErrorMessage = ex.Message };
+                    return new RegenerateKeyResultModel() { StatusCode = HttpStatus.InternalServerError, ErrorMessage = ex.Message };
                 }
             }
 

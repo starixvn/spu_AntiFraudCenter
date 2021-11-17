@@ -9,23 +9,23 @@
 
     public interface IFraudCustomerDBService
     {
-        IEnumerable<GetFraudCustomerModel> GetFraudCustomers(string decryptedData);
+        IEnumerable<GetFraudCustResultModel> GetFraudCustomers(GetFraudCustParasModel encryptedData);
 
         IEnumerable<ParticipantModel> GetParticipant();
 
         ParticipantModel CheckAuthentication(string key);
 
-        FraudCustDBResult AddFraudCustomers(string decryptedData, int? participantID);
+        FraudCustDBResult AddFraudCustomers(IEnumerable<InsertFraudCustParasModel> encryptedData, int? participantID);
 
-        FraudCustDBResult UpdateFraudCustomers(string decryptedData, int? participantID);
+        FraudCustDBResult UpdateFraudCustomers(IEnumerable<InsertFraudCustParasModel> encryptedData, int? participantID);
 
-        FraudCustDBResult DeleteFraudCustomers(string decryptedData, int? participantID);
+        FraudCustDBResult DeleteFraudCustomers(IEnumerable<DeleteFraudCustParasModel> accountIDs, int? participantID);
 
-        string EncryptedFieldsToInsertDB(string jsonData);
+        IEnumerable<InsertFraudCustParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertFraudCustParasModel> data);
 
-        string EncryptedFieldsToGetDB(string jsonData);
+        GetFraudCustParasModel EncryptedFieldsToGetDB(GetFraudCustParasModel data);
 
-        IEnumerable<GetFraudCustomerModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustomerModel> fraudCusts);
+        IEnumerable<GetFraudCustResultModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustResultModel> fraudCusts);
     }
 
     public class FraudCustomerDBService : IFraudCustomerDBService
@@ -37,14 +37,14 @@
             this.fraudCustomerDataAccess = fraudCustomerDataAccess;
         }
 
-        public IEnumerable<GetFraudCustomerModel> GetFraudCustomers(string decryptedData)
+        public IEnumerable<GetFraudCustResultModel> GetFraudCustomers(GetFraudCustParasModel encryptedData)
         {
-            if (!string.IsNullOrEmpty(decryptedData))
+            if (encryptedData != null)
             {
-                return fraudCustomerDataAccess.GetFraudCustomers(decryptedData) ?? new List<GetFraudCustomerModel>();
+                return fraudCustomerDataAccess.GetFraudCustomers(encryptedData) ?? new List<GetFraudCustResultModel>();
             }
 
-            return new List<GetFraudCustomerModel>();
+            return new List<GetFraudCustResultModel>();
         }
 
         public IEnumerable<ParticipantModel> GetParticipant()
@@ -66,93 +66,109 @@
             return null;
         }
 
-        public FraudCustDBResult AddFraudCustomers(string decryptedData, int? participantID)
+        public FraudCustDBResult AddFraudCustomers(IEnumerable<InsertFraudCustParasModel> encryptedData, int? participantID)
         {
-            if (!string.IsNullOrEmpty(decryptedData) && participantID != null)
+            if (encryptedData != null && encryptedData.Any() && participantID != null)
             {
-                return fraudCustomerDataAccess.AddFraudCustomers(participantID, decryptedData);
+                return fraudCustomerDataAccess.AddFraudCustomers(participantID, encryptedData);
             }
 
             return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public FraudCustDBResult UpdateFraudCustomers(string decryptedData, int? participantID)
+        public FraudCustDBResult UpdateFraudCustomers(IEnumerable<InsertFraudCustParasModel> encryptedData, int? participantID)
         {
-            if (!string.IsNullOrEmpty(decryptedData) && participantID != null)
+            if (encryptedData != null && participantID != null)
             {
-                return fraudCustomerDataAccess.UpdateFraudCustomers(participantID, decryptedData);
+                return fraudCustomerDataAccess.UpdateFraudCustomers(participantID, encryptedData);
             }
 
             return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public FraudCustDBResult DeleteFraudCustomers(string decryptedData, int? participantID)
+        public FraudCustDBResult DeleteFraudCustomers(IEnumerable<DeleteFraudCustParasModel> accountIDs, int? participantID)
         {
-            if (!string.IsNullOrEmpty(decryptedData) && participantID != null)
+            if (accountIDs != null && accountIDs.Any() && participantID != null)
             {
-                return fraudCustomerDataAccess.DeleteFraudCustomers(participantID, decryptedData);
+                return fraudCustomerDataAccess.DeleteFraudCustomers(participantID, accountIDs);
             }
 
             return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public string EncryptedFieldsToGetDB(string jsonData)
+        public GetFraudCustParasModel EncryptedFieldsToGetDB(GetFraudCustParasModel data)
         {
-            if (!string.IsNullOrEmpty(jsonData))
+            if (data != null)
             {
-                var para = JsonConvert.DeserializeObject<GetFraudCustomerParasModel>(jsonData);
+                data.Phone = CryptographicHelper.AESEncrypt(data.Phone, EncryptedKey, IVKey);
+                data.Email = CryptographicHelper.AESEncrypt(data.Email, EncryptedKey, IVKey);
+                data.DocumentID = CryptographicHelper.AESEncrypt(data.DocumentID, EncryptedKey, IVKey);
+                data.BankAccountID = CryptographicHelper.AESEncrypt(data.BankAccountID, EncryptedKey, IVKey);
 
-                if (para != null)
-                {
-                    para.Phone = CryptographicHelper.AESDecrypt(para.Phone, EncryptedKey, IVKey);
-                    para.Email = CryptographicHelper.AESDecrypt(para.Email, EncryptedKey, IVKey);
-                    para.DocumentID = CryptographicHelper.AESDecrypt(para.DocumentID, EncryptedKey, IVKey);
-                    para.BankAccountID = CryptographicHelper.AESDecrypt(para.BankAccountID, EncryptedKey, IVKey);
-
-                    return JsonConvert.SerializeObject(para);
-                }
+                return data;
             }
 
-            return string.Empty;
+            return new GetFraudCustParasModel();
         }
 
-        public string EncryptedFieldsToInsertDB(string jsonData)
+        public IEnumerable<InsertFraudCustParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertFraudCustParasModel> data)
         {
-            if (!string.IsNullOrEmpty(jsonData))
+            if (data != null && data.Any())
             {
-                var fraudCusts = JsonConvert.DeserializeObject<List<InsertFraudCustomerModel>>(jsonData);
 
-                if (fraudCusts.Any())
-                {
-                    fraudCusts.ForEach(c =>
+                data.ToList().ForEach(c =>
                     {
-                        c.Phone = CryptographicHelper.AESDecrypt(c.Phone, EncryptedKey, IVKey);
-                        c.Email = CryptographicHelper.AESDecrypt(c.Email, EncryptedKey, IVKey);
-                        c.DocumentID = CryptographicHelper.AESDecrypt(c.DocumentID, EncryptedKey, IVKey);
-                        c.BankAccountID = CryptographicHelper.AESDecrypt(c.BankAccountID, EncryptedKey, IVKey);
+                        c.Phone = CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey);
+                        c.Email = CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey);
+                        c.DocumentID = CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey);
+                        c.BankAccountID = CryptographicHelper.AESEncrypt(c.BankAccountID, EncryptedKey, IVKey);
                     });
 
-                    return JsonConvert.SerializeObject(fraudCusts);
+                return data;
                 }
-            }
 
-            return string.Empty;
+
+            return new List<InsertFraudCustParasModel>();
         }
 
-        public IEnumerable<GetFraudCustomerModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustomerModel> fraudCusts)
+        public IEnumerable<GetFraudCustResultModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustResultModel> fraudCusts)
         {
             if (fraudCusts != null && fraudCusts.Any())
             {
                 fraudCusts.ToList().ForEach(c =>
                 {
-                    c.Phone = CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey);
-                    c.Email = CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey);
-                    c.DocumentID = CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey);
-                    c.BankAccountID = CryptographicHelper.AESEncrypt(c.BankAccountID, EncryptedKey, IVKey);
+                    c.Phone = CryptographicHelper.AESDecrypt(c.Phone, EncryptedKey, IVKey);
+                    c.Email = CryptographicHelper.AESDecrypt(c.Email, EncryptedKey, IVKey);
+                    c.DocumentID = CryptographicHelper.AESDecrypt(c.DocumentID, EncryptedKey, IVKey);
+                    c.BankAccountID = CryptographicHelper.AESDecrypt(c.BankAccountID, EncryptedKey, IVKey);
                 });
             }
 
             return fraudCusts;
+        }
+
+        public FraudCustDBResult VerifyInputData(string jsonData)
+        {
+            if (!string.IsNullOrEmpty(jsonData))
+            {
+                var fraudCusts = JsonConvert.DeserializeObject<List<InsertFraudCustParasModel>>(jsonData);
+
+                if (fraudCusts.Any())
+                {
+                    foreach(var fraudCust in fraudCusts)
+                    {
+                        if (fraudCust.Phone.Length> MaxLenght
+                            || fraudCust.Email.Length > MaxLenght
+                            || fraudCust.DocumentID.Length > MaxLenght
+                            || fraudCust.BankAccountID.Length > MaxLenght)
+                        {
+                            return new FraudCustDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = string.Empty };
+                        }
+                    }
+                }
+            }
+
+            return new FraudCustDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
     }
 }

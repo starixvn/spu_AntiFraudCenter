@@ -11,6 +11,9 @@
         [SpParam(SqlParamName = "ip_SecretKey")]
         public string SecretKey { get; set; }
 
+        [SpParam(SqlParamName = "ip_IPs")]
+        public string IPs { get; set; }
+
         [SpParam(SqlParamName = "op_ErrorMessage")]
         public string ErrorMessage { get; set; }
 

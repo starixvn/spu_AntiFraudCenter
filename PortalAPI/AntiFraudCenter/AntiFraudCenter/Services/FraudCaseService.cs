@@ -7,18 +7,19 @@
     using Newtonsoft.Json;
     using Sentry;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IFraudCustomerService
     {
-        GetFraudCustModelResult GetFraudCustomer(string key, string jsonData);
+        GetFraudCustResultViewModel GetFraudCustomer(string key, GetFraudCustParasModel data);
 
-        FraudCustDBResult AddFraudCustomer(string key, string jsonData);
+        FraudCustDBResult AddFraudCustomer(string key, IEnumerable<InsertFraudCustParasModel> data);
 
-        FraudCustDBResult UpdateFraudCustomer(string key, string jsonData);
+        FraudCustDBResult UpdateFraudCustomer(string key, IEnumerable<InsertFraudCustParasModel> data);
 
-        FraudCustDBResult DeleteFraudCustomer(string key, string jsonData);
+        FraudCustDBResult DeleteFraudCustomer(string key, IEnumerable<DeleteFraudCustParasModel> accountIDs);
     }
 
     public class FraudCustomerService : IFraudCustomerService
@@ -37,36 +38,34 @@
             this.appSettings = appSettings;
         }
 
-        public GetFraudCustModelResult GetFraudCustomer(string key, string jsonData)
+        public GetFraudCustResultViewModel GetFraudCustomer(string key, GetFraudCustParasModel data)
         {
-            var rs = new GetFraudCustModelResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty, Data = string.Empty };
+            var rs = new GetFraudCustResultViewModel() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty, Data = new List<GetFraudCustResultModel>() };
 
             try
             {
-                if (string.IsNullOrEmpty(jsonData) || string.IsNullOrEmpty(key))
+                if (data == null || string.IsNullOrEmpty(key))
                 {
-                    return new GetFraudCustModelResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput, Data = string.Empty };
+                    return new GetFraudCustResultViewModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput, Data = new List<GetFraudCustResultModel>() };
                 }
 
                 var participant = fraudCustomerDBService.CheckAuthentication(key);
 
                 if (participant != null)
                 {
-                    var encryptedFields = fraudCustomerDBService.EncryptedFieldsToGetDB(jsonData);
+                    var encryptedFields = fraudCustomerDBService.EncryptedFieldsToGetDB(data);
 
                     var fraudCusts = fraudCustomerDBService.GetFraudCustomers(encryptedFields);
 
                     if (fraudCusts.Any())
                     {
-                        var decryptedFields = fraudCustomerDBService.DecryptedFieldsFromDB(fraudCusts);
-
-                        rs.Data = JsonConvert.SerializeObject(decryptedFields);
+                        rs.Data = fraudCustomerDBService.DecryptedFieldsFromDB(fraudCusts);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Utilities.LogSentryError("AFC - GetFraudCustomer", ex.Message, (jsonData, key), ex, sentryClient);
+                Utilities.LogSentryError("AFC - GetFraudCustomer", ex.Message, (data, key), ex, sentryClient);
 
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
@@ -75,13 +74,13 @@
             return rs;
         }
 
-        public FraudCustDBResult AddFraudCustomer(string key, string jsonData)
+        public FraudCustDBResult AddFraudCustomer(string key, IEnumerable<InsertFraudCustParasModel> data)
         {
             var rs = new FraudCustDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
 
             try
             {
-                if (string.IsNullOrEmpty(jsonData) || string.IsNullOrEmpty(key))
+                if (data == null || !data.Any() || string.IsNullOrEmpty(key))
                 {
                     return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
                 }
@@ -90,14 +89,14 @@
 
                 if (participant != null)
                 {
-                    var encryptedFields = fraudCustomerDBService.EncryptedFieldsToInsertDB(jsonData);
+                    var encryptedData = fraudCustomerDBService.EncryptedFieldsToInsertDB(data);
 
-                    rs = fraudCustomerDBService.AddFraudCustomers(encryptedFields, participant.ParticipantID);
+                    rs = fraudCustomerDBService.AddFraudCustomers(encryptedData, participant.ParticipantID);
                 }
             }
             catch (Exception ex)
             {
-                Utilities.LogSentryError("AFC - AddFraudCustomer", ex.Message, (jsonData, key), ex, sentryClient);
+                Utilities.LogSentryError("AFC - AddFraudCustomer", ex.Message, (data, key), ex, sentryClient);
 
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
@@ -106,13 +105,13 @@
             return rs;
         }
 
-        public FraudCustDBResult UpdateFraudCustomer(string key, string jsonData)
+        public FraudCustDBResult UpdateFraudCustomer(string key, IEnumerable<InsertFraudCustParasModel> data)
         {
             var rs = new FraudCustDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
 
             try
             {
-                if (string.IsNullOrEmpty(jsonData) || string.IsNullOrEmpty(key))
+                if (data == null || !data.Any() || string.IsNullOrEmpty(key))
                 {
                     return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
                 }
@@ -121,14 +120,14 @@
 
                 if (participant != null)
                 {
-                    var encryptedFields = fraudCustomerDBService.EncryptedFieldsToInsertDB(jsonData);
+                    var encryptedData = fraudCustomerDBService.EncryptedFieldsToInsertDB(data);
 
-                    rs = fraudCustomerDBService.UpdateFraudCustomers(encryptedFields, participant.ParticipantID);
+                    rs = fraudCustomerDBService.UpdateFraudCustomers(encryptedData, participant.ParticipantID);
                 }
             }
             catch (Exception ex)
             {
-                Utilities.LogSentryError("AFC - UpdateFraudCustomer", ex.Message, (jsonData, key), ex, sentryClient);
+                Utilities.LogSentryError("AFC - UpdateFraudCustomer", ex.Message, (data, key), ex, sentryClient);
 
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
@@ -137,13 +136,13 @@
             return rs;
         }
 
-        public FraudCustDBResult DeleteFraudCustomer(string key, string jsonData)
+        public FraudCustDBResult DeleteFraudCustomer(string key, IEnumerable<DeleteFraudCustParasModel> accountIDs)
         {
             var rs = new FraudCustDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
 
             try
             {
-                if (string.IsNullOrEmpty(jsonData) || string.IsNullOrEmpty(key))
+                if (accountIDs == null || !accountIDs.Any() || string.IsNullOrEmpty(key))
                 {
                     return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
                 }
@@ -152,14 +151,12 @@
 
                 if (participant != null)
                 {
-                    var encryptedFields = fraudCustomerDBService.EncryptedFieldsToGetDB(jsonData);
-
-                    rs = fraudCustomerDBService.DeleteFraudCustomers(encryptedFields, participant.ParticipantID);
+                    rs = fraudCustomerDBService.DeleteFraudCustomers(accountIDs, participant.ParticipantID);
                 }
             }
             catch (Exception ex)
             {
-                Utilities.LogSentryError("AFC - DeleteFraudCustomer", ex.Message, (jsonData, key), ex, sentryClient);
+                Utilities.LogSentryError("AFC - DeleteFraudCustomer", ex.Message, (accountIDs, key), ex, sentryClient);
 
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;

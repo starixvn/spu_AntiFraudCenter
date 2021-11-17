@@ -11,10 +11,12 @@
             NotFound = 404,
             OK = 200,
             ServerUnavailable = 503,
-            ServerNotImplemented = 501
+            InternalServerError = 500
         };
 
         public const string InvalidInput = "Invalid data input.";
+
+        public const string DataTooLong = "Invalid data input.";
 
         public const string EncryptedKey = "95595967e187d95b";
 
@@ -23,5 +25,7 @@
         public const string InternalPassword = "Welcome1";
 
         public const int SecretKey_NumberOfByte = 8;
+
+        public const int MaxLenght = 80;
     }
 }

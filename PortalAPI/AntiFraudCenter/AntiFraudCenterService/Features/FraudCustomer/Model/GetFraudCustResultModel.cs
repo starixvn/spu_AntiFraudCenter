@@ -1,10 +1,12 @@
 ﻿namespace AntiFraudCenterService.Features.FraudCustomer
 {
-    public class InsertFraudCustomerModel
+    public class GetFraudCustResultModel
     {
         public string AccountID { get; set; }
 
         public string FullName { get; set; }
+
+        public string ParticipantName { get; set; }
 
         public string Phone { get; set; }
 

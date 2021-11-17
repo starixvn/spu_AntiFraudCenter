@@ -88,7 +88,7 @@
             {
                 Utilities.LogSentryError("AFC - GetConventionInfo", string.Empty, string.Empty, ex, sentryClient);
                 rs.ErrorMessage = ex.Message;
-                rs.StatusCode = HttpStatus.ServerNotImplemented;
+                rs.StatusCode = HttpStatus.InternalServerError;
             }
 
             return rs;
@@ -116,7 +116,7 @@
             {
                 Utilities.LogSentryError("AFC - InitParticipant", string.Empty, participantName, ex, sentryClient);
                 rs.ErrorMessage = ex.Message;
-                rs.StatusCode = HttpStatus.ServerNotImplemented;
+                rs.StatusCode = HttpStatus.InternalServerError;
             }
 
             return rs;

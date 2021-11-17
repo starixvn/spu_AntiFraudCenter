@@ -5,6 +5,7 @@
     using AntiFraudCenterService.Shares.ViewModel;
     using Fanex.Data.Repository;
     using System.Collections.Generic;
+    using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IParticipantInfoDataAccess
@@ -14,6 +15,8 @@
         IEnumerable<FraudCasesMappingModel> GetFraudCases();
 
         IEnumerable<DocumentMappingModel> GetDocumentTypes();
+
+        InitParticipantResultModel InitParticipant(string participantName, string secretKey);
     }
 
     public class ParticipantInfoDataAccess : IParticipantInfoDataAccess
@@ -55,6 +58,24 @@
             var criteria = new DocumentTypesGetCriteria();
 
             return repository.Fetch<DocumentMappingModel>(criteria);
+        }
+
+        public InitParticipantResultModel InitParticipant(string participantName, string secretKey)
+        {
+            var criteria = new ParticipantInitCriteria
+            {
+                ParticipantName = participantName,
+                SecretKey = secretKey
+            };
+
+            var result = repository.Fetch<InitParticipantModel>(criteria);
+
+            return new InitParticipantResultModel
+            {
+                ErrorMessage = criteria.ErrorMessage,
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.ServerNotImplemented,
+                Participant = (result != null && result.Any()) ? result.FirstOrDefault() : new InitParticipantModel()
+            };
         }
     }
 }

@@ -13,5 +13,6 @@
 		<Setting Key="AFC_DC_Participant_Get" SpName="AFC_DC_Participant_Get" DbName="MySQL.AFC_DataCenter.afcExtAPI" />
 		<Setting Key="AFC_DC_DocumentType_Get" SpName="AFC_DC_DocumentType_Get" DbName="MySQL.AFC_DataCenter.afcExtAPI" />
 		<Setting Key="AFC_DC_FraudCase_Get" SpName="AFC_DC_FraudCase_Get" DbName="MySQL.AFC_DataCenter.afcExtAPI" />
+		<Setting Key="AFC_DC_Participant_Insert" SpName="AFC_DC_Participant_Insert" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
 	</Function>
 </Functions>

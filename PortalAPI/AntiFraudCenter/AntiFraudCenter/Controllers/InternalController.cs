@@ -1,0 +1,29 @@
+﻿namespace AntiFraudCenter.Controllers
+{
+    using Microsoft.AspNetCore.Mvc;
+    using Sentry;
+
+    [Route("api/private")]
+    [ApiController]
+    public class InternalController : ControllerBase
+    {
+        private readonly ISentryClient sentryClient;
+        private readonly IParticipantService participantService;
+
+        public InternalController(ISentryClient sentryClient,
+            IParticipantService participantService)
+        {
+            this.sentryClient = sentryClient;
+            this.participantService = participantService;
+        }
+
+        //Not expose API for participants
+        [HttpGet("InitParticipant")]
+        public IActionResult InitParticipant(string password, string participantName)
+        {
+            var result = this.participantService.InitParticipant(participantName, password);
+
+            return StatusCode((int)result.StatusCode, result);
+        }
+    }
+}

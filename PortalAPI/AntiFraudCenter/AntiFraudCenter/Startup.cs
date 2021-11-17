@@ -10,6 +10,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.OpenApi.Models;
     using System.Linq;
+    using AntiFraudCenterService.Shares;
 
     public class Startup
     {
@@ -32,6 +33,7 @@
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AntiFraudCenter", Version = "v1" });
+                c.DocumentFilter<CustomSwaggerFilterHelper>();
             });
 
             services.RegisterService();

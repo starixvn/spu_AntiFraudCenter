@@ -18,6 +18,8 @@
 
         public const string EncryptedKey = "95595967e187d95b";
 
-        public const string IVKey = "participantAPC";
+        public const string IVKey = "@/adhtsknccr&";
+
+        public const string InternalPassword = "Welcome1";
     }
 }

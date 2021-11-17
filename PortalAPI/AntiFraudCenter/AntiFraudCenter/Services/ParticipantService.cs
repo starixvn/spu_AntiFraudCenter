@@ -14,6 +14,8 @@
         RegenerateKeyResultModel UpdateParticipantSecretKey(string key);
 
         ConventionViewModel GetConventionInfo();
+
+        InitParticipantResultModel InitParticipant(string participantName, string password);
     }
 
     public class ParticipantService : IParticipantService
@@ -26,8 +28,8 @@
         public ParticipantService(
             ISentryClient sentryClient,
             IParticipantInfoDBService participantInfoDBService,
-                IFraudCustomerDBService fraudCustomerDBService,
-        IAppSettings appSettings)
+            IFraudCustomerDBService fraudCustomerDBService,
+            IAppSettings appSettings)
         {
             this.sentryClient = sentryClient;
             this.participantInfoDBService = participantInfoDBService;
@@ -67,11 +69,13 @@
 
         public ConventionViewModel GetConventionInfo()
         {
-            var rs = new ConventionViewModel { 
-                DocumentMapping = new List<DocumentMappingModel>(), 
+            var rs = new ConventionViewModel
+            {
+                DocumentMapping = new List<DocumentMappingModel>(),
                 FraudCasesMapping = new List<FraudCasesMappingModel>(),
                 CountryMapping = new List<CountryMappingModel>(),
-                StatusCode = HttpStatus.OK, ErrorMessage = string.Empty
+                StatusCode = HttpStatus.OK,
+                ErrorMessage = string.Empty
             };
 
             try
@@ -83,6 +87,34 @@
             catch (Exception ex)
             {
                 Utilities.LogSentryError("AFC - GetConventionInfo", string.Empty, string.Empty, ex, sentryClient);
+                rs.ErrorMessage = ex.Message;
+                rs.StatusCode = HttpStatus.ServerNotImplemented;
+            }
+
+            return rs;
+        }
+
+        public InitParticipantResultModel InitParticipant(string participantName, string password)
+        {
+            var rs = new InitParticipantResultModel { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+
+            try
+            {
+                if (!string.IsNullOrEmpty(participantName) && !string.IsNullOrEmpty(password))
+                {
+                    bool isValid = participantInfoDBService.IsPassWordValid(password);
+
+                    if(isValid)
+                    {
+                        var generateKey = CryptographicHelper.GetRandomHexNumber();
+
+                        rs = participantInfoDBService.InitParticipant(participantName, generateKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.LogSentryError("AFC - InitParticipant", string.Empty, participantName, ex, sentryClient);
                 rs.ErrorMessage = ex.Message;
                 rs.StatusCode = HttpStatus.ServerNotImplemented;
             }

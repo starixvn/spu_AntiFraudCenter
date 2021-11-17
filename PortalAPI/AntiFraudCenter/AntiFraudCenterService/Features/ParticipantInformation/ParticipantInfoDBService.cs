@@ -1,6 +1,7 @@
 ﻿namespace AntiFraudCenterService.Features.FraudCustomer
 {
     using AntiFraudCenterService.Features.ParticipantInformation.Model;
+    using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.ViewModel;
     using System;
     using System.Collections.Generic;
@@ -16,6 +17,10 @@
         IEnumerable<DocumentMappingModel> GetDocumentTypes();
 
         IEnumerable<CountryMappingModel> GetCountryCodes();
+
+        InitParticipantResultModel InitParticipant(string participantName, string secretKey);
+
+        bool IsPassWordValid(string password);
     }
 
     public class ParticipantInfoDBService : IParticipantInfoDBService
@@ -72,6 +77,27 @@
             }
 
             return countryCodes;
+        }
+
+
+        public InitParticipantResultModel InitParticipant(string participantName, string secretKey)
+        {
+            if (!string.IsNullOrEmpty(participantName) && !string.IsNullOrEmpty(secretKey))
+            {
+                return participantInfoDataAccess.InitParticipant(participantName, secretKey);
+            }
+
+            return new InitParticipantResultModel { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+        }
+
+        public bool IsPassWordValid(string password)
+        {
+            if (!string.IsNullOrEmpty(password) && string.Equals(password, Constants.InternalPassword))
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

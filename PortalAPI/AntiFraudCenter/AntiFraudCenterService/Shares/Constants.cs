@@ -15,5 +15,9 @@
         };
 
         public const string InvalidInput = "Invalid data input.";
+
+        public const string EncryptedKey = "95595967e187d95b";
+
+        public const string IVKey = "participantAPC";
     }
 }

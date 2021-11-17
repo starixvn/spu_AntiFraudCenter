@@ -60,7 +60,9 @@
 
                     if (fraudCusts.Any())
                     {
-                        rs.EncryptedData = CryptographicHelper.AESEncrypt(JsonConvert.SerializeObject(fraudCusts), participant.SecretKey, participant.ParticipantName);
+                        var decryptedFieldsFromDB = fraudCustomerDBService.DecryptedFieldsFromDB(fraudCusts);
+
+                        rs.EncryptedData = CryptographicHelper.AESEncrypt(JsonConvert.SerializeObject(decryptedFieldsFromDB), participant.SecretKey, participant.ParticipantName);
                     }
                 }
             }
@@ -106,7 +108,9 @@
                 {
                     var decryptedData = CryptographicHelper.AESDecrypt(encryptedData, participant.SecretKey, participant.ParticipantName);
 
-                    rs = fraudCustomerDBService.AddFraudCustomers(decryptedData, participantID);
+                    var decryptedDateForDBInsert = fraudCustomerDBService.EncryptedFieldsToInsertDB(decryptedData);
+
+                    rs = fraudCustomerDBService.AddFraudCustomers(decryptedDateForDBInsert, participantID);
                 }
             }
             catch (Exception ex)
@@ -137,7 +141,9 @@
                 {
                     var decryptedData = CryptographicHelper.AESDecrypt(encryptedData, participant.SecretKey, participant.ParticipantName);
 
-                    rs = fraudCustomerDBService.UpdateFraudCustomers(decryptedData, participantID);
+                    var decryptedDateForDBUpdate = fraudCustomerDBService.EncryptedFieldsToInsertDB(decryptedData);
+
+                    rs = fraudCustomerDBService.UpdateFraudCustomers(decryptedDateForDBUpdate, participantID);
                 }
             }
             catch (Exception ex)

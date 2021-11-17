@@ -9,7 +9,7 @@
 
     public interface IFraudCustomerDBService
     {
-        IEnumerable<GetFraudCustomerModel> GetFraudCustomers(string encryptedData);
+        IEnumerable<GetFraudCustomerModel> GetFraudCustomers(string decryptedData);
 
         ParticipantModel GetParticipant(int? participantID);
 
@@ -20,6 +20,10 @@
         FraudCustDBResult UpdateFraudCustomers(string decryptedData, int? participantID);
 
         FraudCustDBResult DeleteFraudCustomers(string decryptedData, int? participantID);
+
+        string EncryptedFieldsToInsertDB(string decryptedData);
+
+        IEnumerable<GetFraudCustomerModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustomerModel> fraudCusts);
     }
 
     public class FraudCustomerDBService : IFraudCustomerDBService
@@ -130,6 +134,45 @@
             }
 
             return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+        }
+
+        public string EncryptedFieldsToInsertDB(string decryptedData)
+        {
+            if (!string.IsNullOrEmpty(decryptedData))
+            {
+                var fraudCusts = JsonConvert.DeserializeObject<List<InsertFraudCustomerModel>>(decryptedData);
+
+                if (fraudCusts.Any())
+                {
+                    fraudCusts.ForEach(c =>
+                    {
+                        c.Phone = CryptographicHelper.AESDecrypt(c.Phone, EncryptedKey, IVKey);
+                        c.Email = CryptographicHelper.AESDecrypt(c.Email, EncryptedKey, IVKey);
+                        c.DocumentID = CryptographicHelper.AESDecrypt(c.DocumentID, EncryptedKey, IVKey);
+                        c.BankAccountID = CryptographicHelper.AESDecrypt(c.BankAccountID, EncryptedKey, IVKey);
+                    });
+
+                    return JsonConvert.SerializeObject(fraudCusts);
+                }
+            }
+
+            return string.Empty;
+        }
+
+        public IEnumerable<GetFraudCustomerModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustomerModel> fraudCusts)
+        {
+            if (fraudCusts != null && fraudCusts.Any())
+            {
+                fraudCusts.ToList().ForEach(c =>
+                {
+                    c.Phone = CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey);
+                    c.Email = CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey);
+                    c.DocumentID = CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey);
+                    c.BankAccountID = CryptographicHelper.AESEncrypt(c.BankAccountID, EncryptedKey, IVKey);
+                });
+            }
+
+            return fraudCusts;
         }
     }
 }

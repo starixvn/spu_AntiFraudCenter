@@ -14,7 +14,7 @@
             try
             {
                 var host = CreateWebHostBuilder(args).Build();
-                
+
                 SentrySdk.CaptureMessage(string.Format("{0} has been started at {1}", typeof(Program).FullName, DateTime.Now));
 
                 host.Run();
@@ -38,6 +38,5 @@
                 })
                 .UseSentry()
                 .UseStartup<Startup>();
-              
     }
 }

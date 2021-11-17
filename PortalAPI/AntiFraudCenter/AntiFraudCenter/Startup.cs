@@ -1,5 +1,6 @@
 ﻿namespace AntiFraudCenter
 {
+    using AntiFraudCenterService.Shares;
     using Fanex.Data;
     using Fanex.Data.MySql;
     using Fanex.Data.SqlServer;
@@ -10,7 +11,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.OpenApi.Models;
     using System.Linq;
-    using AntiFraudCenterService.Shares;
 
     public class Startup
     {
@@ -41,14 +41,12 @@
             FanexDataConfig(appSettings);
         }
 
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-             
             }
             else
             {

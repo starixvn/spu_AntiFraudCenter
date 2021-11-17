@@ -104,7 +104,7 @@
                 {
                     bool isValid = participantInfoDBService.IsPassWordValid(password);
 
-                    if(isValid)
+                    if (isValid)
                     {
                         var generateKey = CryptographicHelper.GetRandomHexNumber(SecretKey_NumberOfByte);
 

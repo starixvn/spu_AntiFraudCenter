@@ -60,7 +60,7 @@
 
             if (participants != null && participants.Any())
             {
-                return participants.SingleOrDefault(c => string.Equals(c.SecretKey,key));
+                return participants.SingleOrDefault(c => string.Equals(c.SecretKey, key));
             }
 
             return null;

@@ -1,10 +1,8 @@
 ﻿namespace AntiFraudCenter.Controllers
 {
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
     using Microsoft.AspNetCore.Mvc;
     using Sentry;
 
-  
     [Route("api/participant")]
     [ApiController]
     public class ParticipantController : ControllerBase

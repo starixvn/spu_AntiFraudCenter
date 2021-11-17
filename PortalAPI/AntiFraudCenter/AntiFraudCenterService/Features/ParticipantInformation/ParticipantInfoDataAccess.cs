@@ -38,9 +38,9 @@
 
             repository.Execute(criteria);
 
-            return new RegenerateKeyResultModel 
-            { 
-                StatusCode = HttpStatus.OK, 
+            return new RegenerateKeyResultModel
+            {
+                StatusCode = HttpStatus.OK,
                 ErrorMessage = string.Empty,
                 Data = secretKey
             };

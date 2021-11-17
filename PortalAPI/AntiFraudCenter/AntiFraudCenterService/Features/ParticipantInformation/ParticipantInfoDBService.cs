@@ -79,7 +79,6 @@
             return countryCodes;
         }
 
-
         public InitParticipantResultModel InitParticipant(string participantName, string secretKey)
         {
             if (!string.IsNullOrEmpty(participantName) && !string.IsNullOrEmpty(secretKey))

@@ -1,7 +1,5 @@
 ﻿namespace AntiFraudCenterService.Shares.Model
 {
-    using Newtonsoft.Json;
-    using System.Collections;
     using static AntiFraudCenterService.Shares.Constants;
 
     public class FraudCustDBResult

@@ -1,13 +1,11 @@
 ﻿namespace AntiFraudCenterService.Shares
 {
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
     using Fanex.Logging.Extensions;
     using Fanex.Logging.Extensions.Database;
     using Newtonsoft.Json;
     using Sentry;
     using System;
     using System.Collections.Generic;
-    using System.Globalization;
     using System.Linq;
 
     public static class Utilities

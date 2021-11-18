@@ -18,7 +18,7 @@
         }
 
         //Not expose API for participants
-        [HttpGet("InitParticipant")]
+        [HttpPost("InitParticipant")]
         public IActionResult InitParticipant([FromForm] string password, [FromForm] string participantName)
         {
             var result = this.participantService.InitParticipant(participantName, password);

@@ -10,66 +10,76 @@
     {
         public static string AESEncrypt(string plainText, string serectKey, string participantName)
         {
-            byte[] keyBytes = Encoding.UTF8.GetBytes(serectKey);
-            byte[] saltBytes = Encoding.UTF8.GetBytes(string.Concat(participantName, serectKey));
-
-            string encrypted;
-
-            using (Aes aes = Aes.Create())
+            if (!string.IsNullOrEmpty(plainText))
             {
-                aes.KeySize = Constants.Aes128;
-                aes.BlockSize = Constants.Aes128;
-                aes.Key = keyBytes;
-                aes.IV = saltBytes.Take(aes.BlockSize / 8).ToArray();
+                byte[] keyBytes = Encoding.UTF8.GetBytes(serectKey);
+                byte[] saltBytes = Encoding.UTF8.GetBytes(string.Concat(participantName, serectKey));
 
-                using (MemoryStream ms = new MemoryStream())
+                string encrypted;
+
+                using (Aes aes = Aes.Create())
                 {
-                    using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
-                    {
-                        using (StreamWriter swEncrypt = new StreamWriter(cs))
-                        {
-                            swEncrypt.Write(plainText);
-                        }
-                    }
+                    aes.KeySize = Constants.Aes128;
+                    aes.BlockSize = Constants.Aes128;
+                    aes.Key = keyBytes;
+                    aes.IV = saltBytes.Take(aes.BlockSize / 8).ToArray();
 
-                    encrypted = Convert.ToBase64String(ms.ToArray());
+                    using (MemoryStream ms = new MemoryStream())
+                    {
+                        using (CryptoStream cs = new CryptoStream(ms, aes.CreateEncryptor(), CryptoStreamMode.Write))
+                        {
+                            using (StreamWriter swEncrypt = new StreamWriter(cs))
+                            {
+                                swEncrypt.Write(plainText);
+                            }
+                        }
+
+                        encrypted = Convert.ToBase64String(ms.ToArray());
+                    }
                 }
+
+                return encrypted;
             }
 
-            return encrypted;
+            return string.Empty;
         }
 
         public static string AESDecrypt(string cipherString, string serectKey, string participantName)
         {
-            byte[] keyBytes = Encoding.UTF8.GetBytes(serectKey);
-            byte[] saltBytes = Encoding.UTF8.GetBytes(string.Concat(participantName, serectKey));
-
-            var cipherBytes = Convert.FromBase64String(cipherString);
-
-            string plaintext = string.Empty;
-
-            using (Aes aes = Aes.Create())
+            if (!string.IsNullOrEmpty(cipherString))
             {
-                aes.KeySize = Constants.Aes128;
-                aes.BlockSize = Constants.Aes128;
-                aes.Key = keyBytes;
-                aes.IV = saltBytes.Take(aes.BlockSize / 8).ToArray();
+                byte[] keyBytes = Encoding.UTF8.GetBytes(serectKey);
+                byte[] saltBytes = Encoding.UTF8.GetBytes(string.Concat(participantName, serectKey));
 
-                ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+                var cipherBytes = Convert.FromBase64String(cipherString);
 
-                using (MemoryStream ms = new MemoryStream(cipherBytes))
+                string plaintext = string.Empty;
+
+                using (Aes aes = Aes.Create())
                 {
-                    using (CryptoStream csDecrypt = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                    aes.KeySize = Constants.Aes128;
+                    aes.BlockSize = Constants.Aes128;
+                    aes.Key = keyBytes;
+                    aes.IV = saltBytes.Take(aes.BlockSize / 8).ToArray();
+
+                    ICryptoTransform decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
+
+                    using (MemoryStream ms = new MemoryStream(cipherBytes))
                     {
-                        using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                        using (CryptoStream csDecrypt = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
                         {
-                            plaintext = srDecrypt.ReadToEnd();
+                            using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                            {
+                                plaintext = srDecrypt.ReadToEnd();
+                            }
                         }
                     }
                 }
+
+                return plaintext;
             }
 
-            return plaintext;
+            return string.Empty;
         }
 
         public static string GetRandomHexNumber(int numberOfByte)

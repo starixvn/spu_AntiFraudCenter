@@ -18,7 +18,7 @@
         [MaxLength(Constants.MaxLenght)]
         public string DocumentID { get; set; }
 
-        public int DocumentTypeID { get; set; }
+        public int? DocumentTypeID { get; set; }
 
         public string BankName { get; set; }
 

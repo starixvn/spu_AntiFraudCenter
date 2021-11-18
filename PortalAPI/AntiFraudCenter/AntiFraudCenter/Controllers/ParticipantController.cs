@@ -17,7 +17,8 @@
             this.participantService = participantService;
         }
 
-        [HttpPut("ReGenerateKey")]
+        [HttpPost]
+        [Route("ReGenerateKey")]
         public IActionResult ReGenerateKey([FromBody] string key)
         {
             var result = this.participantService.UpdateParticipantSecretKey(key);

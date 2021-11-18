@@ -80,7 +80,7 @@
 
             csprng.GetNonZeroBytes(bytes);
 
-            return string.Join("", bytes.Select(b => b.ToString("x2")));
+            return string.Join("", bytes.Select(b => b.ToString("x2").ToUpper()));
         }
     }
 }

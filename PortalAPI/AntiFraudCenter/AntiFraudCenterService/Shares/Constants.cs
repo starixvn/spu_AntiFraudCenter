@@ -24,7 +24,7 @@
 
         public const string InternalPassword = "Welcome1";
 
-        public const int SecretKey_NumberOfByte = 8;
+        public const int SecretKey_NumberOfByte = 16;
 
         public const int MaxLenght = 80;
     }

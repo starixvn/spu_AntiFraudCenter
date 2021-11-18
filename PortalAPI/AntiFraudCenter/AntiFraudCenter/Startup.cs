@@ -33,7 +33,7 @@
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "AntiFraudCenter", Version = "v1" });
-                c.DocumentFilter<CustomSwaggerFilterHelper>();
+                //c.DocumentFilter<CustomSwaggerFilterHelper>();
             });
 
             services.RegisterService();

@@ -2,10 +2,10 @@
 {
     using System.Collections.Generic;
 
-    public class InsertFraudCustParasViewModel
+    public class InsertAccountParasViewModel
     {
         public string Key { get; set; }
 
-        public IEnumerable<InsertFraudCustParasModel> Data { get; set; }
+        public IEnumerable<InsertAccountParasModel> Data { get; set; }
     }
 }

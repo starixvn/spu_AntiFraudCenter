@@ -2,7 +2,7 @@
 {
     using static AntiFraudCenterService.Shares.Constants;
 
-    public class FraudCustDBResult
+    public class AccountDBResult
     {
         public HttpStatus StatusCode { get; set; }
 

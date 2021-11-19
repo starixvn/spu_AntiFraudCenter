@@ -1,6 +1,6 @@
 ﻿namespace AntiFraudCenterService.Features.FraudCustomer
 {
-    public class DeleteFraudCustParasModel
+    public class DeleteAccountParasModel
     {
         public string AccountID { get; set; }
     }

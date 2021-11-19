@@ -7,49 +7,49 @@
     using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
 
-    public interface IFraudCustomerDBService
+    public interface IAccountDBService
     {
-        IEnumerable<GetFraudCustResultModel> GetFraudCustomers(GetFraudCustParasModel encryptedData);
+        IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData);
 
         IEnumerable<ParticipantModel> GetParticipant();
 
         ParticipantModel CheckAuthentication(string key);
 
-        FraudCustDBResult AddFraudCustomers(IEnumerable<InsertFraudCustParasModel> encryptedData, int? participantID);
+        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID);
 
-        FraudCustDBResult UpdateFraudCustomers(IEnumerable<InsertFraudCustParasModel> encryptedData, int? participantID);
+        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID);
 
-        FraudCustDBResult DeleteFraudCustomers(IEnumerable<DeleteFraudCustParasModel> accountIDs, int? participantID);
+        AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID);
 
-        IEnumerable<InsertFraudCustParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertFraudCustParasModel> data);
+        IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data);
 
-        GetFraudCustParasModel EncryptedFieldsToGetDB(GetFraudCustParasModel data);
+        GetAccountParasModel EncryptedFieldsToGetDB(GetAccountParasModel data);
 
-        IEnumerable<GetFraudCustResultModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustResultModel> fraudCusts);
+        IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts);
     }
 
-    public class FraudCustomerDBService : IFraudCustomerDBService
+    public class AccountDBService : IAccountDBService
     {
-        private readonly IFraudCustomerDataAccess fraudCustomerDataAccess;
+        private readonly IAccountDataAccess accountDataAccess;
 
-        public FraudCustomerDBService(IFraudCustomerDataAccess fraudCustomerDataAccess)
+        public AccountDBService(IAccountDataAccess accountDataAccess)
         {
-            this.fraudCustomerDataAccess = fraudCustomerDataAccess;
+            this.accountDataAccess = accountDataAccess;
         }
 
-        public IEnumerable<GetFraudCustResultModel> GetFraudCustomers(GetFraudCustParasModel encryptedData)
+        public IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData)
         {
             if (encryptedData != null)
             {
-                return fraudCustomerDataAccess.GetFraudCustomers(encryptedData) ?? new List<GetFraudCustResultModel>();
+                return accountDataAccess.GetAccounts(encryptedData) ?? new List<GetAccountResultModel>();
             }
 
-            return new List<GetFraudCustResultModel>();
+            return new List<GetAccountResultModel>();
         }
 
         public IEnumerable<ParticipantModel> GetParticipant()
         {
-            var participants = fraudCustomerDataAccess.GetParticipant();
+            var participants = accountDataAccess.GetParticipant();
 
             return participants ?? new List<ParticipantModel>();
         }
@@ -66,37 +66,37 @@
             return null;
         }
 
-        public FraudCustDBResult AddFraudCustomers(IEnumerable<InsertFraudCustParasModel> encryptedData, int? participantID)
+        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID)
         {
             if (encryptedData != null && encryptedData.Any() && participantID != null)
             {
-                return fraudCustomerDataAccess.AddFraudCustomers(participantID, encryptedData);
+                return accountDataAccess.AddAccounts(participantID, encryptedData);
             }
 
-            return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+            return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public FraudCustDBResult UpdateFraudCustomers(IEnumerable<InsertFraudCustParasModel> encryptedData, int? participantID)
+        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID)
         {
             if (encryptedData != null && participantID != null)
             {
-                return fraudCustomerDataAccess.UpdateFraudCustomers(participantID, encryptedData);
+                return accountDataAccess.UpdateAccounts(participantID, encryptedData);
             }
 
-            return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+            return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public FraudCustDBResult DeleteFraudCustomers(IEnumerable<DeleteFraudCustParasModel> accountIDs, int? participantID)
+        public AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID)
         {
             if (accountIDs != null && accountIDs.Any() && participantID != null)
             {
-                return fraudCustomerDataAccess.DeleteFraudCustomers(participantID, accountIDs);
+                return accountDataAccess.DeleteAccounts(participantID, accountIDs);
             }
 
-            return new FraudCustDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+            return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public GetFraudCustParasModel EncryptedFieldsToGetDB(GetFraudCustParasModel data)
+        public GetAccountParasModel EncryptedFieldsToGetDB(GetAccountParasModel data)
         {
             if (data != null)
             {
@@ -108,10 +108,10 @@
                 return data;
             }
 
-            return new GetFraudCustParasModel();
+            return new GetAccountParasModel();
         }
 
-        public IEnumerable<InsertFraudCustParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertFraudCustParasModel> data)
+        public IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data)
         {
             if (data != null && data.Any())
             {
@@ -128,10 +128,10 @@
                 }
 
 
-            return new List<InsertFraudCustParasModel>();
+            return new List<InsertAccountParasModel>();
         }
 
-        public IEnumerable<GetFraudCustResultModel> DecryptedFieldsFromDB(IEnumerable<GetFraudCustResultModel> fraudCusts)
+        public IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts)
         {
             if (fraudCusts != null && fraudCusts.Any())
             {
@@ -147,11 +147,11 @@
             return fraudCusts;
         }
 
-        public FraudCustDBResult VerifyInputData(string jsonData)
+        public AccountDBResult VerifyInputData(string jsonData)
         {
             if (!string.IsNullOrEmpty(jsonData))
             {
-                var fraudCusts = JsonConvert.DeserializeObject<List<InsertFraudCustParasModel>>(jsonData);
+                var fraudCusts = JsonConvert.DeserializeObject<List<InsertAccountParasModel>>(jsonData);
 
                 if (fraudCusts.Any())
                 {
@@ -162,13 +162,13 @@
                             || fraudCust.DocumentID.Length > MaxLenght
                             || fraudCust.BankAccountID.Length > MaxLenght)
                         {
-                            return new FraudCustDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = string.Empty };
+                            return new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = string.Empty };
                         }
                     }
                 }
             }
 
-            return new FraudCustDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
     }
 }

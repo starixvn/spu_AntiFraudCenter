@@ -1,13 +1,11 @@
-﻿using AntiFraudCenterService.Shares;
-using System.ComponentModel.DataAnnotations;
-
-namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.FraudCustomer
 {
-    public class InsertFraudCustParasModel
+    using AntiFraudCenterService.Shares;
+    using System.ComponentModel.DataAnnotations;
+
+    public class GetAccountParasModel
     {
         public string AccountID { get; set; }
-
-        public string FullName { get; set; }
 
         [MaxLength(Constants.MaxLenght)]
         public string Phone { get; set; }
@@ -20,13 +18,11 @@ namespace AntiFraudCenterService.Features.FraudCustomer
         [MaxLength(Constants.MaxLenght)]
         public string DocumentID { get; set; }
 
-        public int DocumentTypeID { get; set; }
+        public int? DocumentTypeID { get; set; }
 
         public string BankName { get; set; }
 
         [MaxLength(Constants.MaxLenght)]
         public string BankAccountID { get; set; }
-
-        public int FraudID { get; set; }
     }
 }

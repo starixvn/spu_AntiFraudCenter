@@ -3,7 +3,7 @@
     using Fanex.Data;
     using Fanex.Data.Repository;
 
-    public class FraudCustomerUpdateCriteria : NonQueryCommand
+    public class AccountInsertCriteria : NonQueryCommand
     {
         [SpParam(SqlParamName = "ip_AccountInfo")]
         public string JsonAccountInfo { get; set; }
@@ -16,7 +16,7 @@
 
         public override string GetSettingKey()
         {
-            return "AFC_DC_Account_Update";
+            return "AFC_DC_Account_Insert";
         }
 
         public override bool IsValid()

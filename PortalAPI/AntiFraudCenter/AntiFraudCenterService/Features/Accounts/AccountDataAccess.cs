@@ -7,36 +7,36 @@
     using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
-    public interface IFraudCustomerDataAccess
+    public interface IAccountDataAccess
     {
-        IEnumerable<GetFraudCustResultModel> GetFraudCustomers(GetFraudCustParasModel encryptedData);
+        IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData);
 
         IEnumerable<ParticipantModel> GetParticipant();
 
-        FraudCustDBResult AddFraudCustomers(int? participantID, IEnumerable<InsertFraudCustParasModel> encryptedData);
+        AccountDBResult AddAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData);
 
-        FraudCustDBResult UpdateFraudCustomers(int? participantID, IEnumerable<InsertFraudCustParasModel> encryptedData);
+        AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData);
 
-        FraudCustDBResult DeleteFraudCustomers(int? participantID, IEnumerable<DeleteFraudCustParasModel> accountIDs);
+        AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs);
     }
 
-    public class FraudCustomerDataAccess : IFraudCustomerDataAccess
+    public class AccountDataAccess : IAccountDataAccess
     {
         private readonly IDynamicRepository repository;
 
-        public FraudCustomerDataAccess()
+        public AccountDataAccess()
         {
             repository = new DynamicRepository();
         }
 
-        public IEnumerable<GetFraudCustResultModel> GetFraudCustomers(GetFraudCustParasModel encryptedData)
+        public IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData)
         {
-            var criteria = new FraudCustomerGetCriteria
+            var criteria = new AccountGetCriteria
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(encryptedData)
             };
 
-            return repository.Fetch<GetFraudCustResultModel>(criteria);
+            return repository.Fetch<GetAccountResultModel>(criteria);
         }
 
         public IEnumerable<ParticipantModel> GetParticipant()
@@ -46,9 +46,9 @@
             return repository.Fetch<ParticipantModel>(criteria);
         }
 
-        public FraudCustDBResult AddFraudCustomers(int? participantID, IEnumerable<InsertFraudCustParasModel> encryptedData)
+        public AccountDBResult AddAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData)
         {
-            var criteria = new FraudCustomerAddCriteria
+            var criteria = new AccountInsertCriteria
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(encryptedData),
                 ParticipantID = participantID
@@ -56,16 +56,16 @@
 
             repository.Execute(criteria);
 
-            return new FraudCustDBResult
+            return new AccountDBResult
             {
                 StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.BadRequest,
                 ErrorMessage = criteria.ErrorMessage
             };
         }
 
-        public FraudCustDBResult UpdateFraudCustomers(int? participantID, IEnumerable<InsertFraudCustParasModel> encryptedData)
+        public AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData)
         {
-            var criteria = new FraudCustomerUpdateCriteria
+            var criteria = new AccountUpdateCriteria
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(encryptedData),
                 ParticipantID = participantID
@@ -73,16 +73,16 @@
 
             repository.Execute(criteria);
 
-            return new FraudCustDBResult
+            return new AccountDBResult
             {
                 StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.BadRequest,
                 ErrorMessage = criteria.ErrorMessage
             };
         }
 
-        public FraudCustDBResult DeleteFraudCustomers(int? participantID, IEnumerable<DeleteFraudCustParasModel> accountIDs)
+        public AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs)
         {
-            var criteria = new FraudCustomerDeleteCriteria
+            var criteria = new AccountDeleteCriteria
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(accountIDs),
                 ParticipantID = participantID
@@ -90,7 +90,7 @@
 
             repository.Execute(criteria);
 
-            return new FraudCustDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
     }
 }

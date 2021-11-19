@@ -3,7 +3,7 @@
     using Fanex.Data;
     using Fanex.Data.Repository;
 
-    public class FraudCustomerDeleteCriteria : NonQueryCommand
+    public class AccountUpdateCriteria : NonQueryCommand
     {
         [SpParam(SqlParamName = "ip_AccountInfo")]
         public string JsonAccountInfo { get; set; }
@@ -11,9 +11,12 @@
         [SpParam(SqlParamName = "ip_ParticipantID")]
         public int? ParticipantID { get; set; }
 
+        [SpParam(SqlParamName = "op_ErrorMessage")]
+        public string ErrorMessage { get; set; }
+
         public override string GetSettingKey()
         {
-            return "AFC_DC_Account_Delete";
+            return "AFC_DC_Account_Update";
         }
 
         public override bool IsValid()

@@ -20,9 +20,9 @@
 
         private static void RegisterFraudCustomerService(this IServiceCollection services)
         {
-            services.AddSingleton<IFraudCustomerDataAccess, FraudCustomerDataAccess>();
-            services.AddSingleton<IFraudCustomerDBService, FraudCustomerDBService>();
-            services.AddSingleton<IFraudCustomerService, FraudCustomerService>();
+            services.AddSingleton<IAccountDataAccess, AccountDataAccess>();
+            services.AddSingleton<IAccountDBService, AccountDBService>();
+            services.AddSingleton<IAccountService, AccountService>();
         }
 
         private static void RegisterParticipantService(this IServiceCollection services)

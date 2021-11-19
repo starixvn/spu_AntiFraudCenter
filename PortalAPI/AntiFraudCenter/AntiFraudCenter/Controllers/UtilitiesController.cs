@@ -5,12 +5,12 @@
 
     [Route("api/Utilities")]
     [ApiController]
-    public class ParticipantController : ControllerBase
+    public class UtilitiesController : ControllerBase
     {
         private readonly ISentryClient sentryClient;
         private readonly IParticipantService participantService;
 
-        public ParticipantController(ISentryClient sentryClient,
+        public UtilitiesController(ISentryClient sentryClient,
             IParticipantService participantService)
         {
             this.sentryClient = sentryClient;

@@ -22,13 +22,13 @@
     {
         private readonly ISentryClient sentryClient;
         private readonly IParticipantInfoDBService participantInfoDBService;
-        private readonly IFraudCustomerDBService fraudCustomerDBService;
+        private readonly IAccountDBService fraudCustomerDBService;
         private readonly IAppSettings appSettings;
 
         public ParticipantService(
             ISentryClient sentryClient,
             IParticipantInfoDBService participantInfoDBService,
-            IFraudCustomerDBService fraudCustomerDBService,
+            IAccountDBService fraudCustomerDBService,
             IAppSettings appSettings)
         {
             this.sentryClient = sentryClient;

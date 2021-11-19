@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
-    public class GetFraudCustResultViewModel
+    public class GetAccountResultViewModel
     {
         public HttpStatus StatusCode { get; set; }
 
         public string ErrorMessage { get; set; }
 
-        public IEnumerable<GetFraudCustResultModel> Data { get; set; }
+        public IEnumerable<GetAccountResultModel> Data { get; set; }
     }
 }

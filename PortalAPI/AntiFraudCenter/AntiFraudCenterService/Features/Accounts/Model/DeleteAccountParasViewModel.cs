@@ -2,10 +2,10 @@
 {
     using System.Collections.Generic;
 
-    public class DeleteFraudCustParasViewModel
+    public class DeleteAccountParasViewModel
     {
         public string Key { get; set; }
 
-        public IEnumerable<DeleteFraudCustParasModel> Data { get; set; }
+        public IEnumerable<DeleteAccountParasModel> Data { get; set; }
     }
 }

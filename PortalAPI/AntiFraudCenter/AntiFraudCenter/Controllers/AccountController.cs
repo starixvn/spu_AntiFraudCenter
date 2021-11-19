@@ -10,43 +10,43 @@
     public class AccountController : ControllerBase
     {
         private readonly ISentryClient sentryClient;
-        private readonly IFraudCustomerService fraudCustomerService;
+        private readonly IAccountService accountService;
 
         public AccountController(ISentryClient sentryClient,
-            IFraudCustomerService fraudCustomerService)
+            IAccountService accountService)
         {
             this.sentryClient = sentryClient;
-            this.fraudCustomerService = fraudCustomerService;
+            this.accountService = accountService;
         }
 
         [HttpPost("Get")]
-        public IActionResult GetAccounts([FromBody] GetFraudCustomerParasViewModel paras)
+        public IActionResult GetAccounts([FromBody] GetAccountParasViewModel paras)
         {
-            var result = this.fraudCustomerService.GetAccounts(paras.Key, paras.Data);
+            var result = this.accountService.GetAccounts(paras.Key, paras.Data);
 
             return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPost("Insert")]
-        public IActionResult InsertAccounts([FromBody] InsertFraudCustParasViewModel paras)
+        public IActionResult InsertAccounts([FromBody] InsertAccountParasViewModel paras)
         {
-            var result = this.fraudCustomerService.AddFraudCustomer(paras.Key, paras.Data);
+            var result = this.accountService.InsertAccounts(paras.Key, paras.Data);
 
             return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpPut("Update")]
-        public IActionResult UpdateAccounts([FromBody] InsertFraudCustParasViewModel paras)
+        public IActionResult UpdateAccounts([FromBody] InsertAccountParasViewModel paras)
         {
-            var result = this.fraudCustomerService.UpdateFraudCustomer(paras.Key, paras.Data);
+            var result = this.accountService.UpdateAccounts(paras.Key, paras.Data);
 
             return StatusCode((int)result.StatusCode, result);
         }
 
         [HttpDelete("Delete")]
-        public IActionResult DeleteAccounts([FromBody] DeleteFraudCustParasViewModel paras)
+        public IActionResult DeleteAccounts([FromBody] DeleteAccountParasViewModel paras)
         {
-            var result = this.fraudCustomerService.DeleteFraudCustomer(paras.Key, paras.Data);
+            var result = this.accountService.DeleteAccounts(paras.Key, paras.Data);
 
             return StatusCode((int)result.StatusCode, result);
         }

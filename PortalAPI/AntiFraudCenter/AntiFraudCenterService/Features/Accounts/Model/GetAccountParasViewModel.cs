@@ -1,9 +1,9 @@
 ﻿namespace AntiFraudCenterService.Features.FraudCustomer.Model
 {
-    public class GetFraudCustomerParasViewModel
+    public class GetAccountParasViewModel
     {
         public string Key { get; set; }
 
-        public GetFraudCustParasModel Data { get; set; }
+        public GetAccountParasModel Data { get; set; }
     }
 }

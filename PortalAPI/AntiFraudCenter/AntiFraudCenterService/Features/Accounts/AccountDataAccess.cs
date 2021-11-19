@@ -58,7 +58,7 @@
 
             return new AccountDBResult
             {
-                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.BadRequest,
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.Created : HttpStatus.InternalServerError,
                 ErrorMessage = criteria.ErrorMessage
             };
         }
@@ -75,7 +75,7 @@
 
             return new AccountDBResult
             {
-                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.BadRequest,
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.InternalServerError,
                 ErrorMessage = criteria.ErrorMessage
             };
         }

@@ -61,12 +61,18 @@
                         rs.Data = accountDBService.DecryptedFieldsFromDB(fraudCusts);
                     }
                 }
+                else
+                {
+                    rs.StatusCode = HttpStatus.BadRequest;
+                    rs.ErrorMessage = InvalidKey;
+                }
             }
             catch (Exception ex)
             {
                 Utilities.LogSentryError("AFC - GetAccounts", ex.Message, (data, key), ex, sentryClient);
 
                 rs.StatusCode = HttpStatus.BadRequest;
+
                 rs.ErrorMessage = ex.Message;
             }
 
@@ -92,11 +98,15 @@
 
                     rs = accountDBService.InsertAccounts(encryptedData, participant.ParticipantID);
                 }
+                else
+                {
+                    rs.StatusCode = HttpStatus.BadRequest;
+                    rs.ErrorMessage = InvalidKey;
+                }
             }
             catch (Exception ex)
             {
                 Utilities.LogSentryError("AFC - InsertAccounts", ex.Message, (data, key), ex, sentryClient);
-
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
             }
@@ -123,11 +133,15 @@
 
                     rs = accountDBService.UpdateAccounts(encryptedData, participant.ParticipantID);
                 }
+                else
+                {
+                    rs.StatusCode = HttpStatus.BadRequest;
+                    rs.ErrorMessage = InvalidKey;
+                }
             }
             catch (Exception ex)
             {
                 Utilities.LogSentryError("AFC - UpdateAccounts", ex.Message, (data, key), ex, sentryClient);
-
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
             }
@@ -152,11 +166,15 @@
                 {
                     rs = accountDBService.DeleteAccounts(accountIDs, participant.ParticipantID);
                 }
+                else
+                {
+                    rs.StatusCode = HttpStatus.BadRequest;
+                    rs.ErrorMessage = InvalidKey;
+                }
             }
             catch (Exception ex)
             {
                 Utilities.LogSentryError("AFC - DeleteAccounts", ex.Message, (accountIDs, key), ex, sentryClient);
-
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
             }

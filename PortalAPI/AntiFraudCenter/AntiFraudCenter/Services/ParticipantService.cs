@@ -110,6 +110,11 @@
 
                         rs = participantInfoDBService.InitParticipant(participantName, generateKey, ips);
                     }
+                    else
+                    {
+                        rs.StatusCode = HttpStatus.BadRequest;
+                        rs.ErrorMessage = InvalidKey;
+                    }
                 }
             }
             catch (Exception ex)

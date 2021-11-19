@@ -18,7 +18,7 @@
 
         public const string InvalidInput = "Invalid data input.";
 
-        public const string DataTooLong = "Invalid data input.";
+        public const string InvalidKey = "Invalid key.";
 
         public const string EncryptedKey = "95595967e187d95b";
 

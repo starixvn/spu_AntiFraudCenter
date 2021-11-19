@@ -4,7 +4,6 @@
     using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.Model;
     using AntiFraudCenterService.Shares.ViewModel;
-    using Newtonsoft.Json;
     using Sentry;
     using System;
     using System.Collections.Generic;

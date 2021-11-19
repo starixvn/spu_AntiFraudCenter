@@ -100,7 +100,7 @@
         {
             if (data != null)
             {
-                data.Phone = string.IsNullOrEmpty(data.Phone)? null : CryptographicHelper.AESEncrypt(data.Phone, EncryptedKey, IVKey);
+                data.Phone = string.IsNullOrEmpty(data.Phone) ? null : CryptographicHelper.AESEncrypt(data.Phone, EncryptedKey, IVKey);
                 data.Email = string.IsNullOrEmpty(data.Email) ? null : CryptographicHelper.AESEncrypt(data.Email, EncryptedKey, IVKey);
                 data.DocumentID = string.IsNullOrEmpty(data.DocumentID) ? null : CryptographicHelper.AESEncrypt(data.DocumentID, EncryptedKey, IVKey);
                 data.BankAccountID = string.IsNullOrEmpty(data.BankAccountID) ? null : CryptographicHelper.AESEncrypt(data.BankAccountID, EncryptedKey, IVKey);
@@ -115,7 +115,6 @@
         {
             if (data != null && data.Any())
             {
-
                 data.ToList().ForEach(c =>
                     {
                         c.Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey);
@@ -125,8 +124,7 @@
                     });
 
                 return data;
-                }
-
+            }
 
             return new List<InsertAccountParasModel>();
         }
@@ -155,9 +153,9 @@
 
                 if (fraudCusts.Any())
                 {
-                    foreach(var fraudCust in fraudCusts)
+                    foreach (var fraudCust in fraudCusts)
                     {
-                        if (fraudCust.Phone.Length> MaxLenght
+                        if (fraudCust.Phone.Length > MaxLenght
                             || fraudCust.Email.Length > MaxLenght
                             || fraudCust.DocumentID.Length > MaxLenght
                             || fraudCust.BankAccountID.Length > MaxLenght)

@@ -1,6 +1,5 @@
 ﻿namespace AntiFraudCenter
 {
-    using AntiFraudCenterService.Shares;
     using Fanex.Data;
     using Fanex.Data.MySql;
     using Fanex.Data.SqlServer;
@@ -55,7 +54,8 @@
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(c => {
+            app.UseSwaggerUI(c =>
+            {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "AntiFraudCenter v1");
                 c.DefaultModelsExpandDepth(-1);
             });

@@ -15,7 +15,7 @@
 
         ConventionViewModel GetConventionInfo();
 
-        InitParticipantResultModel InitParticipant(string participantName, string password);
+        InitParticipantResultModel InitParticipant(string participantName, string password, string ips);
     }
 
     public class ParticipantService : IParticipantService
@@ -94,7 +94,7 @@
             return rs;
         }
 
-        public InitParticipantResultModel InitParticipant(string participantName, string password)
+        public InitParticipantResultModel InitParticipant(string participantName, string password, string ips)
         {
             var rs = new InitParticipantResultModel { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
 
@@ -108,7 +108,7 @@
                     {
                         var generateKey = CryptographicHelper.GetRandomHexNumber(SecretKey_NumberOfByte);
 
-                        rs = participantInfoDBService.InitParticipant(participantName, generateKey);
+                        rs = participantInfoDBService.InitParticipant(participantName, generateKey, ips);
                     }
                 }
             }

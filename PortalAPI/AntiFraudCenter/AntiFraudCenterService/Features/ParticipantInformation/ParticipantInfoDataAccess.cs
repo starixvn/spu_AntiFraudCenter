@@ -16,7 +16,7 @@
 
         IEnumerable<DocumentMappingModel> GetDocumentTypes();
 
-        InitParticipantResultModel InitParticipant(string participantName, string secretKey);
+        InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips);
     }
 
     public class ParticipantInfoDataAccess : IParticipantInfoDataAccess
@@ -60,13 +60,13 @@
             return repository.Fetch<DocumentMappingModel>(criteria);
         }
 
-        public InitParticipantResultModel InitParticipant(string participantName, string secretKey)
+        public InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips)
         {
             var criteria = new ParticipantInitCriteria
             {
                 ParticipantName = participantName,
                 SecretKey = secretKey,
-                IPs = null
+                IPs = ips
             };
 
             var result = repository.Fetch<InitParticipantModel>(criteria);

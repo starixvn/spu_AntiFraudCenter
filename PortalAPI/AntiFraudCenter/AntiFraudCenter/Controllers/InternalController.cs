@@ -22,7 +22,7 @@
         [HttpPost("InsertParticipant")]
         public IActionResult InsertParticipant([FromBody] CreateParticipantParaModel para)
         {
-            var result = this.participantService.InitParticipant(para.ParticipantName, para.Password);
+            var result = this.participantService.InitParticipant(para.ParticipantName, para.Password, para.IPs);
 
             return StatusCode((int)result.StatusCode, result);
         }

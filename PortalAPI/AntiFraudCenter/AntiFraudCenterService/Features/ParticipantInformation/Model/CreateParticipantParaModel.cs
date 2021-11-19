@@ -5,5 +5,7 @@
         public string Password { get; set; }
 
         public string ParticipantName { get; set; }
+
+        public string IPs { get; set; }
     }
 }

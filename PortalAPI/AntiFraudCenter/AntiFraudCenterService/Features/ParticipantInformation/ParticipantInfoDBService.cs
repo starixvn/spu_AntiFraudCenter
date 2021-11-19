@@ -18,7 +18,7 @@
 
         IEnumerable<CountryMappingModel> GetCountryCodes();
 
-        InitParticipantResultModel InitParticipant(string participantName, string secretKey);
+        InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips);
 
         bool IsPassWordValid(string password);
     }
@@ -79,11 +79,11 @@
             return countryCodes;
         }
 
-        public InitParticipantResultModel InitParticipant(string participantName, string secretKey)
+        public InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips)
         {
             if (!string.IsNullOrEmpty(participantName) && !string.IsNullOrEmpty(secretKey))
             {
-                return participantInfoDataAccess.InitParticipant(participantName, secretKey);
+                return participantInfoDataAccess.InitParticipant(participantName, secretKey, ips);
             }
 
             return new InitParticipantResultModel { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };

@@ -25,7 +25,7 @@ namespace AntiFraudCenterService.Features.FraudCustomer
         public string DocumentID { get; set; }
 
         [RequiredDependencyAttribute("DocumentID")]
-        public int DocumentTypeID { get; set; }
+        public int? DocumentTypeID { get; set; }
 
         [RequiredDependencyAttribute("BankAccountID")]
         public string BankName { get; set; }
@@ -34,6 +34,7 @@ namespace AntiFraudCenterService.Features.FraudCustomer
         [RequiredDependencyAttribute("BankName")]
         public string BankAccountID { get; set; }
 
-        public int FraudID { get; set; }
+        [Required]
+        public int? FraudID { get; set; }
     }
 }

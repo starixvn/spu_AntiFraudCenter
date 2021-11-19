@@ -20,6 +20,8 @@
 
         public const string InvalidKey = "Invalid key.";
 
+        public const string UMMessage = "System is under maintaince.";
+
         public const string EncryptedKey = "95595967e187d95b";
 
         public const string IVKey = "@/adhtsknccr&";

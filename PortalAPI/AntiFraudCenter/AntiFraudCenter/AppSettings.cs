@@ -11,6 +11,12 @@
         string EvironmentName { get; }
 
         string SPName { get; }
+
+        string UMFrom { get; }
+
+        string UMTo { get; }
+
+        bool IsUnderMaintenanceTime { get; }
     }
 
     public class AppSettings : IAppSettings
@@ -53,6 +59,12 @@
         public string EvironmentName => evironmentName;
 
         public string SPName => spName;
+
+        public string UMFrom => GetValue<string>("UM:UMFrom");
+
+        public string UMTo => GetValue<string>("UM:UMTo");
+
+        public bool IsUnderMaintenanceTime => GetValue<bool>("UM:EnableCheckUM");
 
         #endregion Variables
 

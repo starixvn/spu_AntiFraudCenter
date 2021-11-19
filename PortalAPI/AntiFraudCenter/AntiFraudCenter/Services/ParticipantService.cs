@@ -46,7 +46,7 @@
                 if (string.IsNullOrEmpty(key))
                 {
                     return rs;
-                }
+                } 
 
                 var participant = fraudCustomerDBService.CheckAuthentication(key);
 

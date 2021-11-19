@@ -35,7 +35,7 @@
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpPut("Update")]
+        [HttpPost("Update")]
         public IActionResult UpdateAccounts([FromBody] InsertAccountParasViewModel paras)
         {
             var result = this.accountService.UpdateAccounts(paras.Key, paras.Data);
@@ -43,7 +43,7 @@
             return StatusCode((int)result.StatusCode, result);
         }
 
-        [HttpDelete("Delete")]
+        [HttpPost("Delete")]
         public IActionResult DeleteAccounts([FromBody] DeleteAccountParasViewModel paras)
         {
             var result = this.accountService.DeleteAccounts(paras.Key, paras.Data);

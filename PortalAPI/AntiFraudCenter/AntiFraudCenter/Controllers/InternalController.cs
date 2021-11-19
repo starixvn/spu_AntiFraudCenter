@@ -1,9 +1,10 @@
 ﻿namespace AntiFraudCenter.Controllers
 {
+    using AntiFraudCenterService.Features.ParticipantInformation.Model;
     using Microsoft.AspNetCore.Mvc;
     using Sentry;
 
-    [Route("api/private")]
+    [Route("api/Internal")]
     [ApiController]
     public class InternalController : ControllerBase
     {
@@ -18,10 +19,10 @@
         }
 
         //Not expose API for participants
-        [HttpPost("InitParticipant")]
-        public IActionResult InitParticipant([FromForm] string password, [FromForm] string participantName)
+        [HttpPost("InsertParticipant")]
+        public IActionResult InsertParticipant([FromBody] CreateParticipantParaModel para)
         {
-            var result = this.participantService.InitParticipant(participantName, password);
+            var result = this.participantService.InitParticipant(para.ParticipantName, para.Password);
 
             return StatusCode((int)result.StatusCode, result);
         }

@@ -3,7 +3,7 @@
     using Microsoft.AspNetCore.Mvc;
     using Sentry;
 
-    [Route("api/participant")]
+    [Route("api/Utilities")]
     [ApiController]
     public class ParticipantController : ControllerBase
     {
@@ -18,8 +18,8 @@
         }
 
         [HttpPost]
-        [Route("ReGenerateKey")]
-        public IActionResult ReGenerateKey([FromBody] string key)
+        [Route("RegenerateKey")]
+        public IActionResult RegenerateKey([FromBody] string key)
         {
             var result = this.participantService.UpdateParticipantSecretKey(key);
 

@@ -100,10 +100,10 @@
         {
             if (data != null)
             {
-                data.Phone = CryptographicHelper.AESEncrypt(data.Phone, EncryptedKey, IVKey);
-                data.Email = CryptographicHelper.AESEncrypt(data.Email, EncryptedKey, IVKey);
-                data.DocumentID = CryptographicHelper.AESEncrypt(data.DocumentID, EncryptedKey, IVKey);
-                data.BankAccountID = CryptographicHelper.AESEncrypt(data.BankAccountID, EncryptedKey, IVKey);
+                data.Phone = string.IsNullOrEmpty(data.Phone)? null : CryptographicHelper.AESEncrypt(data.Phone, EncryptedKey, IVKey);
+                data.Email = string.IsNullOrEmpty(data.Email) ? null : CryptographicHelper.AESEncrypt(data.Email, EncryptedKey, IVKey);
+                data.DocumentID = string.IsNullOrEmpty(data.DocumentID) ? null : CryptographicHelper.AESEncrypt(data.DocumentID, EncryptedKey, IVKey);
+                data.BankAccountID = string.IsNullOrEmpty(data.BankAccountID) ? null : CryptographicHelper.AESEncrypt(data.BankAccountID, EncryptedKey, IVKey);
 
                 return data;
             }
@@ -118,10 +118,10 @@
 
                 data.ToList().ForEach(c =>
                     {
-                        c.Phone = CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey);
-                        c.Email = CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey);
-                        c.DocumentID = CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey);
-                        c.BankAccountID = CryptographicHelper.AESEncrypt(c.BankAccountID, EncryptedKey, IVKey);
+                        c.Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey);
+                        c.Email = string.IsNullOrEmpty(c.Email) ? null : CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey);
+                        c.DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey);
+                        c.BankAccountID = string.IsNullOrEmpty(c.BankAccountID) ? null : CryptographicHelper.AESEncrypt(c.BankAccountID, EncryptedKey, IVKey);
                     });
 
                 return data;
@@ -137,10 +137,10 @@
             {
                 fraudCusts.ToList().ForEach(c =>
                 {
-                    c.Phone = CryptographicHelper.AESDecrypt(c.Phone, EncryptedKey, IVKey);
-                    c.Email = CryptographicHelper.AESDecrypt(c.Email, EncryptedKey, IVKey);
-                    c.DocumentID = CryptographicHelper.AESDecrypt(c.DocumentID, EncryptedKey, IVKey);
-                    c.BankAccountID = CryptographicHelper.AESDecrypt(c.BankAccountID, EncryptedKey, IVKey);
+                    c.Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESDecrypt(c.Phone, EncryptedKey, IVKey);
+                    c.Email = string.IsNullOrEmpty(c.Email) ? null : CryptographicHelper.AESDecrypt(c.Email, EncryptedKey, IVKey);
+                    c.DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESDecrypt(c.DocumentID, EncryptedKey, IVKey);
+                    c.BankAccountID = string.IsNullOrEmpty(c.BankAccountID) ? null : CryptographicHelper.AESDecrypt(c.BankAccountID, EncryptedKey, IVKey);
                 });
             }
 

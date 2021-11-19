@@ -13,7 +13,7 @@
 
     public interface IFraudCustomerService
     {
-        GetFraudCustResultViewModel GetFraudCustomer(string key, GetFraudCustParasModel data);
+        GetFraudCustResultViewModel GetAccounts(string key, GetFraudCustParasModel data);
 
         FraudCustDBResult AddFraudCustomer(string key, IEnumerable<InsertFraudCustParasModel> data);
 
@@ -38,7 +38,7 @@
             this.appSettings = appSettings;
         }
 
-        public GetFraudCustResultViewModel GetFraudCustomer(string key, GetFraudCustParasModel data)
+        public GetFraudCustResultViewModel GetAccounts(string key, GetFraudCustParasModel data)
         {
             var rs = new GetFraudCustResultViewModel() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty, Data = new List<GetFraudCustResultModel>() };
 

@@ -9,7 +9,7 @@
         public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
         {
             var nonMobileRoutes = swaggerDoc.Paths
-                .Where(x => x.Key.Contains("private"))
+                .Where(x => x.Key.Contains("Internal"))
                 .ToList();
 
             nonMobileRoutes.ForEach(x => { swaggerDoc.Paths.Remove(x.Key); });

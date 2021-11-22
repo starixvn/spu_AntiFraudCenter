@@ -32,6 +32,8 @@ sp :BEGIN
                                               "BankAccountID": "BankAccountID_Vaule_Test",
                                               "FraudID": 2}]', @mess);
 	*/  
+    DECLARE lv_CheckValid INT;
+    
     DROP TEMPORARY TABLE IF EXISTS Temp_AccountExisted;    
 	CREATE TEMPORARY TABLE Temp_AccountExisted( 	  
 			RawID 	VARCHAR(128) PRIMARY KEY
@@ -101,6 +103,34 @@ sp :BEGIN
         
         LEAVE sp;
     END IF;
+    
+    SELECT 1 
+    INTO lv_CheckValid
+    FROM Temp_Account AS tmp 
+	WHERE NOT EXISTS (SELECT 1 FROM DocumentType AS doc WHERE doc.DocumentTypeID = tmp.DocumentTypeID) 
+		AND tmp.DocumentTypeID IS NOT NULL
+	LIMIT 1;
+        
+	IF lv_CheckValid = 1 THEN
+		SET op_ErrorMessage = "DocumentTypeID invalid";
+        
+        LEAVE sp;
+    END IF;
+    
+    SELECT 1 
+    INTO lv_CheckValid
+    FROM Temp_Account AS tmp 
+	WHERE NOT EXISTS (SELECT 1 FROM FraudCase AS fr WHERE fr.FraudID = tmp.FraudID)
+    LIMIT 1;
+        
+	IF lv_CheckValid = 1 THEN
+		SET op_ErrorMessage = "FraudID invalid";
+        
+        LEAVE sp;
+    END IF;
+    
+    
+    
     
     INSERT INTO AFC_DataCenter.Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID)
     SELECT 	RawID

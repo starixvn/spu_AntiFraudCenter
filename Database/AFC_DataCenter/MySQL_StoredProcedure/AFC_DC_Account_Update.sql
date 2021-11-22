@@ -21,8 +21,10 @@ sp :BEGIN
         Param's Explanation (filtered by):
         
         Example:
-			- CALL AFC_DC_Account_Update(1,'[{"AccountID": "AccountID_Vaule_Test","FullName": "Test_Value"}]', @mess);;
-	*/   
+			- CALL AFC_DC_Account_Update(1,'[{"AccountID": "AccountID_Vaule_Test","FullName": "Test_Value"}]', @mess);
+	*/  
+    DECLARE lv_CheckValid INT;
+    
     DROP TEMPORARY TABLE IF EXISTS Temp_AccountNotExisted;    
 	CREATE TEMPORARY TABLE Temp_AccountNotExisted( 	  
 			RawID 	VARCHAR(128) PRIMARY KEY
@@ -92,6 +94,33 @@ sp :BEGIN
         
         LEAVE sp;
     END IF;
+    
+	SELECT 1 
+    INTO lv_CheckValid
+    FROM Temp_Account AS tmp 
+	WHERE NOT EXISTS (SELECT 1 FROM DocumentType AS doc WHERE doc.DocumentTypeID = tmp.DocumentTypeID) 
+		AND tmp.DocumentTypeID != -1 
+	LIMIT 1;
+        
+	IF lv_CheckValid = 1 THEN
+		SET op_ErrorMessage = "DocumentTypeID invalid";
+        
+        LEAVE sp;
+    END IF;
+    
+    SELECT 1 
+    INTO lv_CheckValid
+    FROM Temp_Account AS tmp 
+	WHERE NOT EXISTS (SELECT 1 FROM FraudCase AS fr WHERE fr.FraudID = tmp.FraudID)
+		AND tmp.FraudID != -1 
+    LIMIT 1;
+        
+	IF lv_CheckValid = 1 THEN
+		SET op_ErrorMessage = "FraudID invalid";
+        
+        LEAVE sp;
+    END IF;
+    
     
 	INSERT INTO Account_Log(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID, IsUpdated)
     SELECT 	acc.RawID

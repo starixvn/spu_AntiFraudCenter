@@ -92,17 +92,26 @@
 
                 var participant = accountDBService.CheckAuthentication(key);
 
-                if (participant != null)
+                if (participant == null)
                 {
-                    var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
+                    return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
+                }
 
-                    rs = accountDBService.InsertAccounts(encryptedData, participant.ParticipantID);
-                }
-                else
+                var dataValid = CheckValidation(participant.ParticipantID, AccountAction.Insert, data.Select(c => new AccountValidationParaModel
                 {
-                    rs.StatusCode = HttpStatus.BadRequest;
-                    rs.ErrorMessage = InvalidKey;
+                    AccountID = c.AccountID,
+                    CountryCode = c.CountryCode,
+                    Phone = c.Phone
+                }));
+
+                if (dataValid == null || dataValid.StatusCode != HttpStatus.OK)
+                {
+                    return dataValid;
                 }
+
+                var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
+
+                rs = accountDBService.InsertAccounts(encryptedData, participant.ParticipantID);
             }
             catch (Exception ex)
             {
@@ -127,17 +136,26 @@
 
                 var participant = accountDBService.CheckAuthentication(key);
 
-                if (participant != null)
+                if (participant == null)
                 {
-                    var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
+                    return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
+                }
 
-                    rs = accountDBService.UpdateAccounts(encryptedData, participant.ParticipantID);
-                }
-                else
+                var dataValid = CheckValidation(participant.ParticipantID, AccountAction.Update, data.Select(c => new AccountValidationParaModel
                 {
-                    rs.StatusCode = HttpStatus.BadRequest;
-                    rs.ErrorMessage = InvalidKey;
+                    AccountID = c.AccountID,
+                    CountryCode = c.CountryCode,
+                    Phone = c.Phone
+                }));
+
+                if (dataValid == null || dataValid.StatusCode != HttpStatus.OK)
+                {
+                    return dataValid;
                 }
+
+                var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
+
+                rs = accountDBService.UpdateAccounts(encryptedData, participant.ParticipantID);
             }
             catch (Exception ex)
             {
@@ -162,15 +180,22 @@
 
                 var participant = accountDBService.CheckAuthentication(key);
 
-                if (participant != null)
+                if (participant == null)
                 {
-                    rs = accountDBService.DeleteAccounts(accountIDs, participant.ParticipantID);
+                    return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
-                else
+
+                var dataValid = CheckValidation(participant.ParticipantID, AccountAction.Delete, accountIDs.Select(c => new AccountValidationParaModel
                 {
-                    rs.StatusCode = HttpStatus.BadRequest;
-                    rs.ErrorMessage = InvalidKey;
+                    AccountID = c.AccountID
+                }));
+
+                if (dataValid == null || dataValid.StatusCode != HttpStatus.OK)
+                {
+                    return dataValid;
                 }
+
+                rs = accountDBService.DeleteAccounts(accountIDs, participant.ParticipantID);
             }
             catch (Exception ex)
             {
@@ -180,6 +205,18 @@
             }
 
             return rs;
+        }
+
+        public AccountDBResult CheckValidation(int? participantID, AccountAction action, IEnumerable<AccountValidationParaModel> data)
+        {
+            if (data == null || !data.Any() || participantID == null)
+            {
+                return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+            }
+
+            var result = accountDBService.CheckDataValidation(data, participantID, action);
+
+            return result;
         }
     }
 }

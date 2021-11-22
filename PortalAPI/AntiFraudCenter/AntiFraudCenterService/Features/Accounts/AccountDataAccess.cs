@@ -5,6 +5,7 @@
     using Fanex.Data.Repository;
     using Newtonsoft.Json;
     using System.Collections.Generic;
+    using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IAccountDataAccess
@@ -18,6 +19,8 @@
         AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData);
 
         AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs);
+
+        IEnumerable<CheckAccountModel> CheckAccountValidation(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs);
     }
 
     public class AccountDataAccess : IAccountDataAccess
@@ -58,7 +61,7 @@
 
             return new AccountDBResult
             {
-                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.Created : HttpStatus.InternalServerError,
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.Created : HttpStatus.BadRequest,
                 ErrorMessage = criteria.ErrorMessage
             };
         }
@@ -75,7 +78,7 @@
 
             return new AccountDBResult
             {
-                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.InternalServerError,
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.BadRequest,
                 ErrorMessage = criteria.ErrorMessage
             };
         }
@@ -91,6 +94,19 @@
             repository.Execute(criteria);
 
             return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+        }
+
+        public IEnumerable<CheckAccountModel> CheckAccountValidation(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs)
+        {
+            var criteria = new AccountValidationCheckCriteria
+            {
+                JsonAccountInfo = JsonConvert.SerializeObject(accountIDs),
+                ParticipantID = participantID
+            };
+
+            var result = repository.Fetch<CheckAccountModel>(criteria);
+
+            return result;
         }
     }
 }

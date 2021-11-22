@@ -74,7 +74,7 @@
             return new InitParticipantResultModel
             {
                 ErrorMessage = criteria.ErrorMessage,
-                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.InternalServerError,
+                StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.BadRequest,
                 Participant = (result != null && result.Any()) ? result.FirstOrDefault() : new InitParticipantModel()
             };
         }

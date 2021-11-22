@@ -30,7 +30,7 @@
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
             {
-                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - {appSettings.UMTo} UTC" });
+                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC" });
             }
 
             var result = this.accountService.GetAccounts(paras.Key, paras.Data);
@@ -43,7 +43,7 @@
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
             {
-                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - {appSettings.UMTo} UTC" });
+                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC" });
             }
 
             var result = this.accountService.InsertAccounts(paras.Key, paras.Data);
@@ -56,7 +56,7 @@
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
             {
-                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - {appSettings.UMTo} UTC" });
+                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC" });
             }
 
             var result = this.accountService.UpdateAccounts(paras.Key, paras.Data);
@@ -69,7 +69,7 @@
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
             {
-                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - {appSettings.UMTo} UTC" });
+                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC" });
             }
 
             var result = this.accountService.DeleteAccounts(paras.Key, paras.Data);

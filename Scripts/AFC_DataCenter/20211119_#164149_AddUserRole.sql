@@ -1,4 +1,4 @@
-/*<info serverAlias="AFCMain-AFC_DataCenter" databaseType="2"></info>*/
+/*<info serverAlias="AFC-AFC_DataCenter" databaseType="2"></info>*/
 /*
 	Created: 20211119@Aries.Nguyen [Redmine ID: #164149]
 	Task: Add schema

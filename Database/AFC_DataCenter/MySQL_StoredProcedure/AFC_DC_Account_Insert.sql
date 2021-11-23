@@ -1,4 +1,4 @@
-/*<info serverAlias="AFCMain-AFC_DataCenter" databaseType="2" executers="afcExtAPIAdmin,afcAPIAdmin" isFunction="0" isNested="0"></info>*/
+/*<info serverAlias="AFC-AFC_DataCenter" databaseType="2" executers="afcExtAPIAdmin,afcAPIAdmin" isFunction="0" isNested="0"></info>*/
 DROP PROCEDURE IF EXISTS `AFC_DC_Account_Insert`;
 
 DELIMITER $$

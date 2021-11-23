@@ -90,7 +90,7 @@ sp :BEGIN
 					AND acc.ParticipantID = ip_ParticipantID);
 	
     IF EXISTS (SELECT 1 FROM Temp_Account WHERE RawID IS NULL OR RawID = '')	THEN
-		SET op_ErrorMessage = "RawID isn't null or empty";
+		SET op_ErrorMessage = "RawID is not null or empty";
         
         LEAVE sp;
     END IF;

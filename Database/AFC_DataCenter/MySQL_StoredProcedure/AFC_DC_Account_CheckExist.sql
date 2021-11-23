@@ -24,7 +24,7 @@ sp :BEGIN
     DROP TEMPORARY TABLE IF EXISTS Temp_RawID;    
 	CREATE TEMPORARY TABLE Temp_RawID( 	  
 			RawID 		VARCHAR(128) PRIMARY KEY
-		,	`Status` 	VARCHAR(20) 
+		,	`Status` 	VARCHAR(30) 
 	);
     
     DROP TEMPORARY TABLE IF EXISTS Temp_InvalidAccount;    
@@ -60,7 +60,7 @@ sp :BEGIN
     WHERE EXISTS (SELECT 1 FROM Temp_NotExistAccount AS tmp WHERE tmp.RawID = raw.RawID);
     
     UPDATE Temp_RawID AS raw 
-    SET raw.`Status` = 'Invalid'
+    SET raw.`Status` = 'No Permission Account'
     WHERE EXISTS (SELECT 1 FROM Temp_InvalidAccount AS tmp WHERE tmp.RawID = raw.RawID)
 		AND raw.`Status` IS NULL;
 	

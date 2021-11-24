@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
+    using static AntiFraudCenterService.Shares.CryptographicConfig;
 
     public static class CryptographicHelper
     {
@@ -19,8 +20,8 @@
 
                 using (Aes aes = Aes.Create())
                 {
-                    aes.KeySize = Constants.Aes128;
-                    aes.BlockSize = Constants.Aes128;
+                    aes.KeySize = Aes128;
+                    aes.BlockSize = Aes128;
                     aes.Key = keyBytes;
                     aes.IV = saltBytes.Take(aes.BlockSize / 8).ToArray();
 
@@ -57,8 +58,8 @@
 
                 using (Aes aes = Aes.Create())
                 {
-                    aes.KeySize = Constants.Aes128;
-                    aes.BlockSize = Constants.Aes128;
+                    aes.KeySize = Aes128;
+                    aes.BlockSize = Aes128;
                     aes.Key = keyBytes;
                     aes.IV = saltBytes.Take(aes.BlockSize / 8).ToArray();
 

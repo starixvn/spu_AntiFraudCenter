@@ -2,8 +2,6 @@
 {
     public static class Constants
     {
-        public const int Aes128 = 128;
-
         public enum HttpStatus
         {
             Unauthorized = 401,
@@ -31,18 +29,6 @@
         public const string CountryCodeInvalid = "CountryCode is invalid";
 
         #endregion Error Messages
-
-        #region Key information
-
-        public const string EncryptedKey = "95595967e187d95b";
-
-        public const string IVKey = "@/adhtsknccr&";
-
-        public const string InternalPassword = "Welcome1";
-
-        public const int SecretKey_NumberOfByte = 16;
-
-        #endregion Key information
 
         public const int MaxLenght = 80;
 

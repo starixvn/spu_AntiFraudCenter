@@ -1,12 +1,12 @@
 ﻿namespace AntiFraudCenterService.Features.FraudCustomer
 {
     using AntiFraudCenterService.Features.ParticipantInformation.Model;
-    using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.ViewModel;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
     using static AntiFraudCenterService.Shares.Constants;
+    using static AntiFraudCenterService.Shares.CryptographicConfig;
 
     public interface IParticipantInfoDBService
     {
@@ -91,7 +91,7 @@
 
         public bool IsPassWordValid(string password)
         {
-            if (!string.IsNullOrEmpty(password) && string.Equals(password, Constants.InternalPassword))
+            if (!string.IsNullOrEmpty(password) && string.Equals(password, InternalPassword))
             {
                 return true;
             }

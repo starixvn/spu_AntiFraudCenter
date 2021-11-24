@@ -7,6 +7,7 @@
     using System.Globalization;
     using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
+    using static AntiFraudCenterService.Shares.CryptographicConfig;
 
     public interface IAccountDBService
     {

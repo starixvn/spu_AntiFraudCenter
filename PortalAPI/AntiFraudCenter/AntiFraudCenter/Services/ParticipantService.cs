@@ -7,7 +7,8 @@
     using Sentry;
     using System;
     using System.Collections.Generic;
-    using static AntiFraudCenterService.Shares.Constants;
+    using static AntiFraudCenterService.Shares.Constants;    
+    using static AntiFraudCenterService.Shares.CryptographicConfig;
 
     public interface IParticipantService
     {

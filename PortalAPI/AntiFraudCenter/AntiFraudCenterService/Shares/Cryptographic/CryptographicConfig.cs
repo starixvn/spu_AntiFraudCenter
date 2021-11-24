@@ -4,11 +4,11 @@
     {
         #region Key information - NOT UPDATED
 
-        public const string EncryptedKey = "95595967e187d95b";
+        public const string EncryptedKey = "*****REMOVEPASS*****";        //*****REMOVEPASS*****
 
-        public const string IVKey = "@/adhtsknccr&";
+        public const string IVKey = "*****REMOVEPASS*****";               //*****REMOVEPASS*****
 
-        public const string InternalPassword = "Welcome1";
+        public const string InternalPassword = "*****REMOVEPASS*****";    //*****REMOVEPASS*****
 
         public const int SecretKey_NumberOfByte = 16;
 

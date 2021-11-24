@@ -12,6 +12,7 @@ namespace AntiFraudCenterService.Features.FraudCustomer
 
         [MaxLength(Constants.MaxLenght)]
         [RequiredDependencyAttribute("CountryCode")]
+        [RequiredAtLeast("Email", "DocumentID", "BankAccountID")]
         public string Phone { get; set; }
 
         [RequiredDependencyAttribute("Phone")]

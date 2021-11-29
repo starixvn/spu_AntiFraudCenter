@@ -5,6 +5,7 @@
     using System;
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
     using static AntiFraudCenterService.Shares.CryptographicConfig;
 
@@ -71,12 +72,17 @@
 
                 countryCodes.Add(new CountryMappingModel
                 {
-                    CountryName = culture.EnglishName,
+                    CountryName = region.EnglishName,
                     CountryCode = region?.ThreeLetterISORegionName ?? string.Empty
                 });
             }
 
-            return countryCodes;
+            if (countryCodes.Any())
+            {
+                return countryCodes.GroupBy(c => c.CountryCode).Select(i => i.FirstOrDefault()).ToList();
+            }
+
+            return new List<CountryMappingModel>();
         }
 
         public InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips)

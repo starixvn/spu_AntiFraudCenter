@@ -1,0 +1,10 @@
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\bin\Debug\netcoreapp2.1\AntiFraudCenterService.deps.json
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\bin\Debug\netcoreapp2.1\AntiFraudCenterService.dll
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\bin\Debug\netcoreapp2.1\AntiFraudCenterService.pdb
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.csproj.AssemblyReference.cache
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.GeneratedMSBuildEditorConfig.editorconfig
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.AssemblyInfoInputs.cache
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.AssemblyInfo.cs
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.csproj.CoreCompileInputs.cache
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.dll
+D:\GIT\AntiFraudCenter\WebService\AntiFraudCenter\AntiFraudCenterService\obj\Debug\netcoreapp2.1\AntiFraudCenterService.pdb

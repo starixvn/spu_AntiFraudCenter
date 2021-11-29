@@ -1,0 +1,274 @@
+﻿namespace AntiFraudCenterService.Features.FraudCustomer
+{
+    using AntiFraudCenterService.Shares;
+    using AntiFraudCenterService.Shares.Model;
+    using Newtonsoft.Json;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Linq;
+    using static AntiFraudCenterService.Shares.Constants;
+    using static AntiFraudCenterService.Shares.CryptographicConfig;
+
+    public interface IAccountDBService
+    {
+        IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData);
+
+        IEnumerable<ParticipantModel> GetParticipant();
+
+        ParticipantModel CheckAuthentication(string key);
+
+        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID);
+
+        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID);
+
+        AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID);
+
+        IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data);
+
+        GetAccountParasModel EncryptedFieldsToGetDB(GetAccountParasModel data);
+
+        IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts);
+
+        AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action);
+    }
+
+    public class AccountDBService : IAccountDBService
+    {
+        private readonly IAccountDataAccess accountDataAccess;
+
+        public AccountDBService(IAccountDataAccess accountDataAccess)
+        {
+            this.accountDataAccess = accountDataAccess;
+        }
+
+        public IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData)
+        {
+            if (encryptedData != null)
+            {
+                return accountDataAccess.GetAccounts(encryptedData) ?? new List<GetAccountResultModel>();
+            }
+
+            return new List<GetAccountResultModel>();
+        }
+
+        public IEnumerable<ParticipantModel> GetParticipant()
+        {
+            var participants = accountDataAccess.GetParticipant();
+
+            return participants ?? new List<ParticipantModel>();
+        }
+
+        public ParticipantModel CheckAuthentication(string key)
+        {
+            var participants = GetParticipant();
+
+            if (participants != null && participants.Any())
+            {
+                return participants.SingleOrDefault(c => string.Equals(c.SecretKey, key));
+            }
+
+            return null;
+        }
+
+        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID)
+        {
+            if (encryptedData != null && encryptedData.Any() && participantID != null)
+            {
+                return accountDataAccess.AddAccounts(participantID, encryptedData);
+            }
+
+            return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+        }
+
+        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID)
+        {
+            if (encryptedData != null && participantID != null)
+            {
+                return accountDataAccess.UpdateAccounts(participantID, encryptedData);
+            }
+
+            return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+        }
+
+        public AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID)
+        {
+            if (accountIDs != null && accountIDs.Any() && participantID != null)
+            {
+                return accountDataAccess.DeleteAccounts(participantID, accountIDs);
+            }
+
+            return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
+        }
+
+        public GetAccountParasModel EncryptedFieldsToGetDB(GetAccountParasModel data)
+        {
+            if (data != null)
+            {
+                data.Phone = string.IsNullOrEmpty(data.Phone) ? null : CryptographicHelper.AESEncrypt(data.Phone, EncryptedKey, IVKey);
+                data.Email = string.IsNullOrEmpty(data.Email) ? null : CryptographicHelper.AESEncrypt(data.Email, EncryptedKey, IVKey);
+                data.DocumentID = string.IsNullOrEmpty(data.DocumentID) ? null : CryptographicHelper.AESEncrypt(data.DocumentID, EncryptedKey, IVKey);
+                data.BankAccountID = string.IsNullOrEmpty(data.BankAccountID) ? null : CryptographicHelper.AESEncrypt(data.BankAccountID, EncryptedKey, IVKey);
+
+                return data;
+            }
+
+            return new GetAccountParasModel();
+        }
+
+        public IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data)
+        {
+            if (data != null && data.Any())
+            {
+                data.ToList().ForEach(c =>
+                    {
+                        c.Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey);
+                        c.Email = string.IsNullOrEmpty(c.Email) ? null : CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey);
+                        c.DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey);
+                        c.BankAccountID = string.IsNullOrEmpty(c.BankAccountID) ? null : CryptographicHelper.AESEncrypt(c.BankAccountID, EncryptedKey, IVKey);
+                    });
+
+                return data;
+            }
+
+            return new List<InsertAccountParasModel>();
+        }
+
+        public IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts)
+        {
+            if (fraudCusts != null && fraudCusts.Any())
+            {
+                fraudCusts.ToList().ForEach(c =>
+                {
+                    c.Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESDecrypt(c.Phone, EncryptedKey, IVKey);
+                    c.Email = string.IsNullOrEmpty(c.Email) ? null : CryptographicHelper.AESDecrypt(c.Email, EncryptedKey, IVKey);
+                    c.DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESDecrypt(c.DocumentID, EncryptedKey, IVKey);
+                    c.BankAccountID = string.IsNullOrEmpty(c.BankAccountID) ? null : CryptographicHelper.AESDecrypt(c.BankAccountID, EncryptedKey, IVKey);
+                });
+            }
+
+            return fraudCusts;
+        }
+
+        public AccountDBResult VerifyInputData(string jsonData)
+        {
+            if (!string.IsNullOrEmpty(jsonData))
+            {
+                var fraudCusts = JsonConvert.DeserializeObject<List<InsertAccountParasModel>>(jsonData);
+
+                if (fraudCusts.Any())
+                {
+                    foreach (var fraudCust in fraudCusts)
+                    {
+                        if (fraudCust.Phone.Length > MaxLenght
+                            || fraudCust.Email.Length > MaxLenght
+                            || fraudCust.DocumentID.Length > MaxLenght
+                            || fraudCust.BankAccountID.Length > MaxLenght)
+                        {
+                            return new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = string.Empty };
+                        }
+                    }
+                }
+            }
+
+            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+        }
+
+        public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action)
+        {
+            var result = new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+
+            if (data != null && data.Any())
+            {
+                if (action == AccountAction.Insert || action == AccountAction.Update)
+                {
+                    result = IsCountryCodeValid(data);
+                }
+
+                if (result.StatusCode == HttpStatus.OK && (action == AccountAction.Update || action == AccountAction.Delete))
+                {
+                    result = IsAccountValid(data, participantID);
+                }
+            }
+
+            return result;
+        }
+
+        private AccountDBResult IsAccountValid(IEnumerable<AccountValidationParaModel> data, int? participantID)
+        {
+            if (data != null && data.Any())
+            {
+                var accountList = data.Select(c => new DeleteAccountParasModel { AccountID = c.AccountID });
+
+                var result = accountDataAccess.CheckAccountValidation(participantID, accountList);
+
+                return MappingErrorValidaion(result);
+            }
+
+            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+        }
+
+        private AccountDBResult MappingErrorValidaion(IEnumerable<CheckAccountModel> checkAccountModels)
+        {
+            var notPermissionList = new List<string>();
+            var notFoundList = new List<string>();
+
+            if (checkAccountModels != null && checkAccountModels.Any())
+            {
+                checkAccountModels.ToList().ForEach(account =>
+                {
+                    if (account.Status.Contains("No Permission Account"))
+                    {
+                        notPermissionList.Add(account.AccountID);
+                    }
+                    else if (account.Status.Contains("Not Exist"))
+                    {
+                        notFoundList.Add(account.AccountID);
+                    }
+                });
+            }
+
+            var errorMessage = notPermissionList.Any() ? string.Format($"{NoPermissionAccount} : {{{{{string.Join(", ", notPermissionList)}}}}}; ") : string.Empty;
+            errorMessage += notFoundList.Any() ? string.Format($" {NotExist} : {{{{{string.Join(", ", notFoundList)}}}}}") : string.Empty;
+
+            if ((notPermissionList.Any() && notFoundList.Any()) || notPermissionList.Any())
+            {
+                return new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage };
+            }
+
+            if(notFoundList.Any())
+            {
+                return new AccountDBResult { StatusCode = HttpStatus.NotFound, ErrorMessage = errorMessage };
+            }
+
+            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+        }
+
+        private AccountDBResult IsCountryCodeValid(IEnumerable<AccountValidationParaModel> data)
+        {
+            var invalidList = new List<string>();
+
+            if (data != null && data.Any())
+            {
+                foreach (var each in data.ToList())
+                {
+                    if (!string.IsNullOrEmpty(each.Phone))
+                    {
+                        bool isValid = CultureInfo.GetCultures(CultureTypes.SpecificCultures)
+                                  .Select(culture => new RegionInfo(culture.LCID))
+                                  .Any(region => string.Equals(region.ThreeLetterISORegionName, each.CountryCode));
+
+                        if (!isValid)
+                        {
+                            invalidList.Add(each.CountryCode);
+                        }
+                    }
+                }
+            }
+
+            var errorMessage = invalidList.Any() ? string.Format($"{CountryCodeInvalid} : {{{{{string.Join(", ", invalidList.Distinct())}}}}}") : string.Empty;
+
+            return invalidList.Any() ? new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage } 
+                    : new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = errorMessage };
+        }
+    }
+}

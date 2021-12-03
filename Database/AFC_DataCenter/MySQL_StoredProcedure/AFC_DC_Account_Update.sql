@@ -36,6 +36,11 @@ sp :BEGIN
 			RawID 	VARCHAR(128) PRIMARY KEY
 	);
     
+    DROP TEMPORARY TABLE IF EXISTS Temp_FraudID;    
+	CREATE TEMPORARY TABLE Temp_FraudID( 	  
+			FraudID 	INT PRIMARY KEY
+	);
+    
 	DROP TEMPORARY TABLE IF EXISTS Temp_Account;    
 	CREATE TEMPORARY TABLE Temp_Account( 	  
 			RawID 			VARCHAR(128)
@@ -48,7 +53,7 @@ sp :BEGIN
 		,	DocumentTypeID  INT
 		,	BankName		VARCHAR(128)
 		,	BankAccountID	VARCHAR(128)
-		,	FraudID			INT
+		,	FraudID			JSON
 	);
     
 	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID)
@@ -74,9 +79,18 @@ sp :BEGIN
 			,	DocumentTypeID  INT				PATH "$.DocumentTypeID" NULL ON EMPTY
 			,	BankName		VARCHAR(128)	PATH "$.BankName" 		NULL ON EMPTY
 			,	BankAccountID	VARCHAR(128)	PATH "$.BankAccountID" 	NULL ON EMPTY
-			,	FraudID			INT				PATH "$.FraudID" 		NULL ON EMPTY
+			,	FraudID			JSON			PATH "$.FraudID" 		NULL ON EMPTY
 		)
 	) AS info;
+    
+    INSERT IGNORE INTO Temp_FraudID(FraudID)
+    SELECT temp.FraudID
+	FROM JSON_TABLE(ip_AccountInfo,
+          '$[*]' COLUMNS(
+              NESTED PATH '$.FraudID[*]' COLUMNS (FraudID INT PATH '$')
+          )
+	) AS temp
+    WHERE temp.FraudID IS NOT NULL;
     
     INSERT IGNORE INTO Temp_AccountNotExisted(RawID)
     SELECT tmp.RawID 
@@ -105,7 +119,7 @@ sp :BEGIN
     INTO lv_CheckValid
     FROM Temp_Account AS tmp 
 	WHERE NOT EXISTS (SELECT 1 FROM DocumentType AS doc WHERE doc.DocumentTypeID = tmp.DocumentTypeID) 
-		AND tmp.DocumentTypeID != -1 
+		AND tmp.DocumentTypeID IS NOT NULL
 	LIMIT 1;
         
 	IF lv_CheckValid = 1 THEN
@@ -116,9 +130,8 @@ sp :BEGIN
     
     SELECT 1 
     INTO lv_CheckValid
-    FROM Temp_Account AS tmp 
+    FROM Temp_FraudID AS tmp 
 	WHERE NOT EXISTS (SELECT 1 FROM FraudCase AS fr WHERE fr.FraudID = tmp.FraudID)
-		AND tmp.FraudID != -1 
     LIMIT 1;
         
 	IF lv_CheckValid = 1 THEN
@@ -132,11 +145,13 @@ sp :BEGIN
 	FROM AFC_DataCenter.Account AS acc
 		INNER JOIN Temp_Account AS tmp ON acc.ParticipantID = tmp.ParticipantID
 									 AND acc.RawID = tmp.RawID
+                                     AND tmp.FraudID 	IS NULL
 									 AND (tmp.FullName	IS NULL OR acc.FullName = tmp.FullName)
 									 AND (tmp.Email 	IS NULL	OR acc.Email = tmp.Email)
 									 AND (tmp.Phone 	IS NULL	OR (acc.Phone = tmp.Phone AND acc.CountryCode = tmp.CountryCode))
 									 AND (tmp.DocumentID 	IS NULL	OR (acc.DocumentID = tmp.DocumentID AND  acc.DocumentTypeID = tmp.DocumentTypeID))
 									 AND (tmp.BankAccountID IS NULL	 OR (acc.BankAccountID = tmp.BankAccountID AND  acc.BankName = tmp.BankName));
+                                     
     
     DELETE 
     FROM Temp_Account AS acc

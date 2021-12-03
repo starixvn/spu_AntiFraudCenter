@@ -5,6 +5,13 @@
 	DB: AFC_DataCenter
 */
 USE AFC_DataCenter;
+ALTER TABLE AFC_DataCenter.Account CHANGE FraudID FraudID JSON, ALGORITHM=COPY;
+ALTER TABLE AFC_DataCenter.Account_Log CHANGE FraudID FraudID JSON, ALGORITHM=COPY;
+
+
+
+
+USE AFC_DataCenter;
 ALTER TABLE Account_Log DROP PRIMARY KEY, ADD PRIMARY KEY (`ID`, `Created`);
 
 USE AFC_DataCenter;

@@ -30,13 +30,18 @@ sp :BEGIN
                                               "DocumentTypeID": 1,
                                               "BankName": "BankName_Vaule_Test",
                                               "BankAccountID": "BankAccountID_Vaule_Test",
-                                              "FraudID": 2}]', @mess);
+                                              "FraudID": [1,2,3]}]', @mess);
 	*/  
     DECLARE lv_CheckValid INT;
     
     DROP TEMPORARY TABLE IF EXISTS Temp_AccountExisted;    
 	CREATE TEMPORARY TABLE Temp_AccountExisted( 	  
 			RawID 	VARCHAR(128) PRIMARY KEY
+	);
+    
+    DROP TEMPORARY TABLE IF EXISTS Temp_FraudID;    
+	CREATE TEMPORARY TABLE Temp_FraudID( 	  
+			FraudID 	INT PRIMARY KEY
 	);
     
 	DROP TEMPORARY TABLE IF EXISTS Temp_Account;    
@@ -51,7 +56,7 @@ sp :BEGIN
 		,	DocumentTypeID  INT
 		,	BankName		VARCHAR(128)
 		,	BankAccountID	VARCHAR(128)
-		,	FraudID			INT
+		,	FraudID			JSON
 	);
     
 	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID)
@@ -77,9 +82,17 @@ sp :BEGIN
 			,	DocumentTypeID  TINYINT			PATH "$.DocumentTypeID" 
 			,	BankName		VARCHAR(128)	PATH "$.BankName" 
 			,	BankAccountID	VARCHAR(128)	PATH "$.BankAccountID" 
-			,	FraudID			INT				PATH "$.FraudID" 
+			,	FraudID			JSON			PATH "$.FraudID" 
 		)
 	) AS info;
+    
+    INSERT IGNORE INTO Temp_FraudID(FraudID)
+    SELECT temp.FraudID
+	FROM JSON_TABLE(ip_AccountInfo,
+          '$[*]' COLUMNS(
+              NESTED PATH '$.FraudID[*]' COLUMNS (FraudID INT PATH '$')
+          )
+	) AS temp;
     
     INSERT IGNORE INTO Temp_AccountExisted(RawID)
     SELECT tmp.RawID 
@@ -119,7 +132,7 @@ sp :BEGIN
     
     SELECT 1 
     INTO lv_CheckValid
-    FROM Temp_Account AS tmp 
+    FROM Temp_FraudID AS tmp 
 	WHERE NOT EXISTS (SELECT 1 FROM FraudCase AS fr WHERE fr.FraudID = tmp.FraudID)
     LIMIT 1;
         
@@ -128,9 +141,6 @@ sp :BEGIN
         
         LEAVE sp;
     END IF;
-    
-    
-    
     
     INSERT INTO AFC_DataCenter.Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID)
     SELECT 	RawID

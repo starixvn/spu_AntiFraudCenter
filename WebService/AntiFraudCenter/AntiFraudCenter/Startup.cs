@@ -10,6 +10,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.OpenApi.Models;
+    using Newtonsoft.Json.Serialization;
     using System.Linq;
 
     public class Startup
@@ -28,7 +29,9 @@
 
             services.AddSingleton<IAppSettings>(appSettings);
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+                .AddJsonOptions(opt => opt.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
             services.AddSwaggerGen(c =>
             {

@@ -5,6 +5,13 @@
 
     public class AccountUpdateCriteria : NonQueryCommand
     {
+        public readonly bool isInternalRequest;
+
+        public AccountUpdateCriteria(bool isInternalRequest)
+        {
+            this.isInternalRequest = isInternalRequest;
+        }
+
         [SpParam(SqlParamName = "ip_AccountInfo")]
         public string JsonAccountInfo { get; set; }
 
@@ -16,7 +23,7 @@
 
         public override string GetSettingKey()
         {
-            return "AFC_DC_Account_Update";
+            return isInternalRequest ? "AFC_DC_Account_Update" : "Ext_AFC_DC_Account_Update";
         }
 
         public override bool IsValid()

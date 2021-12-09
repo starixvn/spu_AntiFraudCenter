@@ -11,7 +11,7 @@
 
     public interface IParticipantInfoDBService
     {
-        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey, bool isInternalRequest);
 
         IEnumerable<FraudCasesMappingModel> GetFraudCases();
 
@@ -33,13 +33,13 @@
             this.participantInfoDataAccess = participantInfoDataAccess;
         }
 
-        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey, bool isInternalRequest)
         {
             if (!string.IsNullOrEmpty(newSecretKey) && participantID != null)
             {
                 try
                 {
-                    return participantInfoDataAccess.UpdateParticipantSecretKey(participantID, newSecretKey);
+                    return participantInfoDataAccess.UpdateParticipantSecretKey(participantID, newSecretKey, isInternalRequest);
                 }
                 catch (Exception ex)
                 {

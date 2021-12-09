@@ -8,10 +8,10 @@
         [JsonProperty(PropertyName = "StatusCode")]
         public HttpStatus StatusCode { get; set; }
 
-        [JsonProperty(PropertyName = "StatusCode")]
+        [JsonProperty(PropertyName = "ErrorMessage")]
         public string ErrorMessage { get; set; }
 
-        [JsonProperty(PropertyName = "StatusCode")]
+        [JsonProperty(PropertyName = "Data")]
         public string Data { get; set; }
     }
 }

@@ -5,6 +5,13 @@
 
     public class AccountInsertCriteria : NonQueryCommand
     {
+        public readonly bool isInternalRequest;
+
+        public AccountInsertCriteria(bool isInternalRequest)
+        {
+            this.isInternalRequest = isInternalRequest;
+        }
+
         [SpParam(SqlParamName = "ip_AccountInfo")]
         public string JsonAccountInfo { get; set; }
 
@@ -16,7 +23,7 @@
 
         public override string GetSettingKey()
         {
-            return "AFC_DC_Account_Insert";
+            return isInternalRequest ? "AFC_DC_Account_Insert" : "Ext_AFC_DC_Account_Insert";
         }
 
         public override bool IsValid()

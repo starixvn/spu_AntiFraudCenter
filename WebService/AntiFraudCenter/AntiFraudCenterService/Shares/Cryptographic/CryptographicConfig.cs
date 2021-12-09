@@ -14,6 +14,8 @@
 
         public const int Aes128 = 128;
 
-        #endregion Key information
+        public const string InternalKey = "4824D237091879E4F2E0C02E61362D8F";
+
+        #endregion Key information - NOT UPDATED
     }
 }

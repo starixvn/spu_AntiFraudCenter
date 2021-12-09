@@ -5,12 +5,19 @@
 
     public class AccountGetCriteria : CriteriaBase
     {
+        public readonly bool isInternalRequest;
+
+        public AccountGetCriteria(bool isInternalRequest)
+        {
+            this.isInternalRequest = isInternalRequest;
+        }
+
         [SpParam(SqlParamName = "ip_AccountInfo")]
         public string JsonAccountInfo { get; set; }
 
         public override string GetSettingKey()
         {
-            return "AFC_DC_Account_Get";
+            return isInternalRequest ? "AFC_DC_Account_Get" : "Ext_AFC_DC_Account_Get";
         }
 
         public override bool IsValid()

@@ -10,7 +10,7 @@
 
     public interface IParticipantInfoDataAccess
     {
-        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey, bool isInternalRequest);
 
         IEnumerable<FraudCasesMappingModel> GetFraudCases();
 
@@ -28,9 +28,9 @@
             repository = new DynamicRepository();
         }
 
-        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey, bool isInternalRequest)
         {
-            var criteria = new ParticipantSecretKeyUpdateCriteria
+            var criteria = new ParticipantSecretKeyUpdateCriteria(isInternalRequest)
             {
                 ParticipantID = participantID,
                 SecretKey = secretKey
@@ -62,7 +62,7 @@
 
         public InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips)
         {
-            var criteria = new ParticipantInitCriteria
+            var criteria = new ParticipantInsertCriteria
             {
                 ParticipantName = participantName,
                 SecretKey = secretKey,

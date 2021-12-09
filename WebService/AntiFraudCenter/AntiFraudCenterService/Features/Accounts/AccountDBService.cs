@@ -11,17 +11,17 @@
 
     public interface IAccountDBService
     {
-        IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData);
+        IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData, bool isInternalRequest);
 
-        IEnumerable<ParticipantModel> GetParticipant();
+        IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest);
 
         ParticipantModel CheckAuthentication(string key);
 
-        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID);
+        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest);
 
-        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID);
+        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest);
 
-        AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID);
+        AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest);
 
         IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data);
 
@@ -29,7 +29,7 @@
 
         IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts);
 
-        AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action);
+        AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action, bool isInternalRequest);
     }
 
     public class AccountDBService : IAccountDBService
@@ -41,26 +41,28 @@
             this.accountDataAccess = accountDataAccess;
         }
 
-        public IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData)
+        public IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData, bool isInternalRequest)
         {
             if (encryptedData != null)
             {
-                return accountDataAccess.GetAccounts(encryptedData) ?? new List<GetAccountResultModel>();
+                return accountDataAccess.GetAccounts(encryptedData, isInternalRequest) ?? new List<GetAccountResultModel>();
             }
 
             return new List<GetAccountResultModel>();
         }
 
-        public IEnumerable<ParticipantModel> GetParticipant()
+        public IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest)
         {
-            var participants = accountDataAccess.GetParticipant();
+            var participants = accountDataAccess.GetParticipant(isInternalRequest);
 
             return participants ?? new List<ParticipantModel>();
         }
 
         public ParticipantModel CheckAuthentication(string key)
         {
-            var participants = GetParticipant();
+            bool isInternalRequest = string.Equals(key, InternalKey);
+
+            var participants = GetParticipant(isInternalRequest);
 
             if (participants != null && participants.Any())
             {
@@ -70,31 +72,31 @@
             return null;
         }
 
-        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID)
+        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest)
         {
             if (encryptedData != null && encryptedData.Any() && participantID != null)
             {
-                return accountDataAccess.AddAccounts(participantID, encryptedData);
+                return accountDataAccess.AddAccounts(participantID, encryptedData, isInternalRequest);
             }
 
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID)
+        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest)
         {
             if (encryptedData != null && participantID != null)
             {
-                return accountDataAccess.UpdateAccounts(participantID, encryptedData);
+                return accountDataAccess.UpdateAccounts(participantID, encryptedData, isInternalRequest);
             }
 
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID)
+        public AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest)
         {
             if (accountIDs != null && accountIDs.Any() && participantID != null)
             {
-                return accountDataAccess.DeleteAccounts(participantID, accountIDs);
+                return accountDataAccess.DeleteAccounts(participantID, accountIDs, isInternalRequest);
             }
 
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
@@ -173,7 +175,7 @@
             return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
 
-        public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action)
+        public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action, bool isInternalRequest)
         {
             var result = new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
 
@@ -186,20 +188,20 @@
 
                 if (result.StatusCode == HttpStatus.OK && (action == AccountAction.Update || action == AccountAction.Delete))
                 {
-                    result = IsAccountValid(data, participantID);
+                    result = IsAccountValid(data, participantID, isInternalRequest);
                 }
             }
 
             return result;
         }
 
-        private AccountDBResult IsAccountValid(IEnumerable<AccountValidationParaModel> data, int? participantID)
+        private AccountDBResult IsAccountValid(IEnumerable<AccountValidationParaModel> data, int? participantID, bool isInternalRequest)
         {
             if (data != null && data.Any())
             {
                 var accountList = data.Select(c => new DeleteAccountParasModel { AccountID = c.AccountID });
 
-                var result = accountDataAccess.CheckAccountValidation(participantID, accountList);
+                var result = accountDataAccess.CheckAccountValidation(participantID, accountList, isInternalRequest);
 
                 return MappingErrorValidaion(result);
             }
@@ -235,7 +237,7 @@
                 return new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage };
             }
 
-            if(notFoundList.Any())
+            if (notFoundList.Any())
             {
                 return new AccountDBResult { StatusCode = HttpStatus.NotFound, ErrorMessage = errorMessage };
             }
@@ -267,7 +269,7 @@
 
             var errorMessage = invalidList.Any() ? string.Format($"{CountryCodeInvalid} : {{{{{string.Join(", ", invalidList.Distinct())}}}}}") : string.Empty;
 
-            return invalidList.Any() ? new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage } 
+            return invalidList.Any() ? new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage }
                     : new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = errorMessage };
         }
     }

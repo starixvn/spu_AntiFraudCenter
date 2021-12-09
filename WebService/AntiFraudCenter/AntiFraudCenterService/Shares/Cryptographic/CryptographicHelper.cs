@@ -22,7 +22,7 @@
                 {
                     aes.KeySize = Aes128;
                     aes.BlockSize = Aes128;
-                    aes.Key = keyBytes.Take(aes.KeySize/8).ToArray();
+                    aes.Key = keyBytes.Take(aes.KeySize / 8).ToArray();
                     aes.IV = saltBytes.Take(aes.BlockSize / 8).ToArray();
 
                     using (MemoryStream ms = new MemoryStream())

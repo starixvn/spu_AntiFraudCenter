@@ -1,8 +1,7 @@
 ﻿namespace AntiFraudCenter.Controllers
 {
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
+    using AntiFraudCenterService.Features.Participants.Model;
     using AntiFraudCenterService.Shares;
-    using AntiFraudCenterService.Shares.ViewModel;
     using Microsoft.AspNetCore.Mvc;
     using Sentry;
     using static AntiFraudCenterService.Shares.Constants;

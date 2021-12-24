@@ -1,9 +1,9 @@
 ﻿namespace AntiFraudCenter
 {
     using AntiFraudCenterService.Features.FraudCustomer;
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
+    using AntiFraudCenterService.Features.Participants;
+    using AntiFraudCenterService.Features.Participants.Model;
     using AntiFraudCenterService.Shares;
-    using AntiFraudCenterService.Shares.ViewModel;
     using Sentry;
     using System;
     using System.Collections.Generic;

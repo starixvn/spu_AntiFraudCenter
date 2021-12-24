@@ -1,4 +1,4 @@
-﻿namespace AntiFraudCenterService.Features.ParticipantInformation.Model
+﻿namespace AntiFraudCenterService.Features.Participants.Model
 {
     using Newtonsoft.Json;
 

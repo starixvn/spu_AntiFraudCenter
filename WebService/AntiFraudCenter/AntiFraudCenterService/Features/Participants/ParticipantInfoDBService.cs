@@ -1,7 +1,6 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.Participants
 {
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
-    using AntiFraudCenterService.Shares.ViewModel;
+    using AntiFraudCenterService.Features.Participants.Model;
     using System;
     using System.Collections.Generic;
     using System.Globalization;

@@ -1,8 +1,7 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.Participants
 {
-    using AntiFraudCenterService.Features.FraudCustomer.Criteria;
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
-    using AntiFraudCenterService.Shares.ViewModel;
+    using AntiFraudCenterService.Features.Participants.Criteria;
+    using AntiFraudCenterService.Features.Participants.Model;
     using Fanex.Data.Repository;
     using System.Collections.Generic;
     using System.Linq;

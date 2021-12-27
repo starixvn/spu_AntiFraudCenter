@@ -51,3 +51,28 @@ PARTITION BY RANGE (extract(year_month from `Created`))
   PARTITION pm202211 VALUES LESS THAN (202212) ENGINE = InnoDB,
   PARTITION pm202212 VALUES LESS THAN (202301) ENGINE = InnoDB,
   PARTITION pm999999 VALUES LESS THAN MAXVALUE ENGINE = InnoDB) ;
+  
+  
+USE AFC_DataCenter;
+ALTER TABLE Participant ADD COLUMN LastScanDate DATETIME AFTER IsActive;
+
+USE AFC_DataCenter;
+ALTER TABLE AFC_DataCenter.Account ADD INDEX IX_Account_Modified (Modified);
+
+USE AFC_DataCenter;
+CREATE TABLE `SystemParameter` (
+   `ParameterID` smallint unsigned NOT NULL,
+   `ParameterName` varchar(50),
+   `ParameterDesc` varchar(200),
+   `ParameterDataType` varchar(50),
+   `ParameterValue` varchar(200),
+   PRIMARY KEY (`ParameterID`)
+ ) ENGINE=InnoDB;
+
+INSERT INTO `AFC_DataCenter`.`SystemParameter` (`ParameterID`, `ParameterName`, `ParameterDesc`, `ParameterDataType`, `ParameterValue`) 
+VALUES ('1', 'Scanning Account', 'Batch size', 'INT', '1000');
+  
+  
+  
+  
+ 

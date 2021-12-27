@@ -13,6 +13,8 @@
     {
         IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData, bool isInternalRequest);
 
+        GetAccountByDateResultModel GetAccountsByDate(GetAccountByDateParasModel para, int participantId, bool isInternalRequest);
+
         IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest);
 
         ParticipantModel CheckAuthentication(string key);
@@ -49,6 +51,22 @@
             }
 
             return new List<GetAccountResultModel>();
+        }
+
+        public GetAccountByDateResultModel GetAccountsByDate(GetAccountByDateParasModel para, int participantId, bool isInternalRequest)
+        {
+            if (para != null)
+            {
+                return accountDataAccess.GetAccountByDate(para, participantId, isInternalRequest);
+            }
+
+            return new GetAccountByDateResultModel
+            {
+                IsContinue = false,
+                DateFrom = null,
+                DataTo = null,
+                Data = Enumerable.Empty<GetAccountResultModel>()
+            };
         }
 
         public IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest)

@@ -4,12 +4,16 @@
     using AntiFraudCenterService.Shares.Model;
     using Fanex.Data.Repository;
     using Newtonsoft.Json;
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IAccountDataAccess
     {
         IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData, bool isInternalRequest);
+
+        GetAccountByDateResultModel GetAccountByDate(GetAccountByDateParasModel data, int participantId, bool isInternalRequest);
 
         IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest);
 
@@ -39,6 +43,27 @@
             };
 
             return repository.Fetch<GetAccountResultModel>(criteria);
+        }
+
+        public GetAccountByDateResultModel GetAccountByDate(GetAccountByDateParasModel data, int participantId, bool isInternalRequest)
+        {
+            var criteria = new AccountByDateGetCriteria(isInternalRequest)
+            {
+                ParticipantID = participantId,
+                ParticipantName = data.ParticipantName,
+                FromDate = data.DataFrom,
+                ToDate = data.DataTo
+            };
+
+            var result = repository.Fetch<GetAccountResultModel>(criteria);
+
+            return new GetAccountByDateResultModel
+            {
+                IsContinue = criteria.IsContinue,
+                DateFrom = criteria.BatchFromDate,
+                DataTo = criteria.BatchToDate,
+                Data = result ?? Enumerable.Empty<GetAccountResultModel>()
+            };
         }
 
         public IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest)

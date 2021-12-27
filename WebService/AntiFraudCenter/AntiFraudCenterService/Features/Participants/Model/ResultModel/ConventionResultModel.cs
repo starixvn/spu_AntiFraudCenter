@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
-    public class ConventionViewModel
+    public class ConventionResultModel
     {
         [JsonProperty(PropertyName = "FraudCasesMapping")]
         public IEnumerable<FraudCasesMappingModel> FraudCasesMapping { get; set; }

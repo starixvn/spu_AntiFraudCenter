@@ -40,6 +40,12 @@ namespace AntiFraudCenterService.Features.FraudCustomer
         [IgnoreDataMember]
         public string FraudID { get; set; }
 
+        [IgnoreDataMember]
+        public string Modified { get; set; }
+
+        [IgnoreDataMember]
+        public string Created { get; set; }
+
         [JsonProperty(PropertyName = "FraudID")]
         public IEnumerable<int> FraudIDList
         {

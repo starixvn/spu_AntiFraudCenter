@@ -15,6 +15,8 @@
     {
         GetAccountResultViewModel GetAccounts(string key, GetAccountParasModel data);
 
+        GetAccountByDateResultViewModel GetAccountsByDate(string key, GetAccountByDateParasModel paras);
+
         AccountDBResult InsertAccounts(string key, IEnumerable<InsertAccountParasModel> data);
 
         AccountDBResult UpdateAccounts(string key, IEnumerable<InsertAccountParasModel> data);
@@ -78,6 +80,49 @@
             }
 
             return rs;
+        }
+
+        public GetAccountByDateResultViewModel GetAccountsByDate(string key, GetAccountByDateParasModel paras)
+        {
+            var result = new GetAccountByDateResultViewModel() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty, Data = new GetAccountByDateResultModel() };
+
+            try
+            {
+                if (paras == null || string.IsNullOrEmpty(key))
+                {
+                    return new GetAccountByDateResultViewModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput, Data = new GetAccountByDateResultModel () };
+                }
+
+                var participant = accountDBService.CheckAuthentication(key);
+
+                if (participant != null)
+                {
+                    var queryData = accountDBService.GetAccountsByDate(paras, participant.ParticipantID, Equals(InternalKey, participant.SecretKey));
+
+                    if (queryData != null && queryData.Data != null && queryData.Data.Any())
+                    {
+                        result.Data.Data = accountDBService.DecryptedFieldsFromDB(queryData.Data);
+                        result.Data.IsContinue = queryData.IsContinue;
+                        result.Data.DateFrom = queryData.DateFrom;
+                        result.Data.DataTo = queryData.DataTo;
+                    }
+                }
+                else
+                {
+                    result.StatusCode = HttpStatus.BadRequest;
+                    result.ErrorMessage = InvalidKey;
+                }
+            }
+            catch (Exception ex)
+            {
+                Utilities.LogSentryError("AFC - GetAccountsByDate", ex.Message, (paras, key), ex, sentryClient);
+
+                result.StatusCode = HttpStatus.BadRequest;
+
+                result.ErrorMessage = ex.Message;
+            }
+
+            return result;
         }
 
         public AccountDBResult InsertAccounts(string key, IEnumerable<InsertAccountParasModel> data)

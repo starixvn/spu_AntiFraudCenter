@@ -16,6 +16,8 @@
         IEnumerable<DocumentMappingModel> GetDocumentTypes();
 
         InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips);
+
+        IEnumerable<string> GetParticipantName(bool isInternalRequest);
     }
 
     public class ParticipantInfoDataAccess : IParticipantInfoDataAccess
@@ -76,6 +78,13 @@
                 StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.BadRequest,
                 Participant = (result != null && result.Any()) ? result.FirstOrDefault() : new InitParticipantModel()
             };
+        }
+
+        public IEnumerable<string> GetParticipantName(bool isInternalRequest)
+        {
+            var criteria = new ParticipantNameGetCriteria(isInternalRequest);
+
+            return repository.Fetch<string>(criteria);
         }
     }
 }

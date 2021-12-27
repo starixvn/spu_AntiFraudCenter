@@ -17,7 +17,7 @@
 
         InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips);
 
-        IEnumerable<string> GetParticipantName(bool isInternalRequest);
+        IEnumerable<ParticipantNameResultModel> GetParticipantName(bool isInternalRequest);
     }
 
     public class ParticipantInfoDataAccess : IParticipantInfoDataAccess
@@ -80,11 +80,11 @@
             };
         }
 
-        public IEnumerable<string> GetParticipantName(bool isInternalRequest)
+        public IEnumerable<ParticipantNameResultModel> GetParticipantName(bool isInternalRequest)
         {
             var criteria = new ParticipantNameGetCriteria(isInternalRequest);
 
-            return repository.Fetch<string>(criteria);
+            return repository.Fetch<ParticipantNameResultModel>(criteria);
         }
     }
 }

@@ -26,7 +26,7 @@
         public DateTime? ToDate { get; set; }
 
         [SpParam(SqlParamName = "op_IsContinue")]
-        public bool IsContinue { get; set; }
+        public int IsContinue { get; set; }
 
         [SpParam(SqlParamName = "op_FromDate")]
         public DateTime? BatchFromDate { get; set; }

@@ -13,6 +13,6 @@
         public string ErrorMessage { get; set; }
 
         [JsonProperty(PropertyName = "Data")]
-        public IEnumerable<string> Data { get; set; }
+        public IEnumerable<ParticipantNameResultModel> Data { get; set; }
     }
 }

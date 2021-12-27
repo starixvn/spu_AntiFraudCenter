@@ -22,7 +22,7 @@
 
         bool IsPassWordValid(string password);
 
-        IEnumerable<string> GetParticipantName(bool isInternalRequest);
+        IEnumerable<ParticipantNameResultModel> GetParticipantName(bool isInternalRequest);
     }
 
     public class ParticipantInfoDBService : IParticipantInfoDBService
@@ -106,11 +106,11 @@
             return false;
         }
 
-        public IEnumerable<string> GetParticipantName(bool isInternalRequest)
+        public IEnumerable<ParticipantNameResultModel> GetParticipantName(bool isInternalRequest)
         {
             var participantName = dataAccess.GetParticipantName(isInternalRequest);
 
-            return participantName ?? new List<string>();
+            return participantName ?? new List<ParticipantNameResultModel>();
         }
     }
 }

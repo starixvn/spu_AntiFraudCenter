@@ -59,7 +59,7 @@
 
             return new GetAccountByDateResultModel
             {
-                IsContinue = criteria.IsContinue,
+                IsContinue = criteria.IsContinue == 1,
                 DateFrom = criteria.BatchFromDate,
                 DataTo = criteria.BatchToDate,
                 Data = result ?? Enumerable.Empty<GetAccountResultModel>()

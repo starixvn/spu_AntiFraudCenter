@@ -6,17 +6,17 @@ CREATE DEFINER=`afcOwner`@`%` PROCEDURE `AFC_DC_Participant_GetName`()
     SQL SECURITY INVOKER
 BEGIN 
 /* 
-		Created:	20211111@Aries.Nguyen
-		Task:		Add account
+		Created:	20211227@Aries.Nguyen
+		Task:		Scanning Account
 		DB:			AFC_DataCenter
 		Original:
 		Revisions:   
-			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
+			- 20211227@Aries.Nguyen: Created [Redmine ID: #164149]
             
         Param's Explanation (filtered by):
         
         Example:
-			- CALL AFC_DC_Participant_GetAll();
+			- CALL AFC_DC_Participant_GetName();
 	*/   
 	SELECT 	ParticipantName
 	FROM AFC_DataCenter.Participant

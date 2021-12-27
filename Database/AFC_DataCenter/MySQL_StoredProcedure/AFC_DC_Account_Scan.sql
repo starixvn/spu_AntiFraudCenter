@@ -20,12 +20,12 @@ sp: BEGIN
 		DB:			AFC_DataCenter
 		Original:
 		Revisions:
-			- 20211111@Aries.Nguyen: Created [Redmine ID: #164079]
+			- 20211227@Aries.Nguyen: Created [Redmine ID: #164149]
             
         Param's Explanation (filtered by):
         
         Example:
-			- CALL AFC_DC_Account_Scan('{"AccountID": "AccountID_Vaule_Test", "Phone": "Phone_Vaule_Test", "CountryCode":"+4"}');
+			- CALL AFC_DataCenter.AFC_DC_Account_Scan(9,'par7','2021-12-01 00:00:00', '2021-12-02 22:02:20',@op_IsContinue, @op_FromDate, @op_ToDate);;
 	*/ 
     DECLARE CONS_SysID_BatchSize 	INT DEFAULT 1;
     

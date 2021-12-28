@@ -164,7 +164,7 @@ sp: BEGIN
     FROM Temp_Account
     ORDER BY Modified ASC;
     
-    IF ip_FromDate IS NULL AND lv_IsFilterAllPar = 1 THEN
+    IF ip_FromDate IS NULL THEN
 		UPDATE AFC_DataCenter.Participant
         SET LastScanDate = op_ToDate
         WHERE ParticipantID = ip_ParticipantID;

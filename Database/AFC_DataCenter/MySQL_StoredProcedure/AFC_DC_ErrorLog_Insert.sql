@@ -1,5 +1,5 @@
 /*<info serverAlias="AFC-AFC_DataCenter" databaseType="2" executers="afcExtAPIAdmin,afcAPIAdmin" isFunction="0" isNested="0"></info>*/
-DROP PROCEDURE IF EXISTS `AFC_DC_Participant_UpdateSecretKey`;
+DROP PROCEDURE IF EXISTS `AFC_DC_ErrorLog_Insert`;
 
 DELIMITER $$
 CREATE DEFINER=`afcOwner`@`%` PROCEDURE `AFC_DC_ErrorLog_Insert`(

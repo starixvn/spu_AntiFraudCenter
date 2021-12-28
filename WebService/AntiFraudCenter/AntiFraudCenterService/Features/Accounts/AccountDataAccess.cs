@@ -50,7 +50,7 @@
             var criteria = new AccountByDateGetCriteria(isInternalRequest)
             {
                 ParticipantID = participantId,
-                ParticipantName = data.ParticipantName,
+                ParticipantName = string.IsNullOrEmpty(data.ParticipantName)? null : data.ParticipantName,
                 FromDate = data.DataFrom,
                 ToDate = data.DataTo
             };

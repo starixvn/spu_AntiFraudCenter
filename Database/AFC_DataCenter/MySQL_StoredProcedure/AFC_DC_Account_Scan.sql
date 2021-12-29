@@ -33,6 +33,7 @@ sp: BEGIN
     DECLARE lv_BatchSize 			INT;
     DECLARE lv_LastScanDate 		DATETIME;
     DECLARE lv_MinScanDate 			DATETIME;
+    DECLARE lv_Flag 				INT;
     
     DROP TEMPORARY TABLE IF EXISTS Temp_Account;
 	CREATE TEMPORARY TABLE Temp_Account (
@@ -72,6 +73,15 @@ sp: BEGIN
     INTO lv_LastScanDate
     FROM AFC_DataCenter.Participant
     WHERE ParticipantID = ip_ParticipantID;
+	
+	IF lv_LastScanDate IS NULL THEN
+		SELECT MIN(Modified)
+		INTO lv_LastScanDate
+		FROM AFC_DataCenter.Account;
+		
+		SET lv_LastScanDate =  DATE_SUB(lv_LastScanDate, INTERVAL 1 DAY);  
+
+	END IF;
     
     
     IF ip_ParticipantList IS NOT NULL AND ip_ParticipantList != '' THEN
@@ -116,7 +126,7 @@ sp: BEGIN
     IF NOT EXISTS (SELECT 1 FROM Temp_Account) THEN
 		SET op_IsContinue = 0;
         
-        LEAVE sp;
+        LEAVE sp; 
     END IF;
     
 	SELECT MIN(Modified)
@@ -126,6 +136,18 @@ sp: BEGIN
 	SELECT MAX(Modified)
 	INTO op_ToDate
 	FROM Temp_Account;
+    
+    SELECT 	1
+    INTO lv_Flag
+	FROM AFC_DataCenter.Account AS acc
+	WHERE   acc.Modified > op_ToDate
+		AND (ip_ToDate IS NULL OR (ip_ToDate IS NOT NULL AND acc.Modified <= ip_ToDate))
+		AND (lv_IsFilterAllPar = 1 OR (lv_IsFilterAllPar = 0 AND acc.ParticipantID IN (SELECT pa.ParticipantID FROM Temp_ParticipantID AS pa)))
+	LIMIT 1;
+    
+    IF lv_Flag IS NOT NULL THEN
+        SET op_IsContinue = 1;
+    END IF;
     
     INSERT IGNORE INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID, Modified, Created)
     SELECT 	acc.ID

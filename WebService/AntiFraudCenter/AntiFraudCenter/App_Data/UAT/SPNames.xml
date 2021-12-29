@@ -4,7 +4,7 @@
 	<Function Name="Account">
 		<!--For external request-->
 		<Setting Key="Ext_AFC_DC_Account_Get" SpName="AFC_DC_Account_Get_xtest" DbName="MySQL.AFC_DataCenter.afcExtAPI" />
-		<Setting Key="Ext_AFC_DC_Account_Scan" SpName="AFC_DC_Account_Scan_xtest" DbName="MySQL.AFC_DataCenter.afcExtAPI" />
+		<Setting Key="Ext_AFC_DC_Account_Scan" SpName="AFC_DC_Account_Scan_xtest" DbName="MySQL.AFC_DataCenter.afcExtAPIAdmin" />
 		<Setting Key="Ext_AFC_DC_Account_CheckExist" SpName="AFC_DC_Account_CheckExist_xtest" DbName="MySQL.AFC_DataCenter.afcExtAPI" />
 		<Setting Key="Ext_AFC_DC_Account_Insert" SpName="AFC_DC_Account_Insert_xtest" DbName="MySQL.AFC_DataCenter.afcExtAPIAdmin" />
 		<Setting Key="Ext_AFC_DC_Account_Update" SpName="AFC_DC_Account_Update_xtest" DbName="MySQL.AFC_DataCenter.afcExtAPIAdmin" />

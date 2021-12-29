@@ -64,7 +64,7 @@
             {
                 IsContinue = false,
                 DateFrom = null,
-                DataTo = null,
+                DateTo = null,
                 Data = Enumerable.Empty<GetAccountResultModel>()
             };
         }

@@ -51,8 +51,8 @@
             {
                 ParticipantID = participantId,
                 ParticipantName = string.IsNullOrEmpty(data.ParticipantName)? null : data.ParticipantName,
-                FromDate = data.DataFrom,
-                ToDate = data.DataTo
+                FromDate = data.DateFrom,
+                ToDate = data.DateTo
             };
 
             var result = repository.Fetch<GetAccountResultModel>(criteria);
@@ -61,7 +61,7 @@
             {
                 IsContinue = criteria.IsContinue == 1,
                 DateFrom = criteria.BatchFromDate,
-                DataTo = criteria.BatchToDate,
+                DateTo = criteria.BatchToDate,
                 Data = result ?? Enumerable.Empty<GetAccountResultModel>()
             };
         }

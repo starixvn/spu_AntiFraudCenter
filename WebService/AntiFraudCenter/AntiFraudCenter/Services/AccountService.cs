@@ -104,7 +104,7 @@
                         result.Data.Data = accountDBService.DecryptedFieldsFromDB(queryData.Data);
                         result.Data.IsContinue = queryData.IsContinue;
                         result.Data.DateFrom = queryData.DateFrom;
-                        result.Data.DataTo = queryData.DataTo;
+                        result.Data.DateTo = queryData.DateTo;
                     }
                 }
                 else

@@ -13,7 +13,7 @@
         public DateTime? DateFrom { get; set; }
 
         [JsonProperty(PropertyName = "DataTo")]
-        public DateTime? DataTo { get; set; }
+        public DateTime? DateTo { get; set; }
 
         [JsonProperty(PropertyName = "Data")]
         public IEnumerable<GetAccountResultModel> Data { get; set; }

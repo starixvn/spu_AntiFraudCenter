@@ -1,8 +1,7 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.Participants
 {
-    using AntiFraudCenterService.Features.FraudCustomer.Criteria;
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
-    using AntiFraudCenterService.Shares.ViewModel;
+    using AntiFraudCenterService.Features.Participants.Criteria;
+    using AntiFraudCenterService.Features.Participants.Model;
     using Fanex.Data.Repository;
     using System.Collections.Generic;
     using System.Linq;
@@ -10,13 +9,15 @@
 
     public interface IParticipantInfoDataAccess
     {
-        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey, bool isInternalRequest);
 
         IEnumerable<FraudCasesMappingModel> GetFraudCases();
 
         IEnumerable<DocumentMappingModel> GetDocumentTypes();
 
         InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips);
+
+        IEnumerable<ParticipantNameResultModel> GetParticipantName(bool isInternalRequest);
     }
 
     public class ParticipantInfoDataAccess : IParticipantInfoDataAccess
@@ -28,9 +29,9 @@
             repository = new DynamicRepository();
         }
 
-        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string secretKey, bool isInternalRequest)
         {
-            var criteria = new ParticipantSecretKeyUpdateCriteria
+            var criteria = new ParticipantSecretKeyUpdateCriteria(isInternalRequest)
             {
                 ParticipantID = participantID,
                 SecretKey = secretKey
@@ -62,7 +63,7 @@
 
         public InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips)
         {
-            var criteria = new ParticipantInitCriteria
+            var criteria = new ParticipantInsertCriteria
             {
                 ParticipantName = participantName,
                 SecretKey = secretKey,
@@ -77,6 +78,13 @@
                 StatusCode = string.IsNullOrEmpty(criteria.ErrorMessage) ? HttpStatus.OK : HttpStatus.BadRequest,
                 Participant = (result != null && result.Any()) ? result.FirstOrDefault() : new InitParticipantModel()
             };
+        }
+
+        public IEnumerable<ParticipantNameResultModel> GetParticipantName(bool isInternalRequest)
+        {
+            var criteria = new ParticipantNameGetCriteria(isInternalRequest);
+
+            return repository.Fetch<ParticipantNameResultModel>(criteria);
         }
     }
 }

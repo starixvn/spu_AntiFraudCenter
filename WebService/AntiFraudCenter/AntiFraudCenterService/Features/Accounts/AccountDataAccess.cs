@@ -4,23 +4,26 @@
     using AntiFraudCenterService.Shares.Model;
     using Fanex.Data.Repository;
     using Newtonsoft.Json;
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
 
     public interface IAccountDataAccess
     {
-        IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData);
+        IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData, bool isInternalRequest);
 
-        IEnumerable<ParticipantModel> GetParticipant();
+        GetAccountByDateResultModel GetAccountByDate(GetAccountByDateParasModel data, int participantId, bool isInternalRequest);
 
-        AccountDBResult AddAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData);
+        IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest);
 
-        AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData);
+        AccountDBResult AddAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData, bool isInternalRequest);
 
-        AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs);
+        AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData, bool isInternalRequest);
 
-        IEnumerable<CheckAccountModel> CheckAccountValidation(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs);
+        AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs, bool isInternalRequest);
+
+        IEnumerable<CheckAccountModel> CheckAccountValidation(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs, bool isInternalRequest);
     }
 
     public class AccountDataAccess : IAccountDataAccess
@@ -32,9 +35,9 @@
             repository = new DynamicRepository();
         }
 
-        public IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData)
+        public IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData, bool isInternalRequest)
         {
-            var criteria = new AccountGetCriteria
+            var criteria = new AccountGetCriteria(isInternalRequest)
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(encryptedData)
             };
@@ -42,16 +45,37 @@
             return repository.Fetch<GetAccountResultModel>(criteria);
         }
 
-        public IEnumerable<ParticipantModel> GetParticipant()
+        public GetAccountByDateResultModel GetAccountByDate(GetAccountByDateParasModel data, int participantId, bool isInternalRequest)
         {
-            var criteria = new ParticipantGetCriteria();
+            var criteria = new AccountByDateGetCriteria(isInternalRequest)
+            {
+                ParticipantID = participantId,
+                ParticipantName = string.IsNullOrEmpty(data.ParticipantName)? null : data.ParticipantName,
+                FromDate = data.DateFrom,
+                ToDate = data.DateTo
+            };
+
+            var result = repository.Fetch<GetAccountResultModel>(criteria);
+
+            return new GetAccountByDateResultModel
+            {
+                IsContinue = criteria.IsContinue == 1,
+                DateFrom = criteria.BatchFromDate,
+                DateTo = criteria.BatchToDate,
+                Data = result ?? Enumerable.Empty<GetAccountResultModel>()
+            };
+        }
+
+        public IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest)
+        {
+            var criteria = new ParticipantGetCriteria(isInternalRequest);
 
             return repository.Fetch<ParticipantModel>(criteria);
         }
 
-        public AccountDBResult AddAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData)
+        public AccountDBResult AddAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData, bool isInternalRequest)
         {
-            var criteria = new AccountInsertCriteria
+            var criteria = new AccountInsertCriteria(isInternalRequest)
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(encryptedData),
                 ParticipantID = participantID
@@ -66,9 +90,9 @@
             };
         }
 
-        public AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData)
+        public AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData, bool isInternalRequest)
         {
-            var criteria = new AccountUpdateCriteria
+            var criteria = new AccountUpdateCriteria(isInternalRequest)
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(encryptedData),
                 ParticipantID = participantID
@@ -83,9 +107,9 @@
             };
         }
 
-        public AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs)
+        public AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs, bool isInternalRequest)
         {
-            var criteria = new AccountDeleteCriteria
+            var criteria = new AccountDeleteCriteria(isInternalRequest)
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(accountIDs),
                 ParticipantID = participantID
@@ -96,9 +120,9 @@
             return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
 
-        public IEnumerable<CheckAccountModel> CheckAccountValidation(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs)
+        public IEnumerable<CheckAccountModel> CheckAccountValidation(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs, bool isInternalRequest)
         {
-            var criteria = new AccountValidationCheckCriteria
+            var criteria = new AccountValidationCheckCriteria(isInternalRequest)
             {
                 JsonAccountInfo = JsonConvert.SerializeObject(accountIDs),
                 ParticipantID = participantID

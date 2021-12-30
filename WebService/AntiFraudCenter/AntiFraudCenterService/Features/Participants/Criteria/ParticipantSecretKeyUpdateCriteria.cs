@@ -1,10 +1,17 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer.Criteria
+﻿namespace AntiFraudCenterService.Features.Participants.Criteria
 {
     using Fanex.Data;
     using Fanex.Data.Repository;
 
     public class ParticipantSecretKeyUpdateCriteria : NonQueryCommand
     {
+        public readonly bool isInternalRequest;
+
+        public ParticipantSecretKeyUpdateCriteria(bool isInternalRequest)
+        {
+            this.isInternalRequest = isInternalRequest;
+        }
+
         [SpParam(SqlParamName = "ip_ParticipantID")]
         public int? ParticipantID { get; set; }
 
@@ -13,7 +20,7 @@
 
         public override string GetSettingKey()
         {
-            return "AFC_DC_Participant_UpdateSecretKey";
+            return isInternalRequest ? "AFC_DC_Participant_UpdateSecretKey" : "Ext_AFC_DC_Participant_UpdateSecretKey";
         }
 
         public override bool IsValid()

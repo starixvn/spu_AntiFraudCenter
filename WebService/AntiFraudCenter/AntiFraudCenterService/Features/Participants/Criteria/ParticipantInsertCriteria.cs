@@ -1,9 +1,9 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer.Criteria
+﻿namespace AntiFraudCenterService.Features.Participants.Criteria
 {
     using Fanex.Data;
     using Fanex.Data.Repository;
 
-    public class ParticipantInitCriteria : CriteriaBase
+    public class ParticipantInsertCriteria : CriteriaBase
     {
         [SpParam(SqlParamName = "ip_ParticipantName")]
         public string ParticipantName { get; set; }

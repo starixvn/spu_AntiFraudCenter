@@ -1,5 +1,6 @@
 ﻿using AntiFraudCenterService.Shares;
 using AntiFraudCenterService.Shares.ValidationData;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AntiFraudCenterService.Features.FraudCustomer
@@ -36,6 +37,6 @@ namespace AntiFraudCenterService.Features.FraudCustomer
         public string BankAccountID { get; set; }
 
         [Required]
-        public int? FraudID { get; set; }
+        public List<int> FraudID { get; set; }
     }
 }

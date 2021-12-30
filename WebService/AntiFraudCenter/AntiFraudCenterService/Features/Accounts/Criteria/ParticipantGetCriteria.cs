@@ -4,9 +4,16 @@
 
     public class ParticipantGetCriteria : CriteriaBase
     {
+        public readonly bool isInternalRequest;
+
+        public ParticipantGetCriteria(bool isInternalRequest)
+        {
+            this.isInternalRequest = isInternalRequest;
+        }
+
         public override string GetSettingKey()
         {
-            return "AFC_DC_Participant_Get";
+            return isInternalRequest ? "AFC_DC_Participant_Get" : "Ext_AFC_DC_Participant_Get";
         }
 
         public override bool IsValid()

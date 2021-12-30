@@ -1,40 +1,42 @@
 ﻿namespace AntiFraudCenter
 {
     using AntiFraudCenterService.Features.FraudCustomer;
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
+    using AntiFraudCenterService.Features.Participants;
+    using AntiFraudCenterService.Features.Participants.Model;
     using AntiFraudCenterService.Shares;
-    using AntiFraudCenterService.Shares.ViewModel;
     using Sentry;
     using System;
     using System.Collections.Generic;
-    using static AntiFraudCenterService.Shares.Constants;    
+    using static AntiFraudCenterService.Shares.Constants;
     using static AntiFraudCenterService.Shares.CryptographicConfig;
 
     public interface IParticipantService
     {
         RegenerateKeyResultModel UpdateParticipantSecretKey(string key);
 
-        ConventionViewModel GetConventionInfo();
+        ConventionResultModel GetConventionInfo();
 
         InitParticipantResultModel InitParticipant(string participantName, string password, string ips);
+
+        GetParticipantNameResultModel GetParticipantName();
     }
 
     public class ParticipantService : IParticipantService
     {
         private readonly ISentryClient sentryClient;
-        private readonly IParticipantInfoDBService participantInfoDBService;
-        private readonly IAccountDBService fraudCustomerDBService;
+        private readonly IParticipantInfoDBService participantDBService;
+        private readonly IAccountDBService accountDBService;
         private readonly IAppSettings appSettings;
 
         public ParticipantService(
             ISentryClient sentryClient,
             IParticipantInfoDBService participantInfoDBService,
-            IAccountDBService fraudCustomerDBService,
+            IAccountDBService accountDBService,
             IAppSettings appSettings)
         {
             this.sentryClient = sentryClient;
-            this.participantInfoDBService = participantInfoDBService;
-            this.fraudCustomerDBService = fraudCustomerDBService;
+            this.participantDBService = participantInfoDBService;
+            this.accountDBService = accountDBService;
             this.appSettings = appSettings;
         }
 
@@ -49,13 +51,15 @@
                     return rs;
                 }
 
-                var participant = fraudCustomerDBService.CheckAuthentication(key);
+                var participant = accountDBService.CheckAuthentication(key);
 
                 if (participant != null)
                 {
                     var newKey = CryptographicHelper.GetRandomHexNumber(SecretKey_NumberOfByte);
 
-                    rs = participantInfoDBService.UpdateParticipantSecretKey(participant.ParticipantID, newKey);
+                    bool isInternalRequest = Equals(InternalKey, key);
+
+                    rs = participantDBService.UpdateParticipantSecretKey(participant.ParticipantID, newKey, isInternalRequest);
                 }
             }
             catch (Exception ex)
@@ -68,9 +72,9 @@
             return rs;
         }
 
-        public ConventionViewModel GetConventionInfo()
+        public ConventionResultModel GetConventionInfo()
         {
-            var rs = new ConventionViewModel
+            var rs = new ConventionResultModel
             {
                 DocumentMapping = new List<DocumentMappingModel>(),
                 FraudCasesMapping = new List<FraudCasesMappingModel>(),
@@ -81,9 +85,9 @@
 
             try
             {
-                rs.DocumentMapping = participantInfoDBService.GetDocumentTypes();
-                rs.FraudCasesMapping = participantInfoDBService.GetFraudCases();
-                rs.CountryMapping = participantInfoDBService.GetCountryCodes();
+                rs.DocumentMapping = participantDBService.GetDocumentTypes();
+                rs.FraudCasesMapping = participantDBService.GetFraudCases();
+                rs.CountryMapping = participantDBService.GetCountryCodes();
             }
             catch (Exception ex)
             {
@@ -103,13 +107,13 @@
             {
                 if (!string.IsNullOrEmpty(participantName) && !string.IsNullOrEmpty(password))
                 {
-                    bool isValid = participantInfoDBService.IsPassWordValid(password);
+                    bool isValid = participantDBService.IsPassWordValid(password);
 
                     if (isValid)
                     {
                         var generateKey = CryptographicHelper.GetRandomHexNumber(SecretKey_NumberOfByte);
 
-                        rs = participantInfoDBService.InitParticipant(participantName, generateKey, ips);
+                        rs = participantDBService.InitParticipant(participantName, generateKey, ips);
                     }
                     else
                     {
@@ -121,6 +125,28 @@
             catch (Exception ex)
             {
                 Utilities.LogSentryError("AFC - InitParticipant", string.Empty, participantName, ex, sentryClient);
+                rs.ErrorMessage = ex.Message;
+                rs.StatusCode = HttpStatus.InternalServerError;
+            }
+
+            return rs;
+        }
+
+        public GetParticipantNameResultModel GetParticipantName()
+        {
+            var rs = new GetParticipantNameResultModel
+            {
+                StatusCode = HttpStatus.OK,
+                ErrorMessage = string.Empty
+            };
+
+            try
+            {
+                rs.Data = participantDBService.GetParticipantName(false);
+            }
+            catch (Exception ex)
+            {
+                Utilities.LogSentryError("AFC - GetParticipantName", string.Empty, string.Empty, ex, sentryClient);
                 rs.ErrorMessage = ex.Message;
                 rs.StatusCode = HttpStatus.InternalServerError;
             }

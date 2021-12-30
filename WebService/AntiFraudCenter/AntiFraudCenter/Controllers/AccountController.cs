@@ -4,8 +4,10 @@
     using AntiFraudCenterService.Features.FraudCustomer.Model;
     using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.Model;
+    using AntiFraudCenterService.Shares.ViewModel;
     using Microsoft.AspNetCore.Mvc;
     using Sentry;
+    using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;
 
     [ApiController]
@@ -30,10 +32,23 @@
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
             {
-                return StatusCode((int)HttpStatus.InternalServerError, new AccountDBResult { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC" });
+                return StatusCode((int)HttpStatus.InternalServerError, new GetAccountResultViewModel { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC", Data = new List<GetAccountResultModel>() });
             }
 
             var result = this.accountService.GetAccounts(paras.Key, paras.Data);
+
+            return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpPost("GetByDate")]
+        public IActionResult GetAccountsByDate([FromBody] GetAccountByDateParasViewModel paras)
+        {
+            if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
+            {
+                return StatusCode((int)HttpStatus.InternalServerError, new GetAccountByDateResultViewModel { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC", Data = new GetAccountByDateResultModel() });
+            }
+
+            var result = this.accountService.GetAccountsByDate(paras.Key, paras.Data);
 
             return StatusCode((int)result.StatusCode, result);
         }

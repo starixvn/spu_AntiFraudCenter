@@ -1,7 +1,6 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.Participants
 {
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
-    using AntiFraudCenterService.Shares.ViewModel;
+    using AntiFraudCenterService.Features.Participants.Model;
     using System;
     using System.Collections.Generic;
     using System.Globalization;
@@ -11,7 +10,7 @@
 
     public interface IParticipantInfoDBService
     {
-        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey);
+        RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey, bool isInternalRequest);
 
         IEnumerable<FraudCasesMappingModel> GetFraudCases();
 
@@ -22,24 +21,26 @@
         InitParticipantResultModel InitParticipant(string participantName, string secretKey, string ips);
 
         bool IsPassWordValid(string password);
+
+        IEnumerable<ParticipantNameResultModel> GetParticipantName(bool isInternalRequest);
     }
 
     public class ParticipantInfoDBService : IParticipantInfoDBService
     {
-        private readonly IParticipantInfoDataAccess participantInfoDataAccess;
+        private readonly IParticipantInfoDataAccess dataAccess;
 
         public ParticipantInfoDBService(IParticipantInfoDataAccess participantInfoDataAccess)
         {
-            this.participantInfoDataAccess = participantInfoDataAccess;
+            this.dataAccess = participantInfoDataAccess;
         }
 
-        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey)
+        public RegenerateKeyResultModel UpdateParticipantSecretKey(int? participantID, string newSecretKey, bool isInternalRequest)
         {
             if (!string.IsNullOrEmpty(newSecretKey) && participantID != null)
             {
                 try
                 {
-                    return participantInfoDataAccess.UpdateParticipantSecretKey(participantID, newSecretKey);
+                    return dataAccess.UpdateParticipantSecretKey(participantID, newSecretKey, isInternalRequest);
                 }
                 catch (Exception ex)
                 {
@@ -52,12 +53,12 @@
 
         public IEnumerable<FraudCasesMappingModel> GetFraudCases()
         {
-            return participantInfoDataAccess.GetFraudCases();
+            return dataAccess.GetFraudCases();
         }
 
         public IEnumerable<DocumentMappingModel> GetDocumentTypes()
         {
-            return participantInfoDataAccess.GetDocumentTypes();
+            return dataAccess.GetDocumentTypes();
         }
 
         public IEnumerable<CountryMappingModel> GetCountryCodes()
@@ -89,7 +90,7 @@
         {
             if (!string.IsNullOrEmpty(participantName) && !string.IsNullOrEmpty(secretKey))
             {
-                return participantInfoDataAccess.InitParticipant(participantName, secretKey, ips);
+                return dataAccess.InitParticipant(participantName, secretKey, ips);
             }
 
             return new InitParticipantResultModel { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
@@ -103,6 +104,13 @@
             }
 
             return false;
+        }
+
+        public IEnumerable<ParticipantNameResultModel> GetParticipantName(bool isInternalRequest)
+        {
+            var participantName = dataAccess.GetParticipantName(isInternalRequest);
+
+            return participantName ?? new List<ParticipantNameResultModel>();
         }
     }
 }

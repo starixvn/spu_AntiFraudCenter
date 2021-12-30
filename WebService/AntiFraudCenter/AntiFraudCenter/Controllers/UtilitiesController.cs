@@ -1,8 +1,7 @@
 ﻿namespace AntiFraudCenter.Controllers
 {
-    using AntiFraudCenterService.Features.ParticipantInformation.Model;
+    using AntiFraudCenterService.Features.Participants.Model;
     using AntiFraudCenterService.Shares;
-    using AntiFraudCenterService.Shares.ViewModel;
     using Microsoft.AspNetCore.Mvc;
     using Sentry;
     using static AntiFraudCenterService.Shares.Constants;
@@ -43,7 +42,7 @@
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
             {
-                return StatusCode((int)HttpStatus.InternalServerError, new ConventionViewModel { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC" });
+                return StatusCode((int)HttpStatus.InternalServerError, new ConventionResultModel { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC" });
             }
 
             var result = this.participantService.GetConventionInfo();

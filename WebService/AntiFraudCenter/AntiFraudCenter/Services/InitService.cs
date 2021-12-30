@@ -1,6 +1,7 @@
 ﻿namespace AntiFraudCenter
 {
     using AntiFraudCenterService.Features.FraudCustomer;
+    using AntiFraudCenterService.Features.Participants;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
 

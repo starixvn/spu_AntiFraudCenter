@@ -24,6 +24,8 @@
         AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs, bool isInternalRequest);
 
         IEnumerable<CheckAccountModel> CheckAccountValidation(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs, bool isInternalRequest);
+
+        AccountDBResult InsertErrorLog(int? participantID, string errorMessage, string dataJson, bool isInternalRequest);
     }
 
     public class AccountDataAccess : IAccountDataAccess
@@ -131,6 +133,20 @@
             var result = repository.Fetch<CheckAccountModel>(criteria);
 
             return result;
+        }
+
+        public AccountDBResult InsertErrorLog(int? participantID, string errorMessage, string dataJson, bool isInternalRequest)
+        {
+            var criteria = new ErrorLogInsertCriteria(isInternalRequest)
+            {
+                ErrorMessage = errorMessage,
+                DataJson = dataJson,
+                ParticipantID = participantID
+            };
+
+            repository.Execute(criteria);
+
+            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
     }
 }

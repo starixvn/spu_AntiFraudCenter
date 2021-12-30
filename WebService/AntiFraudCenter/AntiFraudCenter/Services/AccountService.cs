@@ -157,7 +157,7 @@
 
                 var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
 
-                rs = accountDBService.InsertAccounts(encryptedData, participant.ParticipantID, Equals(InternalKey, participant.SecretKey));
+                rs = accountDBService.InsertAccounts(encryptedData, participant.ParticipantID, Equals(InternalKey, participant.SecretKey), appSettings.InternalBatchSize);
             }
             catch (Exception ex)
             {
@@ -201,7 +201,7 @@
 
                 var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
 
-                rs = accountDBService.UpdateAccounts(encryptedData, participant.ParticipantID, Equals(InternalKey, participant.SecretKey));
+                rs = accountDBService.UpdateAccounts(encryptedData, participant.ParticipantID, Equals(InternalKey, participant.SecretKey), appSettings.InternalBatchSize);
             }
             catch (Exception ex)
             {
@@ -241,7 +241,7 @@
                     return dataValid;
                 }
 
-                rs = accountDBService.DeleteAccounts(accountIDs, participant.ParticipantID, Equals(InternalKey, participant.SecretKey));
+                rs = accountDBService.DeleteAccounts(accountIDs, participant.ParticipantID, Equals(InternalKey, participant.SecretKey), appSettings.InternalBatchSize);
             }
             catch (Exception ex)
             {

@@ -19,11 +19,11 @@
 
         ParticipantModel CheckAuthentication(string key);
 
-        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest);
+        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
-        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest);
+        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
-        AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest);
+        AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest, int batchSize);
 
         IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data);
 
@@ -90,33 +90,68 @@
             return null;
         }
 
-        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest)
+        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (encryptedData != null && encryptedData.Any() && participantID != null)
             {
-                return accountDataAccess.AddAccounts(participantID, encryptedData, isInternalRequest);
+                var dataChunk = encryptedData.ChunkBy(batchSize);
+
+                foreach (var data in dataChunk)
+                {
+                    var result = accountDataAccess.AddAccounts(participantID, encryptedData, isInternalRequest);
+
+                    if(!string.IsNullOrEmpty(result.ErrorMessage))
+                    {
+                        accountDataAccess.InsertErrorLog(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                    }    
+                }
+
+                return new AccountDBResult() { StatusCode = HttpStatus.Created, ErrorMessage = string.Empty };
             }
 
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest)
+        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (encryptedData != null && participantID != null)
             {
-                return accountDataAccess.UpdateAccounts(participantID, encryptedData, isInternalRequest);
+                var dataChunk = encryptedData.ChunkBy(batchSize);
+
+                foreach (var data in dataChunk)
+                {
+                    var result = accountDataAccess.UpdateAccounts(participantID, encryptedData, isInternalRequest);
+
+                    if (!string.IsNullOrEmpty(result.ErrorMessage))
+                    {
+                        accountDataAccess.InsertErrorLog(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                    }
+                }
+
+                return new AccountDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
             }
 
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest)
+        public AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (accountIDs != null && accountIDs.Any() && participantID != null)
             {
-                return accountDataAccess.DeleteAccounts(participantID, accountIDs, isInternalRequest);
-            }
+                var dataChunk = accountIDs.ChunkBy(batchSize);
 
+                foreach (var data in dataChunk)
+                {
+                    var result = accountDataAccess.DeleteAccounts(participantID, accountIDs, isInternalRequest);
+
+                    if (!string.IsNullOrEmpty(result.ErrorMessage))
+                    {
+                        accountDataAccess.InsertErrorLog(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                    }
+                }
+
+                return new AccountDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+            }
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 

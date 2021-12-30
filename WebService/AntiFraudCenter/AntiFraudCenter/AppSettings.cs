@@ -17,6 +17,10 @@
         string UMTo { get; }
 
         bool IsUnderMaintenanceTime { get; }
+
+        int InternalBatchSize { get; }
+
+        int ExternalBatchSize { get; }
     }
 
     public class AppSettings : IAppSettings
@@ -26,6 +30,8 @@
         private readonly string environment;
         private readonly string evironmentName;
         private readonly string spName;
+        private readonly int internalBatchSize;
+        private readonly int externalBatchSize;
 
         public AppSettings(IConfiguration configuration)
         {
@@ -34,6 +40,8 @@
             environment = GetValue<string>(nameof(Environment));
             evironmentName = GetValue<string>(nameof(Environment));
             spName = GetValue<string>(nameof(SPName));
+            internalBatchSize = GetValue<int>(nameof(InternalBatchSize));
+            externalBatchSize = GetValue<int>(nameof(ExternalBatchSize));
         }
 
         #region Variables
@@ -65,6 +73,10 @@
         public string UMTo => GetValue<string>("UM:UMTo");
 
         public bool IsUnderMaintenanceTime => GetValue<bool>("UM:EnableCheckUM");
+
+        public int InternalBatchSize => internalBatchSize;
+
+        public int ExternalBatchSize => externalBatchSize;
 
         #endregion Variables
 

@@ -17,7 +17,7 @@
 
         IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest);
 
-        ParticipantModel CheckAuthentication(string key);
+        ParticipantModel CheckAuthentication(string key, bool isInternalRequest);
 
         AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
@@ -76,10 +76,8 @@
             return participants ?? new List<ParticipantModel>();
         }
 
-        public ParticipantModel CheckAuthentication(string key)
+        public ParticipantModel CheckAuthentication(string key, bool isInternalRequest)
         {
-            bool isInternalRequest = string.Equals(key, InternalKey);
-
             var participants = GetParticipant(isInternalRequest);
 
             if (participants != null && participants.Any())

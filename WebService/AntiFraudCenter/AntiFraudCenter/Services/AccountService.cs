@@ -9,7 +9,6 @@
     using System.Collections.Generic;
     using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
-    using static AntiFraudCenterService.Shares.CryptographicConfig;
 
     public interface IAccountService
     {
@@ -51,13 +50,15 @@
                     return new GetAccountResultViewModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput, Data = new List<GetAccountResultModel>() };
                 }
 
-                var participant = accountDBService.CheckAuthentication(key);
+                bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
+
+                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant != null)
                 {
                     var encryptedFields = accountDBService.EncryptedFieldsToGetDB(data);
 
-                    var fraudCusts = accountDBService.GetAccounts(encryptedFields, Equals(InternalKey, participant.SecretKey));
+                    var fraudCusts = accountDBService.GetAccounts(encryptedFields, isInternalRequest);
 
                     if (fraudCusts.Any())
                     {
@@ -90,14 +91,16 @@
             {
                 if (paras == null || string.IsNullOrEmpty(key))
                 {
-                    return new GetAccountByDateResultViewModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput, Data = new GetAccountByDateResultModel () };
+                    return new GetAccountByDateResultViewModel() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput, Data = new GetAccountByDateResultModel() };
                 }
 
-                var participant = accountDBService.CheckAuthentication(key);
+                bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
+
+                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant != null)
                 {
-                    var queryData = accountDBService.GetAccountsByDate(paras, participant.ParticipantID, Equals(InternalKey, participant.SecretKey));
+                    var queryData = accountDBService.GetAccountsByDate(paras, participant.ParticipantID, isInternalRequest);
 
                     if (queryData != null && queryData.Data != null && queryData.Data.Any())
                     {
@@ -136,14 +139,16 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
                 }
 
-                var participant = accountDBService.CheckAuthentication(key);
+                bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
+
+                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant == null)
                 {
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                var dataValid = CheckValidation(participant, AccountAction.Insert, data.Select(c => new AccountValidationParaModel
+                var dataValid = CheckValidation(participant, AccountAction.Insert, isInternalRequest, data.Select(c => new AccountValidationParaModel
                 {
                     AccountID = c.AccountID,
                     CountryCode = c.CountryCode,
@@ -157,7 +162,7 @@
 
                 var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
 
-                rs = accountDBService.InsertAccounts(encryptedData, participant.ParticipantID, Equals(InternalKey, participant.SecretKey), appSettings.InternalBatchSize);
+                rs = accountDBService.InsertAccounts(encryptedData, participant.ParticipantID, isInternalRequest, appSettings.InternalBatchSize);
             }
             catch (Exception ex)
             {
@@ -180,14 +185,16 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
                 }
 
-                var participant = accountDBService.CheckAuthentication(key);
+                bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
+
+                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant == null)
                 {
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                var dataValid = CheckValidation(participant, AccountAction.Update, data.Select(c => new AccountValidationParaModel
+                var dataValid = CheckValidation(participant, AccountAction.Update, isInternalRequest, data.Select(c => new AccountValidationParaModel
                 {
                     AccountID = c.AccountID,
                     CountryCode = c.CountryCode,
@@ -201,7 +208,7 @@
 
                 var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
 
-                rs = accountDBService.UpdateAccounts(encryptedData, participant.ParticipantID, Equals(InternalKey, participant.SecretKey), appSettings.InternalBatchSize);
+                rs = accountDBService.UpdateAccounts(encryptedData, participant.ParticipantID, isInternalRequest, appSettings.InternalBatchSize);
             }
             catch (Exception ex)
             {
@@ -224,14 +231,16 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
                 }
 
-                var participant = accountDBService.CheckAuthentication(key);
+                bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
+
+                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant == null)
                 {
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                var dataValid = CheckValidation(participant, AccountAction.Delete, accountIDs.Select(c => new AccountValidationParaModel
+                var dataValid = CheckValidation(participant, AccountAction.Delete, isInternalRequest, accountIDs.Select(c => new AccountValidationParaModel
                 {
                     AccountID = c.AccountID
                 }));
@@ -241,7 +250,7 @@
                     return dataValid;
                 }
 
-                rs = accountDBService.DeleteAccounts(accountIDs, participant.ParticipantID, Equals(InternalKey, participant.SecretKey), appSettings.InternalBatchSize);
+                rs = accountDBService.DeleteAccounts(accountIDs, participant.ParticipantID, isInternalRequest, appSettings.InternalBatchSize);
             }
             catch (Exception ex)
             {
@@ -253,16 +262,14 @@
             return rs;
         }
 
-        public AccountDBResult CheckValidation(ParticipantModel participant, AccountAction action, IEnumerable<AccountValidationParaModel> data)
+        public AccountDBResult CheckValidation(ParticipantModel participant, AccountAction action, bool isInternalRequest, IEnumerable<AccountValidationParaModel> data)
         {
             if (data == null || !data.Any())
             {
                 return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
             }
 
-            bool isInternalRequest = Equals(InternalKey, participant.SecretKey);
-
-            var result = accountDBService.CheckDataValidation(data, participant.ParticipantID, action, Equals(InternalKey, isInternalRequest));
+            var result = accountDBService.CheckDataValidation(data, participant.ParticipantID, action, isInternalRequest);
 
             return result;
         }

@@ -21,6 +21,8 @@
         int InternalBatchSize { get; }
 
         int ExternalBatchSize { get; }
+
+        string AFCInternalKey { get; }
     }
 
     public class AppSettings : IAppSettings
@@ -32,6 +34,7 @@
         private readonly string spName;
         private readonly int internalBatchSize;
         private readonly int externalBatchSize;
+        private readonly string afcInternalKey;
 
         public AppSettings(IConfiguration configuration)
         {
@@ -42,6 +45,7 @@
             spName = GetValue<string>(nameof(SPName));
             internalBatchSize = GetValue<int>(nameof(InternalBatchSize));
             externalBatchSize = GetValue<int>(nameof(ExternalBatchSize));
+            afcInternalKey = GetValue<string>(nameof(AFCInternalKey));
         }
 
         #region Variables
@@ -77,6 +81,9 @@
         public int InternalBatchSize => internalBatchSize;
 
         public int ExternalBatchSize => externalBatchSize;
+
+        public string AFCInternalKey => afcInternalKey;
+
 
         #endregion Variables
 

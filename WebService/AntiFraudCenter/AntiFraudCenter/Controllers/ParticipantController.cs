@@ -23,7 +23,7 @@
             this.appSettings = appSettings;
         }
 
-        [HttpPost("Get")]
+        [HttpGet("Get")]
         public IActionResult GetParticipantName()
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))

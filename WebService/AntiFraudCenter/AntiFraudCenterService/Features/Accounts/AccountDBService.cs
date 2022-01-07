@@ -32,6 +32,8 @@
         IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts);
 
         AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action, bool isInternalRequest);
+
+        void LogErrorToDB(int? participantID, string errMessage, string dataJson, bool isInternalRequest);
     }
 
     public class AccountDBService : IAccountDBService
@@ -98,10 +100,10 @@
                 {
                     var result = accountDataAccess.AddAccounts(participantID, encryptedData, isInternalRequest);
 
-                    if(!string.IsNullOrEmpty(result.ErrorMessage))
+                    if (!string.IsNullOrEmpty(result.ErrorMessage))
                     {
-                        accountDataAccess.InsertErrorLog(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
-                    }    
+                        LogErrorToDB(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                    }
                 }
 
                 return new AccountDBResult() { StatusCode = HttpStatus.Created, ErrorMessage = string.Empty };
@@ -122,7 +124,7 @@
 
                     if (!string.IsNullOrEmpty(result.ErrorMessage))
                     {
-                        accountDataAccess.InsertErrorLog(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                        LogErrorToDB(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
                     }
                 }
 
@@ -144,7 +146,7 @@
 
                     if (!string.IsNullOrEmpty(result.ErrorMessage))
                     {
-                        accountDataAccess.InsertErrorLog(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                        LogErrorToDB(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
                     }
                 }
 
@@ -246,6 +248,12 @@
             return result;
         }
 
+        public void LogErrorToDB(int? participantID, string errMessage, string dataJson, bool isInternalRequest)
+        {
+            accountDataAccess.InsertErrorLog(participantID, errMessage, dataJson, isInternalRequest);
+        }
+
+        #region Private methods
         private AccountDBResult IsAccountValid(IEnumerable<AccountValidationParaModel> data, int? participantID, bool isInternalRequest)
         {
             if (data != null && data.Any())
@@ -323,5 +331,7 @@
             return invalidList.Any() ? new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage }
                     : new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = errorMessage };
         }
+
+        #endregion Private methods
     }
-}
+} 

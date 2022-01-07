@@ -4,6 +4,7 @@
     using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.Model;
     using AntiFraudCenterService.Shares.ViewModel;
+    using Newtonsoft.Json;
     using Sentry;
     using System;
     using System.Collections.Generic;
@@ -131,6 +132,7 @@
         public AccountDBResult InsertAccounts(string key, IEnumerable<InsertAccountParasModel> data)
         {
             var rs = new AccountDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+            ParticipantModel participant = null;
 
             try
             {
@@ -141,7 +143,7 @@
 
                 bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
 
-                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
+                participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant == null)
                 {
@@ -169,6 +171,8 @@
                 Utilities.LogSentryError("AFC - InsertAccounts", ex.Message, (data, key), ex, sentryClient);
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
+
+                accountDBService.LogErrorToDB(participant?.ParticipantID, ex.Message, JsonConvert.SerializeObject(data), Equals(appSettings.AFCInternalKey, key));
             }
 
             return rs;
@@ -177,6 +181,7 @@
         public AccountDBResult UpdateAccounts(string key, IEnumerable<InsertAccountParasModel> data)
         {
             var rs = new AccountDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+            ParticipantModel participant = null;
 
             try
             {
@@ -187,7 +192,7 @@
 
                 bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
 
-                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
+                participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant == null)
                 {
@@ -215,6 +220,8 @@
                 Utilities.LogSentryError("AFC - UpdateAccounts", ex.Message, (data, key), ex, sentryClient);
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
+
+                accountDBService.LogErrorToDB(participant?.ParticipantID, ex.Message, JsonConvert.SerializeObject(data), Equals(appSettings.AFCInternalKey, key));
             }
 
             return rs;
@@ -223,6 +230,7 @@
         public AccountDBResult DeleteAccounts(string key, IEnumerable<DeleteAccountParasModel> accountIDs)
         {
             var rs = new AccountDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+            ParticipantModel participant = null;
 
             try
             {
@@ -233,7 +241,7 @@
 
                 bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
 
-                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
+                participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant == null)
                 {
@@ -257,6 +265,8 @@
                 Utilities.LogSentryError("AFC - DeleteAccounts", ex.Message, (accountIDs, key), ex, sentryClient);
                 rs.StatusCode = HttpStatus.BadRequest;
                 rs.ErrorMessage = ex.Message;
+
+                accountDBService.LogErrorToDB(participant?.ParticipantID, ex.Message, JsonConvert.SerializeObject(accountIDs), Equals(appSettings.AFCInternalKey, key));
             }
 
             return rs;

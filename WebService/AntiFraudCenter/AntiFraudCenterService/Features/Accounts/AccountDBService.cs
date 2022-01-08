@@ -31,7 +31,7 @@
 
         IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts);
 
-        AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action, bool isInternalRequest);
+        AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest);
 
         void LogErrorToDB(int? participantID, string errMessage, string dataJson, bool isInternalRequest);
     }
@@ -228,18 +228,18 @@
             return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
 
-        public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action, bool isInternalRequest)
+        public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest)
         {
             var result = new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
 
             if (data != null && data.Any())
             {
-                if (action == AccountAction.Insert || action == AccountAction.Update)
+                if (action == RequestAction.Insert || action == RequestAction.Update)
                 {
                     result = IsCountryCodeValid(data);
                 }
 
-                if (result.StatusCode == HttpStatus.OK && (action == AccountAction.Update || action == AccountAction.Delete))
+                if (result.StatusCode == HttpStatus.OK && (action == RequestAction.Update || action == RequestAction.Delete))
                 {
                     result = IsAccountValid(data, participantID, isInternalRequest);
                 }

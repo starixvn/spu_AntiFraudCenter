@@ -32,7 +32,7 @@
 
         public const int MaxLenght = 80;
 
-        public enum AccountAction
+        public enum RequestAction
         {
             Insert = 1,
             Update = 2,

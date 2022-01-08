@@ -150,7 +150,9 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                var dataValid = CheckValidation(participant, AccountAction.Insert, isInternalRequest, data.Select(c => new AccountValidationParaModel
+                LogMonitorRequest(isInternalRequest, RequestAction.Insert, participant.ParticipantName, data?.Count());
+
+                var dataValid = CheckValidation(participant, RequestAction.Insert, isInternalRequest, data.Select(c => new AccountValidationParaModel
                 {
                     AccountID = c.AccountID,
                     CountryCode = c.CountryCode,
@@ -199,7 +201,9 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                var dataValid = CheckValidation(participant, AccountAction.Update, isInternalRequest, data.Select(c => new AccountValidationParaModel
+                LogMonitorRequest(isInternalRequest, RequestAction.Update, participant.ParticipantName, data?.Count());
+
+                var dataValid = CheckValidation(participant, RequestAction.Update, isInternalRequest, data.Select(c => new AccountValidationParaModel
                 {
                     AccountID = c.AccountID,
                     CountryCode = c.CountryCode,
@@ -248,7 +252,9 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                var dataValid = CheckValidation(participant, AccountAction.Delete, isInternalRequest, accountIDs.Select(c => new AccountValidationParaModel
+                LogMonitorRequest(isInternalRequest, RequestAction.Update, participant.ParticipantName, accountIDs?.Count());
+
+                var dataValid = CheckValidation(participant, RequestAction.Delete, isInternalRequest, accountIDs.Select(c => new AccountValidationParaModel
                 {
                     AccountID = c.AccountID
                 }));
@@ -272,7 +278,7 @@
             return rs;
         }
 
-        public AccountDBResult CheckValidation(ParticipantModel participant, AccountAction action, bool isInternalRequest, IEnumerable<AccountValidationParaModel> data)
+        public AccountDBResult CheckValidation(ParticipantModel participant, RequestAction action, bool isInternalRequest, IEnumerable<AccountValidationParaModel> data)
         {
             if (data == null || !data.Any())
             {
@@ -283,5 +289,21 @@
 
             return result;
         }
+
+        #region Private Methods
+
+        private void LogMonitorRequest(bool isInternalRequest, RequestAction requestAction, string participantName, int? recordNumber)
+        {
+            if (isInternalRequest)
+            {
+                return;
+            }
+
+            var message = $"Monitor - {Enum.GetName(typeof(RequestAction), requestAction)} - {participantName} - Counter:{recordNumber} - DateTime:{DateTime.UtcNow}";
+
+            sentryClient.CaptureMessage(message, Sentry.Protocol.SentryLevel.Info);
+        }
+
+        #endregion Private Methods
     }
 }

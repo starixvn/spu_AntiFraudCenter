@@ -17,6 +17,7 @@ sp :BEGIN
 		Original:
 		Revisions:
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
+			- 20211201@Aries.Nguyen: Update data from B2C to AFC [Redmine ID: #164079]
             
         Param's Explanation (filtered by):
         
@@ -30,11 +31,21 @@ sp :BEGIN
 			RawID 	VARCHAR(128) PRIMARY KEY
 	);
     
+    DROP TEMPORARY TABLE IF EXISTS Temp_AccountNoChange;    
+	CREATE TEMPORARY TABLE Temp_AccountNoChange( 	  
+			RawID 	VARCHAR(128) PRIMARY KEY
+	);
+    
+    DROP TEMPORARY TABLE IF EXISTS Temp_FraudID;    
+	CREATE TEMPORARY TABLE Temp_FraudID( 	  
+			FraudID 	INT PRIMARY KEY
+	);
+    
 	DROP TEMPORARY TABLE IF EXISTS Temp_Account;    
 	CREATE TEMPORARY TABLE Temp_Account( 	  
 			RawID 			VARCHAR(128)
 		,	ParticipantID	INT
-		,	FullName 		NVARCHAR(128)
+		,	FullName 		VARCHAR(128)
 		,	Phone 			VARCHAR(128)
 		,	CountryCode 	VARCHAR(128)
 		,	Email 			VARCHAR(128)
@@ -42,7 +53,7 @@ sp :BEGIN
 		,	DocumentTypeID  INT
 		,	BankName		VARCHAR(128)
 		,	BankAccountID	VARCHAR(128)
-		,	FraudID			INT
+		,	FraudID			JSON
 	);
     
 	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID)
@@ -59,18 +70,27 @@ sp :BEGIN
         , 	FraudID
 	FROM JSON_TABLE(ip_AccountInfo,
 		 "$[*]" COLUMNS(
-				RawID 			VARCHAR(128)	PATH "$.AccountID"  	DEFAULT 'null' ON EMPTY
-			,	FullName 		VARCHAR(128)	PATH "$.FullName" 		DEFAULT 'null' ON EMPTY
-			,	Phone 			VARCHAR(128)	PATH "$.Phone" 			DEFAULT 'null' ON EMPTY
-			,	CountryCode 	VARCHAR(128)	PATH "$.CountryCode" 	DEFAULT 'null' ON EMPTY
-			,	Email 			VARCHAR(128)	PATH "$.Email" 			DEFAULT 'null' ON EMPTY
-			,	DocumentID  	VARCHAR(128)	PATH "$.DocumentID" 	DEFAULT 'null' ON EMPTY
-			,	DocumentTypeID  INT				PATH "$.DocumentTypeID" DEFAULT '-1'   ON EMPTY
-			,	BankName		VARCHAR(128)	PATH "$.BankName" 		DEFAULT 'null' ON EMPTY
-			,	BankAccountID	VARCHAR(128)	PATH "$.BankAccountID" 	DEFAULT 'null' ON EMPTY
-			,	FraudID			INT				PATH "$.FraudID" 		DEFAULT '-1'   ON EMPTY
+				RawID 			VARCHAR(128)	PATH "$.AccountID"  	NULL ON EMPTY
+			,	FullName 		VARCHAR(128)	PATH "$.FullName" 		NULL ON EMPTY
+			,	Phone 			VARCHAR(128)	PATH "$.Phone" 			NULL ON EMPTY
+			,	CountryCode 	VARCHAR(128)	PATH "$.CountryCode" 	NULL ON EMPTY
+			,	Email 			VARCHAR(128)	PATH "$.Email" 			NULL ON EMPTY
+			,	DocumentID  	VARCHAR(128)	PATH "$.DocumentID" 	NULL ON EMPTY
+			,	DocumentTypeID  INT				PATH "$.DocumentTypeID" NULL ON EMPTY
+			,	BankName		VARCHAR(128)	PATH "$.BankName" 		NULL ON EMPTY
+			,	BankAccountID	VARCHAR(128)	PATH "$.BankAccountID" 	NULL ON EMPTY
+			,	FraudID			JSON			PATH "$.FraudID" 		NULL ON EMPTY
 		)
 	) AS info;
+    
+    INSERT IGNORE INTO Temp_FraudID(FraudID)
+    SELECT temp.FraudID
+	FROM JSON_TABLE(ip_AccountInfo,
+          '$[*]' COLUMNS(
+              NESTED PATH '$.FraudID[*]' COLUMNS (FraudID INT PATH '$')
+          )
+	) AS temp
+    WHERE temp.FraudID IS NOT NULL;
     
     INSERT IGNORE INTO Temp_AccountNotExisted(RawID)
     SELECT tmp.RawID 
@@ -99,7 +119,7 @@ sp :BEGIN
     INTO lv_CheckValid
     FROM Temp_Account AS tmp 
 	WHERE NOT EXISTS (SELECT 1 FROM DocumentType AS doc WHERE doc.DocumentTypeID = tmp.DocumentTypeID) 
-		AND tmp.DocumentTypeID != -1 
+		AND tmp.DocumentTypeID IS NOT NULL
 	LIMIT 1;
         
 	IF lv_CheckValid = 1 THEN
@@ -110,9 +130,8 @@ sp :BEGIN
     
     SELECT 1 
     INTO lv_CheckValid
-    FROM Temp_Account AS tmp 
+    FROM Temp_FraudID AS tmp 
 	WHERE NOT EXISTS (SELECT 1 FROM FraudCase AS fr WHERE fr.FraudID = tmp.FraudID)
-		AND tmp.FraudID != -1 
     LIMIT 1;
         
 	IF lv_CheckValid = 1 THEN
@@ -120,6 +139,26 @@ sp :BEGIN
         
         LEAVE sp;
     END IF;
+    
+    INSERT INTO Temp_AccountNoChange(RawID)
+    SELECT 	tmp.RawID 
+	FROM AFC_DataCenter.Account AS acc
+		INNER JOIN Temp_Account AS tmp ON acc.ParticipantID = tmp.ParticipantID
+									 AND acc.RawID = tmp.RawID
+                                     AND tmp.FraudID 	IS NULL
+									 AND (tmp.FullName	IS NULL OR acc.FullName = tmp.FullName)
+									 AND (tmp.Email 	IS NULL	OR acc.Email = tmp.Email)
+									 AND (tmp.Phone 	IS NULL	OR (acc.Phone = tmp.Phone AND acc.CountryCode = tmp.CountryCode))
+									 AND (tmp.DocumentID 	IS NULL	OR (acc.DocumentID = tmp.DocumentID AND  acc.DocumentTypeID = tmp.DocumentTypeID))
+									 AND (tmp.BankAccountID IS NULL	 OR (acc.BankAccountID = tmp.BankAccountID AND  acc.BankName = tmp.BankName));
+                                     
+    
+    DELETE 
+    FROM Temp_Account AS acc
+    WHERE EXISTS (SELECT 1 
+				  FROM Temp_AccountNoChange AS tmp 
+                  WHERE acc.ParticipantID = ip_ParticipantID
+					AND acc.RawID = tmp.RawID);
     
     
 	INSERT INTO Account_Log(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID, IsUpdated)
@@ -140,15 +179,15 @@ sp :BEGIN
     
     UPDATE AFC_DataCenter.Account AS acc
     INNER JOIN Temp_Account AS tmp ON acc.RawID = tmp.RawID AND acc.ParticipantID = ip_ParticipantID
-    SET 	acc.FullName 		= CASE WHEN tmp.FullName 		= 'null' THEN acc.FullName 			ELSE  tmp.FullName END
-		,	acc.Phone 			= CASE WHEN tmp.Phone 			= 'null' THEN acc.Phone 			ELSE  tmp.Phone END
-        ,	acc.CountryCode 	= CASE WHEN tmp.CountryCode		= 'null' THEN acc.CountryCode 		ELSE  tmp.CountryCode END
-        ,	acc.Email			= CASE WHEN tmp.Email 			= 'null' THEN acc.Email 			ELSE  tmp.Email END
-        ,	acc.DocumentID 		= CASE WHEN tmp.DocumentID	 	= 'null' THEN acc.DocumentID 		ELSE  tmp.DocumentID END
-        ,	acc.DocumentTypeID 	= CASE WHEN tmp.DocumentTypeID 	= -1 	 THEN acc.DocumentTypeID 	ELSE  tmp.DocumentTypeID END
-        ,	acc.BankName 		= CASE WHEN tmp.BankName 		= 'null' THEN acc.BankName 			ELSE  tmp.BankName END
-        ,	acc.BankAccountID 	= CASE WHEN tmp.BankAccountID 	= 'null' THEN acc.BankAccountID 	ELSE  tmp.BankAccountID END
-        ,	acc.FraudID 		= CASE WHEN tmp.FraudID 		= -1     THEN acc.FraudID 			ELSE  tmp.FraudID END;
+    SET 	acc.FullName 		= CASE WHEN tmp.FullName 		IS NULL THEN acc.FullName 		ELSE  tmp.FullName END
+		,	acc.Phone 			= CASE WHEN tmp.Phone 			IS NULL THEN acc.Phone 			ELSE  tmp.Phone END
+        ,	acc.CountryCode 	= CASE WHEN tmp.CountryCode		IS NULL THEN acc.CountryCode 	ELSE  tmp.CountryCode END
+        ,	acc.Email			= CASE WHEN tmp.Email 			IS NULL THEN acc.Email 			ELSE  tmp.Email END
+        ,	acc.DocumentID 		= CASE WHEN tmp.DocumentID	 	IS NULL THEN acc.DocumentID 	ELSE  tmp.DocumentID END
+        ,	acc.DocumentTypeID 	= CASE WHEN tmp.DocumentTypeID 	IS NULL THEN acc.DocumentTypeID ELSE  tmp.DocumentTypeID END
+        ,	acc.BankName 		= CASE WHEN tmp.BankName 		IS NULL THEN acc.BankName 		ELSE  tmp.BankName END
+        ,	acc.BankAccountID 	= CASE WHEN tmp.BankAccountID 	IS NULL THEN acc.BankAccountID 	ELSE  tmp.BankAccountID END
+        ,	acc.FraudID 		= CASE WHEN tmp.FraudID 		IS NULL THEN acc.FraudID 		ELSE  tmp.FraudID END;
     
 END$$
 DELIMITER ;

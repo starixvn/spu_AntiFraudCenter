@@ -53,8 +53,10 @@ sp: BEGIN
         ,	acc.DocumentID
         ,	acc.DocumentTypeID
         ,	acc.BankName
-        ,	acc.BankAccountID
-        ,	acc.FraudID
+        ,	acc.BankAccountID  
+        ,	REGEXP_REPLACE(JSON_UNQUOTE(acc.FraudID), '[\\[\\] ]', '') AS FraudID
+		,	acc.Modified
+		,	acc.Created
 	FROM AFC_DataCenter.Account AS acc
 		LEFT JOIN AFC_DataCenter.Participant AS par ON acc.ParticipantID = par.ParticipantID
 	WHERE 	(lv_AccountID	IS NULL OR acc.RawID = lv_AccountID)

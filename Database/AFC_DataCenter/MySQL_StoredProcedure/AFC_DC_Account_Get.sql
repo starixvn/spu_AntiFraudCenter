@@ -1,4 +1,4 @@
-/*<info serverAlias="AFC-AFC_DataCenter" databaseType="2" executers="afcExtAPI,afcAPI" isFunction="0" isNested="0"></info>*/
+/*<info serverAlias="AFC-AFC_DataCenter" databaseType="2" executers="afcExtAPI,afcAPI,afcWeb,afcService" isFunction="0" isNested="0"></info>*/
 DROP PROCEDURE IF EXISTS `AFC_DC_Account_Get`;
 
 DELIMITER $$

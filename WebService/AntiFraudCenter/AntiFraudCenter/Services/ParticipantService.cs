@@ -51,13 +51,13 @@
                     return rs;
                 }
 
-                var participant = accountDBService.CheckAuthentication(key);
+                bool isInternalRequest = Equals(appSettings.AFCInternalKey, key);
+
+                var participant = accountDBService.CheckAuthentication(key, isInternalRequest);
 
                 if (participant != null)
                 {
                     var newKey = CryptographicHelper.GetRandomHexNumber(SecretKey_NumberOfByte);
-
-                    bool isInternalRequest = Equals(InternalKey, key);
 
                     rs = participantDBService.UpdateParticipantSecretKey(participant.ParticipantID, newKey, isInternalRequest);
                 }

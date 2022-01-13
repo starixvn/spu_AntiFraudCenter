@@ -17,13 +17,13 @@
 
         IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest);
 
-        ParticipantModel CheckAuthentication(string key);
+        ParticipantModel CheckAuthentication(string key, bool isInternalRequest);
 
-        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest);
+        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
-        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest);
+        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
-        AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest);
+        AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest, int batchSize);
 
         IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data);
 
@@ -31,7 +31,9 @@
 
         IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts);
 
-        AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action, bool isInternalRequest);
+        AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest);
+
+        void LogErrorToDB(int? participantID, string errMessage, string dataJson, bool isInternalRequest);
     }
 
     public class AccountDBService : IAccountDBService
@@ -76,10 +78,8 @@
             return participants ?? new List<ParticipantModel>();
         }
 
-        public ParticipantModel CheckAuthentication(string key)
+        public ParticipantModel CheckAuthentication(string key, bool isInternalRequest)
         {
-            bool isInternalRequest = string.Equals(key, InternalKey);
-
             var participants = GetParticipant(isInternalRequest);
 
             if (participants != null && participants.Any())
@@ -90,33 +90,68 @@
             return null;
         }
 
-        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest)
+        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (encryptedData != null && encryptedData.Any() && participantID != null)
             {
-                return accountDataAccess.AddAccounts(participantID, encryptedData, isInternalRequest);
+                var dataChunk = encryptedData.ChunkBy(batchSize);
+
+                foreach (var data in dataChunk)
+                {
+                    var result = accountDataAccess.AddAccounts(participantID, encryptedData, isInternalRequest);
+
+                    if (!string.IsNullOrEmpty(result.ErrorMessage))
+                    {
+                        LogErrorToDB(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                    }
+                }
+
+                return new AccountDBResult() { StatusCode = HttpStatus.Created, ErrorMessage = string.Empty };
             }
 
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest)
+        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (encryptedData != null && participantID != null)
             {
-                return accountDataAccess.UpdateAccounts(participantID, encryptedData, isInternalRequest);
+                var dataChunk = encryptedData.ChunkBy(batchSize);
+
+                foreach (var data in dataChunk)
+                {
+                    var result = accountDataAccess.UpdateAccounts(participantID, encryptedData, isInternalRequest);
+
+                    if (!string.IsNullOrEmpty(result.ErrorMessage))
+                    {
+                        LogErrorToDB(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                    }
+                }
+
+                return new AccountDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
             }
 
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest)
+        public AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (accountIDs != null && accountIDs.Any() && participantID != null)
             {
-                return accountDataAccess.DeleteAccounts(participantID, accountIDs, isInternalRequest);
-            }
+                var dataChunk = accountIDs.ChunkBy(batchSize);
 
+                foreach (var data in dataChunk)
+                {
+                    var result = accountDataAccess.DeleteAccounts(participantID, accountIDs, isInternalRequest);
+
+                    if (!string.IsNullOrEmpty(result.ErrorMessage))
+                    {
+                        LogErrorToDB(participantID, result.ErrorMessage, JsonConvert.SerializeObject(data), isInternalRequest);
+                    }
+                }
+
+                return new AccountDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
+            }
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
@@ -193,18 +228,18 @@
             return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
 
-        public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, AccountAction action, bool isInternalRequest)
+        public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest)
         {
             var result = new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
 
             if (data != null && data.Any())
             {
-                if (action == AccountAction.Insert || action == AccountAction.Update)
+                if (action == RequestAction.Insert || action == RequestAction.Update)
                 {
                     result = IsCountryCodeValid(data);
                 }
 
-                if (result.StatusCode == HttpStatus.OK && (action == AccountAction.Update || action == AccountAction.Delete))
+                if (result.StatusCode == HttpStatus.OK && (action == RequestAction.Update || action == RequestAction.Delete))
                 {
                     result = IsAccountValid(data, participantID, isInternalRequest);
                 }
@@ -213,6 +248,12 @@
             return result;
         }
 
+        public void LogErrorToDB(int? participantID, string errMessage, string dataJson, bool isInternalRequest)
+        {
+            accountDataAccess.InsertErrorLog(participantID, errMessage, dataJson, isInternalRequest);
+        }
+
+        #region Private methods
         private AccountDBResult IsAccountValid(IEnumerable<AccountValidationParaModel> data, int? participantID, bool isInternalRequest)
         {
             if (data != null && data.Any())
@@ -290,5 +331,7 @@
             return invalidList.Any() ? new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage }
                     : new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = errorMessage };
         }
+
+        #endregion Private methods
     }
-}
+} 

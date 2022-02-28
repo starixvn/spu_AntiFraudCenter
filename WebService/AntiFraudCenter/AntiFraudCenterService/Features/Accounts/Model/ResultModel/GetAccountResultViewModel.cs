@@ -1,6 +1,6 @@
 ﻿namespace AntiFraudCenterService.Shares.ViewModel
 {
-    using AntiFraudCenterService.Features.FraudCustomer;
+    using AntiFraudCenterService.Features.Accounts;
     using Newtonsoft.Json;
     using System.Collections.Generic;
     using static AntiFraudCenterService.Shares.Constants;

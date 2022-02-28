@@ -1,7 +1,7 @@
 ﻿namespace AntiFraudCenter.Controllers
 {
-    using AntiFraudCenterService.Features.FraudCustomer;
-    using AntiFraudCenterService.Features.FraudCustomer.Model;
+    using AntiFraudCenterService.Features.Accounts;
+    using AntiFraudCenterService.Features.Accounts.Model;
     using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.Model;
     using AntiFraudCenterService.Shares.ViewModel;

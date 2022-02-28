@@ -84,7 +84,6 @@
 
         public string AFCInternalKey => afcInternalKey;
 
-
         #endregion Variables
 
         #region Methods

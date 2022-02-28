@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace AntiFraudCenterService.Features.FraudCustomer
+namespace AntiFraudCenterService.Features.Accounts
 {
     public class GetAccountResultModel
     {

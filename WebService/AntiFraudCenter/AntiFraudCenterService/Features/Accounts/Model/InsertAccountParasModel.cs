@@ -3,7 +3,7 @@ using AntiFraudCenterService.Shares.ValidationData;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace AntiFraudCenterService.Features.FraudCustomer
+namespace AntiFraudCenterService.Features.Accounts
 {
     public class InsertAccountParasModel
     {

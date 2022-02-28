@@ -1,10 +1,9 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.Accounts
 {
-    using AntiFraudCenterService.Features.FraudCustomer.Criteria;
+    using AntiFraudCenterService.Features.Accounts.Criteria;
     using AntiFraudCenterService.Shares.Model;
     using Fanex.Data.Repository;
     using Newtonsoft.Json;
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using static AntiFraudCenterService.Shares.Constants;
@@ -52,7 +51,7 @@
             var criteria = new AccountByDateGetCriteria(isInternalRequest)
             {
                 ParticipantID = participantId,
-                ParticipantName = string.IsNullOrEmpty(data.ParticipantName)? null : data.ParticipantName,
+                ParticipantName = string.IsNullOrEmpty(data.ParticipantName) ? null : data.ParticipantName,
                 FromDate = data.DateFrom,
                 ToDate = data.DateTo
             };

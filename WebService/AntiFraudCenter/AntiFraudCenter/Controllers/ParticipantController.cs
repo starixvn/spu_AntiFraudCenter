@@ -28,7 +28,7 @@
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
             {
-                return StatusCode((int)HttpStatus.InternalServerError, new GetParticipantNameResultModel { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC", Data = null});
+                return StatusCode((int)HttpStatus.InternalServerError, new GetParticipantNameResultModel { StatusCode = HttpStatus.InternalServerError, ErrorMessage = UMMessage + $" From {appSettings.UMFrom} - To {appSettings.UMTo} UTC", Data = null });
             }
 
             var result = this.participantService.GetParticipantName();

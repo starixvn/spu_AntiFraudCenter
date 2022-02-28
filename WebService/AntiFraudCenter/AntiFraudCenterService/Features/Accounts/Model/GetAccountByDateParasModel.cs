@@ -1,4 +1,4 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.Accounts
 {
     using System;
 
@@ -6,7 +6,7 @@
     {
         public string ParticipantName { get; set; }
 
-        public DateTime? DateFrom { get; set; } 
+        public DateTime? DateFrom { get; set; }
 
         public DateTime? DateTo { get; set; }
     }

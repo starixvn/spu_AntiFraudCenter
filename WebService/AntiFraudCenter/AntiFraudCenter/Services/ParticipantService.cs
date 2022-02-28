@@ -1,6 +1,6 @@
 ﻿namespace AntiFraudCenter
 {
-    using AntiFraudCenterService.Features.FraudCustomer;
+    using AntiFraudCenterService.Features.Accounts;
     using AntiFraudCenterService.Features.Participants;
     using AntiFraudCenterService.Features.Participants.Model;
     using AntiFraudCenterService.Shares;

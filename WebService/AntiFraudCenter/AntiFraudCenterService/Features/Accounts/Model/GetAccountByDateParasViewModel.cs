@@ -1,4 +1,4 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer.Model
+﻿namespace AntiFraudCenterService.Features.Accounts.Model
 {
     public class GetAccountByDateParasViewModel
     {

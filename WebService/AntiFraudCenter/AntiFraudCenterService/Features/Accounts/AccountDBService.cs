@@ -1,4 +1,4 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.Accounts
 {
     using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.Model;
@@ -254,6 +254,7 @@
         }
 
         #region Private methods
+
         private AccountDBResult IsAccountValid(IEnumerable<AccountValidationParaModel> data, int? participantID, bool isInternalRequest)
         {
             if (data != null && data.Any())
@@ -334,4 +335,4 @@
 
         #endregion Private methods
     }
-} 
+}

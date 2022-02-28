@@ -1,4 +1,4 @@
-﻿namespace AntiFraudCenterService.Features.FraudCustomer
+﻿namespace AntiFraudCenterService.Features.Accounts
 {
     using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.ValidationData;

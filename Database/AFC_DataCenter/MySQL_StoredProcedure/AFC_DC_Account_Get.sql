@@ -14,12 +14,14 @@ sp: BEGIN
 		Original:
 		Revisions:
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
+            - 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
             
         Param's Explanation (filtered by):
         
         Example:
 			- CALL AFC_DC_Account_Get('{"AccountID": "AccountID_Vaule_Test", "Phone": "Phone_Vaule_Test", "CountryCode":"+4"}');
 	*/   
+
     DECLARE lv_AccountID 		VARCHAR(128);
     DECLARE lv_FullName 		VARCHAR(128);
     DECLARE lv_Phone 			VARCHAR(128);
@@ -30,6 +32,13 @@ sp: BEGIN
     DECLARE lv_BankName 		VARCHAR(128);
     DECLARE lv_BankAccountID 	VARCHAR(128);
 	
+	DROP TEMPORARY TABLE IF EXISTS Temp_AccountID;    
+	CREATE TEMPORARY TABLE Temp_AccountID( 	
+			RawID			VARCHAR(128) NOT NULL
+		,	ParticipantID	INT UNSIGNED
+		,	PRIMARY KEY(RawID,ParticipantID)
+	);
+    
     SELECT JSON_VALUE(ip_AccountInfo, "$.AccountID")		INTO lv_AccountID;
     SELECT JSON_VALUE(ip_AccountInfo, "$.FullName")			INTO lv_FullName;
     SELECT JSON_VALUE(ip_AccountInfo, "$.Phone") 			INTO lv_Phone;
@@ -44,6 +53,15 @@ sp: BEGIN
 		LEAVE sp;
     END IF;
     
+    IF (lv_BankAccountID IS NOT NULL) THEN
+		INSERT INTO Temp_AccountID(RawID, ParticipantID)
+        SELECT  acc.RawID
+			,	acc.ParticipantID
+        FROM BankAccount AS acc
+        WHERE 	acc.BankAccountID = lv_BankAccountID
+			AND acc.BankName = lv_BankName;
+    END IF;
+    
     SELECT 	acc.RawID AS AccountID
 		,	acc.FullName 
         ,	par.ParticipantName
@@ -52,8 +70,10 @@ sp: BEGIN
         ,	acc.Email
         ,	acc.DocumentID
         ,	acc.DocumentTypeID
-        ,	acc.BankName
-        ,	acc.BankAccountID  
+        ,	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankName)) 
+			 FROM BankAccount AS bank 
+             WHERE  bank.RawID = acc.RawID 
+				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
         ,	REGEXP_REPLACE(JSON_UNQUOTE(acc.FraudID), '[\\[\\] ]', '') AS FraudID
 		,	acc.Modified
 		,	acc.Created
@@ -64,7 +84,7 @@ sp: BEGIN
 		AND	(lv_Email 		IS NULL	OR acc.Email = lv_Email)
 		AND	(lv_Phone 		IS NULL	OR (acc.Phone = lv_Phone AND  acc.CountryCode = lv_CountryCode))
         AND	(lv_DocumentID 	IS NULL	OR (acc.DocumentID = lv_DocumentID AND  acc.DocumentTypeID = lv_DocumentTypeID))
-        AND	(lv_BankAccountID 	IS NULL	 OR (acc.BankAccountID = lv_BankAccountID AND  acc.BankName = lv_BankName));
+        AND	(lv_BankAccountID 	IS NULL	 OR ((acc.RawID,acc.ParticipantID) IN (SELECT tmp.RawID, tmp.ParticipantID FROM Temp_AccountID AS tmp)));
 
 END$$
 DELIMITER ;

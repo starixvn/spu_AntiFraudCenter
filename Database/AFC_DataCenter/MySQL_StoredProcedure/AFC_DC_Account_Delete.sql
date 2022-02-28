@@ -15,6 +15,7 @@ BEGIN
 		Original:
 		Revisions:
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
+            - 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
               
         Param's Explanation (filtered by):
         
@@ -34,7 +35,7 @@ BEGIN
 		)
 	) AS info;
     
-    INSERT INTO Account_Log(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID, IsDeleted)
+    INSERT INTO Account_Log(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID, IsDeleted)
     SELECT 	acc.RawID
 		, 	acc.ParticipantID
         , 	acc.FullName
@@ -43,8 +44,10 @@ BEGIN
         , 	acc.Email
         , 	acc.DocumentID
         , 	acc.DocumentTypeID
-        , 	acc.BankName
-        , 	acc.BankAccountID
+        , 	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankName)) 
+			 FROM BankAccount AS bank 
+             WHERE  bank.RawID = acc.RawID 
+				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
         , 	acc.FraudID
         ,	1
 	FROM AFC_DataCenter.Account AS acc
@@ -52,6 +55,10 @@ BEGIN
     
     DELETE 
     FROM AFC_DataCenter.Account AS acc
+    WHERE EXISTS (SELECT 1 FROM Temp_RawID AS tmp WHERE tmp.RawID = acc.RawID AND acc.ParticipantID = ip_ParticipantID);
+    
+    DELETE 
+    FROM AFC_DataCenter.BankAccount AS acc
     WHERE EXISTS (SELECT 1 FROM Temp_RawID AS tmp WHERE tmp.RawID = acc.RawID AND acc.ParticipantID = ip_ParticipantID);
     
 END$$

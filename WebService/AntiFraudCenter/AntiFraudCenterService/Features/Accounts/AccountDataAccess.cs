@@ -16,9 +16,9 @@
 
         IEnumerable<ParticipantModel> GetParticipant(bool isInternalRequest);
 
-        AccountDBResult AddAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData, bool isInternalRequest);
+        AccountDBResult InsertAccounts(int? participantID, IEnumerable<InsertAccountModel> encryptedData, bool isInternalRequest);
 
-        AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData, bool isInternalRequest);
+        AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountModel> encryptedData, bool isInternalRequest);
 
         AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs, bool isInternalRequest);
 
@@ -74,7 +74,7 @@
             return repository.Fetch<ParticipantModel>(criteria);
         }
 
-        public AccountDBResult AddAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData, bool isInternalRequest)
+        public AccountDBResult InsertAccounts(int? participantID, IEnumerable<InsertAccountModel> encryptedData, bool isInternalRequest)
         {
             var criteria = new AccountInsertCriteria(isInternalRequest)
             {
@@ -91,7 +91,7 @@
             };
         }
 
-        public AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountParasModel> encryptedData, bool isInternalRequest)
+        public AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountModel> encryptedData, bool isInternalRequest)
         {
             var criteria = new AccountUpdateCriteria(isInternalRequest)
             {

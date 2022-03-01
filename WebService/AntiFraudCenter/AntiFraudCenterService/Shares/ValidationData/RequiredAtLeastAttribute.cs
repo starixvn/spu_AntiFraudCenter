@@ -39,7 +39,7 @@
                     return ValidationResult.Success;
                 }
 
-                return new ValidationResult($"Required at least 1 of 4 information (Phone, Email, DocumentID, BankAccountID)");
+                return new ValidationResult($"Required at least 1 of 4 information (Phone, Email, DocumentID, BankAccount)");
             }
             else
             {

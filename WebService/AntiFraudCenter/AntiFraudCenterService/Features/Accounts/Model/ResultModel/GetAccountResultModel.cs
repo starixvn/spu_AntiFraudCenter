@@ -31,11 +31,8 @@ namespace AntiFraudCenterService.Features.Accounts
         [JsonProperty(PropertyName = "DocumentTypeID")]
         public int DocumentTypeID { get; set; }
 
-        [JsonProperty(PropertyName = "BankName")]
-        public string BankName { get; set; }
-
-        [JsonProperty(PropertyName = "BankAccountID")]
-        public string BankAccountID { get; set; }
+        [IgnoreDataMember]
+        public string BankInfo { get; set; }
 
         [IgnoreDataMember]
         public string FraudID { get; set; }
@@ -59,5 +56,8 @@ namespace AntiFraudCenterService.Features.Accounts
                 return new List<int>();
             }
         }
+
+        [JsonProperty(PropertyName = "BankAccount")]
+        public IEnumerable<BankAccountModel> BankAccount { get; set; }
     }
 }

@@ -57,13 +57,13 @@
 
                 if (participant != null)
                 {
-                    var encryptedFields = accountDBService.EncryptedFieldsToGetDB(data);
+                    var encryptedFields = accountDBService.EncryptAccount(data);
 
-                    var fraudCusts = accountDBService.GetAccounts(encryptedFields, isInternalRequest);
+                    var accounts = accountDBService.GetAccounts(encryptedFields, isInternalRequest);
 
-                    if (fraudCusts.Any())
+                    if (accounts.Any())
                     {
-                        rs.Data = accountDBService.DecryptedFieldsFromDB(fraudCusts);
+                        rs.Data = accountDBService.DecryptAccount(accounts);
                     }
                 }
                 else
@@ -105,7 +105,7 @@
 
                     if (queryData != null && queryData.Data != null && queryData.Data.Any())
                     {
-                        result.Data.Data = accountDBService.DecryptedFieldsFromDB(queryData.Data);
+                        result.Data.Data = accountDBService.DecryptAccount(queryData.Data);
                         result.Data.IsContinue = queryData.IsContinue;
                         result.Data.DateFrom = queryData.DateFrom;
                         result.Data.DateTo = queryData.DateTo;
@@ -164,7 +164,7 @@
                     return dataValid;
                 }
 
-                var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
+                var encryptedData = accountDBService.EncryptAccount(data);
 
                 rs = accountDBService.InsertAccounts(encryptedData, participant.ParticipantID, isInternalRequest, appSettings.InternalBatchSize);
             }
@@ -215,7 +215,7 @@
                     return dataValid;
                 }
 
-                var encryptedData = accountDBService.EncryptedFieldsToInsertDB(data);
+                var encryptedData = accountDBService.EncryptAccount(data);
 
                 rs = accountDBService.UpdateAccounts(encryptedData, participant.ParticipantID, isInternalRequest, appSettings.InternalBatchSize);
             }

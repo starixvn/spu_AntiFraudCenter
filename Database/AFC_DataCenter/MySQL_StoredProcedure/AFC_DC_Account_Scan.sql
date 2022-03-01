@@ -109,7 +109,7 @@ sp: BEGIN
 		,	acc.Email
 		,	acc.DocumentID
 		,	acc.DocumentTypeID
-		,	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankName)) 
+		,	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankAccountID)) 
 			 FROM BankAccount AS bank 
              WHERE  bank.RawID = acc.RawID 
 				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
@@ -161,7 +161,7 @@ sp: BEGIN
 		,	acc.Email
 		,	acc.DocumentID
 		,	acc.DocumentTypeID
-		,	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankName)) 
+		,	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankAccountID)) 
 			 FROM BankAccount AS bank 
              WHERE  bank.RawID = acc.RawID 
 				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo

@@ -167,6 +167,10 @@ sp :BEGIN
         LEAVE sp;
     END IF;
     
+	UPDATE Temp_Account 
+	SET BankInfo = '[{}]'
+	WHERE JSON_LENGTH(BankInfo) =  0;
+    
     INSERT INTO Temp_BankInfo(RawID, ParticipantID, BankName, BankAccountID) 
     SELECT 	tmp.RawID
 		,	tmp.ParticipantID

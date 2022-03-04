@@ -208,7 +208,7 @@ sp :BEGIN
 										AND  crr.ParticipantID = upd.ParticipantID
 										AND  crr.BankName = upd.BankName
 										AND  crr.BankAccountID = upd.BankAccountID
-	WHERE crr.RawID IS NULL; 
+	WHERE crr.RawID IS NULL AND upd.BankName IS NOT NULL ; 
     
     INSERT IGNORE INTO Temp_AccountNoChange(RawID)
     SELECT tmp.RawID

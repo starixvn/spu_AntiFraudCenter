@@ -64,6 +64,24 @@ sp :BEGIN
 		,	ParticipantID	INT
 		,	BankName		VARCHAR(128)
 		,	BankAccountID	VARCHAR(128)
+        ,	INDEX			IX_Temp_BankInfo_RawID(RawID,ParticipantID)
+	);
+    
+    DROP TEMPORARY TABLE IF EXISTS Temp_CurrBankInfo;    
+	CREATE TEMPORARY TABLE Temp_CurrBankInfo( 	
+			ID				INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+		,	RawID 			VARCHAR(128)
+		,	ParticipantID	INT
+		,	BankName		VARCHAR(128)
+		,	BankAccountID	VARCHAR(128)
+        ,	INDEX			IX_Temp_BankInfo_RawID(RawID,ParticipantID)
+	);
+    
+    DROP TEMPORARY TABLE IF EXISTS Temp_BankInfoHasChange;    
+	CREATE TEMPORARY TABLE Temp_BankInfoHasChange( 	
+			RawID 			VARCHAR(128)
+		,	ParticipantID	INT
+        ,	PRIMARY KEY	(RawID,ParticipantID)
 	);
 
     
@@ -164,7 +182,40 @@ sp :BEGIN
 		)
 	) AS tbl;
     
-    INSERT INTO Temp_AccountNoChange(RawID)
+    INSERT INTO Temp_CurrBankInfo(RawID, ParticipantID, BankName, BankAccountID)
+    SELECT 	acc.RawID
+		, 	acc.ParticipantID
+        , 	acc.BankName
+        , 	acc.BankAccountID
+    FROM AFC_DataCenter.BankAccount AS acc
+    WHERE EXISTS (SELECT 1 FROM Temp_BankInfo AS tmp WHERE acc.RawID = tmp.RawID AND acc.ParticipantID = tmp.ParticipantID);
+    
+    INSERT INTO Temp_BankInfoHasChange(RawID, ParticipantID)
+    SELECT 	crr.RawID
+		,	crr.ParticipantID
+	FROM Temp_CurrBankInfo AS crr
+		LEFT JOIN Temp_BankInfo AS upd ON	 crr.RawID = upd.RawID 
+										AND  crr.ParticipantID = upd.ParticipantID
+										AND  crr.BankName = upd.BankName
+										AND  crr.BankAccountID = upd.BankAccountID
+	WHERE upd.RawID IS NULL;
+    
+    INSERT IGNORE INTO Temp_BankInfoHasChange(RawID, ParticipantID)
+    SELECT 	upd.RawID
+		,	upd.ParticipantID
+	FROM Temp_CurrBankInfo AS crr
+		RIGHT JOIN Temp_BankInfo AS upd  ON	 crr.RawID = upd.RawID 
+										AND  crr.ParticipantID = upd.ParticipantID
+										AND  crr.BankName = upd.BankName
+										AND  crr.BankAccountID = upd.BankAccountID
+	WHERE crr.RawID IS NULL; 
+    
+    INSERT IGNORE INTO Temp_AccountNoChange(RawID)
+    SELECT tmp.RawID
+    FROM Temp_BankInfo AS tmp
+    WHERE  NOT EXISTS (SELECT 1 FROM Temp_BankInfoHasChange AS chg WHERE tmp.RawID = chg.RawID AND tmp.ParticipantID = chg.ParticipantID);
+    
+    INSERT IGNORE INTO Temp_AccountNoChange(RawID)
     SELECT 	tmp.RawID 
 	FROM AFC_DataCenter.Account AS acc
 		INNER JOIN Temp_Account AS tmp ON acc.ParticipantID = tmp.ParticipantID
@@ -175,7 +226,7 @@ sp :BEGIN
 									 AND (tmp.Phone 	IS NULL	OR (acc.Phone = tmp.Phone AND acc.CountryCode = tmp.CountryCode))
 									 AND (tmp.DocumentID 	IS NULL	OR (acc.DocumentID = tmp.DocumentID AND  acc.DocumentTypeID = tmp.DocumentTypeID))
                                      AND tmp.BankInfo IS NULL;
-                                     
+	
     
     DELETE 
     FROM Temp_Account AS acc
@@ -214,7 +265,7 @@ sp :BEGIN
         ,	acc.FraudID 		= CASE WHEN tmp.FraudID 		IS NULL THEN acc.FraudID 		ELSE  tmp.FraudID END;
 	
     DELETE acc
-    FROM BankAccount AS acc
+    FROM AFC_DataCenter.BankAccount AS acc
     WHERE EXISTS (SELECT 1 FROM Temp_BankInfo AS tmp WHERE acc.RawID = tmp.RawID AND acc.ParticipantID = tmp.ParticipantID);
     
     INSERT IGNORE INTO AFC_DataCenter.BankAccount(RawID,ParticipantID,BankName,BankAccountID)
@@ -222,7 +273,8 @@ sp :BEGIN
 		,	tmp.ParticipantID
 		,	tmp.BankName
         ,	tmp.BankAccountID
-    FROM Temp_BankInfo AS tmp; 
+    FROM Temp_BankInfo AS tmp
+    WHERE tmp.BankName IS NOT NULL; 
 	
 END$$
 DELIMITER ;

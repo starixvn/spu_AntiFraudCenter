@@ -194,7 +194,7 @@ sp :BEGIN
     FROM AFC_DataCenter.BankAccount AS acc
     WHERE EXISTS (SELECT 1 FROM Temp_BankInfo AS tmp WHERE acc.RawID = tmp.RawID AND acc.ParticipantID = tmp.ParticipantID);
     
-    INSERT INTO Temp_BankInfoHasChange(RawID, ParticipantID)
+    INSERT IGNORE INTO Temp_BankInfoHasChange(RawID, ParticipantID)
     SELECT 	crr.RawID
 		,	crr.ParticipantID
 	FROM Temp_CurrBankInfo AS crr

@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiFraudCenter", "AntiFraudCenter\AntiFraudCenter.csproj", "{6665EC29-5D44-4FD6-8C05-2472F5503E0A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AntiFraudCenter", "AntiFraudCenter\AntiFraudCenter.csproj", "{6665EC29-5D44-4FD6-8C05-2472F5503E0A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AntiFraudCenterService", "AntiFraudCenterService\AntiFraudCenterService.csproj", "{2648718B-2F94-4012-A695-75881B8B6CF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AntiFraudCenterService", "AntiFraudCenterService\AntiFraudCenterService.csproj", "{2648718B-2F94-4012-A695-75881B8B6CF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

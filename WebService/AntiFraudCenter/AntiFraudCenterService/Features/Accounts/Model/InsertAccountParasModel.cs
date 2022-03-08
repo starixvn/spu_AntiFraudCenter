@@ -1,10 +1,11 @@
-﻿using AntiFraudCenterService.Shares;
-using AntiFraudCenterService.Shares.ValidationData;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
-namespace AntiFraudCenterService.Features.Accounts
+﻿namespace AntiFraudCenterService.Features.Accounts
 {
+    using AntiFraudCenterService.Shares;
+    using AntiFraudCenterService.Shares.ValidationData;
+    using Newtonsoft.Json;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+
     public class InsertAccountParasModel
     {
         public string AccountID { get; set; }
@@ -12,31 +13,28 @@ namespace AntiFraudCenterService.Features.Accounts
         public string FullName { get; set; }
 
         [MaxLength(Constants.MaxLenght)]
-        [RequiredDependencyAttribute("CountryCode")]
-        [RequiredAtLeast("Email", "DocumentID", "BankAccountID")]
+        [RequiredDependency("CountryCode")]
+        [RequiredAtLeast("Email", "DocumentID", "BankAccount")]
         public string Phone { get; set; }
 
-        [RequiredDependencyAttribute("Phone")]
+        [RequiredDependency("Phone")]
         public string CountryCode { get; set; }
 
         [MaxLength(Constants.MaxLenght)]
         public string Email { get; set; }
 
         [MaxLength(Constants.MaxLenght)]
-        [RequiredDependencyAttribute("DocumentTypeID")]
+        [RequiredDependency("DocumentTypeID")]
         public string DocumentID { get; set; }
 
-        [RequiredDependencyAttribute("DocumentID")]
+        [RequiredDependency("DocumentID")]
         public int? DocumentTypeID { get; set; }
 
-        [RequiredDependencyAttribute("BankAccountID")]
-        public string BankName { get; set; }
-
-        [MaxLength(Constants.MaxLenght)]
-        [RequiredDependencyAttribute("BankName")]
-        public string BankAccountID { get; set; }
+        [JsonProperty(PropertyName = "BankAccount")]
+        [RequiredDependency("BankAccount")]
+        public IEnumerable<BankAccountModel> BankAccount { get; set; }
 
         [Required]
-        public List<int> FraudID { get; set; }
+        public IEnumerable<int> FraudID { get; set; }
     }
 }

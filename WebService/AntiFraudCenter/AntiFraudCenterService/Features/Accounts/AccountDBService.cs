@@ -19,17 +19,17 @@
 
         ParticipantModel CheckAuthentication(string key, bool isInternalRequest);
 
-        AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
+        AccountDBResult InsertAccounts(IEnumerable<InsertAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
-        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
+        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
         AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest, int batchSize);
 
-        IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data);
+        IEnumerable<InsertAccountModel> EncryptAccount(IEnumerable<InsertAccountParasModel> data);
 
-        GetAccountParasModel EncryptedFieldsToGetDB(GetAccountParasModel data);
+        GetAccountParasModel EncryptAccount(GetAccountParasModel data);
 
-        IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts);
+        IEnumerable<GetAccountResultModel> DecryptAccount(IEnumerable<GetAccountResultModel> fraudCusts);
 
         AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest);
 
@@ -90,7 +90,7 @@
             return null;
         }
 
-        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
+        public AccountDBResult InsertAccounts(IEnumerable<InsertAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (encryptedData != null && encryptedData.Any() && participantID != null)
             {
@@ -98,7 +98,7 @@
 
                 foreach (var data in dataChunk)
                 {
-                    var result = accountDataAccess.AddAccounts(participantID, encryptedData, isInternalRequest);
+                    var result = accountDataAccess.InsertAccounts(participantID, encryptedData, isInternalRequest);
 
                     if (!string.IsNullOrEmpty(result.ErrorMessage))
                     {
@@ -112,7 +112,7 @@
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountParasModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
+        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (encryptedData != null && participantID != null)
             {
@@ -155,7 +155,7 @@
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public GetAccountParasModel EncryptedFieldsToGetDB(GetAccountParasModel data)
+        public GetAccountParasModel EncryptAccount(GetAccountParasModel data)
         {
             if (data != null)
             {
@@ -170,25 +170,35 @@
             return new GetAccountParasModel();
         }
 
-        public IEnumerable<InsertAccountParasModel> EncryptedFieldsToInsertDB(IEnumerable<InsertAccountParasModel> data)
+        public IEnumerable<InsertAccountModel> EncryptAccount(IEnumerable<InsertAccountParasModel> data)
         {
             if (data != null && data.Any())
             {
+                var result = new List<InsertAccountModel>();
+
                 data.ToList().ForEach(c =>
                     {
-                        c.Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey);
-                        c.Email = string.IsNullOrEmpty(c.Email) ? null : CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey);
-                        c.DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey);
-                        c.BankAccountID = string.IsNullOrEmpty(c.BankAccountID) ? null : CryptographicHelper.AESEncrypt(c.BankAccountID, EncryptedKey, IVKey);
+                        result.Add(new InsertAccountModel
+                        {
+                            B2CCustId = c.AccountID,
+                            FullName = c.FullName,
+                            CountryCode = c.CountryCode,
+                            Email = string.IsNullOrEmpty(c.Email) ? null : CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey),
+                            Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey),
+                            DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey),
+                            DocumentTypeID = c.DocumentTypeID,
+                            BankAccount = EncryptBankAccount(c.BankAccount),
+                            FraudID = c.FraudID
+                        });
                     });
 
-                return data;
+                return result;
             }
 
-            return new List<InsertAccountParasModel>();
+            return Enumerable.Empty<InsertAccountModel>();
         }
 
-        public IEnumerable<GetAccountResultModel> DecryptedFieldsFromDB(IEnumerable<GetAccountResultModel> fraudCusts)
+        public IEnumerable<GetAccountResultModel> DecryptAccount(IEnumerable<GetAccountResultModel> fraudCusts)
         {
             if (fraudCusts != null && fraudCusts.Any())
             {
@@ -197,35 +207,11 @@
                     c.Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESDecrypt(c.Phone, EncryptedKey, IVKey);
                     c.Email = string.IsNullOrEmpty(c.Email) ? null : CryptographicHelper.AESDecrypt(c.Email, EncryptedKey, IVKey);
                     c.DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESDecrypt(c.DocumentID, EncryptedKey, IVKey);
-                    c.BankAccountID = string.IsNullOrEmpty(c.BankAccountID) ? null : CryptographicHelper.AESDecrypt(c.BankAccountID, EncryptedKey, IVKey);
+                    c.BankAccount = DecryptBankAccount(c.BankInfo);
                 });
             }
 
             return fraudCusts;
-        }
-
-        public AccountDBResult VerifyInputData(string jsonData)
-        {
-            if (!string.IsNullOrEmpty(jsonData))
-            {
-                var fraudCusts = JsonConvert.DeserializeObject<List<InsertAccountParasModel>>(jsonData);
-
-                if (fraudCusts.Any())
-                {
-                    foreach (var fraudCust in fraudCusts)
-                    {
-                        if (fraudCust.Phone.Length > MaxLenght
-                            || fraudCust.Email.Length > MaxLenght
-                            || fraudCust.DocumentID.Length > MaxLenght
-                            || fraudCust.BankAccountID.Length > MaxLenght)
-                        {
-                            return new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = string.Empty };
-                        }
-                    }
-                }
-            }
-
-            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
         }
 
         public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest)
@@ -331,6 +317,41 @@
 
             return invalidList.Any() ? new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage }
                     : new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = errorMessage };
+        }
+
+        private IEnumerable<BankAccountModel> EncryptBankAccount(IEnumerable<BankAccountModel> bankAccount)
+        {
+            if (bankAccount != null && bankAccount.Any())
+            {
+                bankAccount.ToList().ForEach(c =>
+                {
+                    c.BankAccountID = CryptographicHelper.AESEncrypt(c.BankAccountID, EncryptedKey, IVKey);
+                });
+
+                return bankAccount;
+            }
+
+            return Enumerable.Empty<BankAccountModel>();
+        }
+
+        private IEnumerable<BankAccountModel> DecryptBankAccount(string bankAccountJson)
+        {
+            if (!string.IsNullOrEmpty(bankAccountJson))
+            {
+                var bankAccounts = JsonConvert.DeserializeObject<IEnumerable<BankAccountModel>>(bankAccountJson);
+
+                if (bankAccounts != null && bankAccounts.Any())
+                {
+                    bankAccounts.ToList().ForEach(c =>
+                    {
+                        c.BankAccountID = CryptographicHelper.AESDecrypt(c.BankAccountID, EncryptedKey, IVKey);
+                    });
+                }
+
+                return bankAccounts;
+            }
+
+            return Enumerable.Empty<BankAccountModel>();
         }
 
         #endregion Private methods

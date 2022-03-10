@@ -27,11 +27,11 @@
         [RequiredDependencyAttribute("DocumentID")]
         public int? DocumentTypeID { get; set; }
 
-        [RequiredDependencyAttribute("BankAccountID")]
+        //[RequiredDependencyAttribute("BankAccountID")]
         public string BankName { get; set; }
 
         [MaxLength(Constants.MaxLenght)]
-        [RequiredDependencyAttribute("BankName")]
+        //[RequiredDependencyAttribute("BankName")]
         public string BankAccountID { get; set; }
     }
 }

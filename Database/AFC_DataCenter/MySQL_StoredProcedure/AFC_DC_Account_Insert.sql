@@ -17,6 +17,7 @@ sp :BEGIN
 		Original:
 		Revisions:
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
+            - 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
             
         Param's Explanation (filtered by):
         
@@ -28,8 +29,7 @@ sp :BEGIN
                                               "Email": "Email_Vaule_Test",
                                               "DocumentID": "DocumentID_Vaule_Test",
                                               "DocumentTypeID": 1,
-                                              "BankName": "BankName_Vaule_Test",
-                                              "BankAccountID": "BankAccountID_Vaule_Test",
+                                              "BankInfo": [{"BankName": "BankName_Vaule_Test","BankAccountID": "BankAccountID_Vaule_Test"}],
                                               "FraudID": [1,2,3]}]', @mess);
 	*/  
     DECLARE lv_CheckValid INT;
@@ -54,12 +54,20 @@ sp :BEGIN
 		,	Email 			VARCHAR(128)
 		,	DocumentID  	VARCHAR(128)
 		,	DocumentTypeID  INT
-		,	BankName		VARCHAR(128)
-		,	BankAccountID	VARCHAR(128)
+        ,	BankInfo		JSON
 		,	FraudID			JSON
 	);
     
-	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID)
+    DROP TEMPORARY TABLE IF EXISTS Temp_BankInfo;    
+	CREATE TEMPORARY TABLE Temp_BankInfo( 	
+			ID				INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+		,	RawID 			VARCHAR(128)
+		,	ParticipantID	INT
+		,	BankName		VARCHAR(128)
+		,	BankAccountID	VARCHAR(128)
+	);
+    
+	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID)
 	SELECT	RawID
 		, 	ip_ParticipantID
 		, 	FullName
@@ -68,8 +76,7 @@ sp :BEGIN
         , 	Email
         , 	DocumentID
         , 	DocumentTypeID
-        , 	BankName
-        , 	BankAccountID
+        , 	BankInfo
         , 	FraudID
 	FROM JSON_TABLE(ip_AccountInfo,
 		 "$[*]" COLUMNS(
@@ -80,8 +87,7 @@ sp :BEGIN
 			,	Email 			VARCHAR(128)	PATH "$.Email" 
 			,	DocumentID  	VARCHAR(128)	PATH "$.DocumentID" 
 			,	DocumentTypeID  TINYINT			PATH "$.DocumentTypeID" 
-			,	BankName		VARCHAR(128)	PATH "$.BankName" 
-			,	BankAccountID	VARCHAR(128)	PATH "$.BankAccountID" 
+            ,	BankInfo		JSON			PATH "$.BankInfo" 
 			,	FraudID			JSON			PATH "$.FraudID" 
 		)
 	) AS info;
@@ -141,8 +147,24 @@ sp :BEGIN
         
         LEAVE sp;
     END IF;
+
+    INSERT INTO Temp_BankInfo(RawID, ParticipantID, BankName, BankAccountID) 
+    SELECT 	tmp.RawID
+		,	tmp.ParticipantID
+        ,	tbl.BankName
+        ,	tbl.BankAccountID
+    FROM Temp_Account AS tmp
+    JOIN JSON_TABLE(tmp.BankInfo, 
+		'$[*]' COLUMNS( 
+			NESTED PATH '$' COLUMNS (
+											BankName 		VARCHAR(128) PATH '$.BankName'
+										,	BankAccountID 	VARCHAR(128) PATH '$.BankAccountID'
+									)
+		)
+	) AS tbl;
     
-    INSERT INTO AFC_DataCenter.Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID)
+    
+    INSERT INTO AFC_DataCenter.Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, FraudID)
     SELECT 	RawID
 		, 	ParticipantID
 		, 	FullName
@@ -151,10 +173,17 @@ sp :BEGIN
         , 	Email
         , 	DocumentID
         , 	DocumentTypeID
-        , 	BankName
-        , 	BankAccountID
         , 	FraudID
     FROM Temp_Account;
+    
+    INSERT IGNORE INTO AFC_DataCenter.BankAccount(RawID,ParticipantID,BankName,BankAccountID)
+    SELECT 	temp.RawID
+		,	temp.ParticipantID
+		,	temp.BankName
+        ,	temp.BankAccountID
+    FROM Temp_BankInfo AS temp
+    WHERE 	temp.BankName IS NOT NULL 
+		AND temp.BankAccountID IS NOT NULL;
 END$$
 DELIMITER ;
 

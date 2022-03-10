@@ -18,6 +18,7 @@ sp :BEGIN
 		Revisions:
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
 			- 20211201@Aries.Nguyen: Update data from B2C to AFC [Redmine ID: #164079]
+            - 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
             
         Param's Explanation (filtered by):
         
@@ -42,8 +43,9 @@ sp :BEGIN
 	);
     
 	DROP TEMPORARY TABLE IF EXISTS Temp_Account;    
-	CREATE TEMPORARY TABLE Temp_Account( 	  
-			RawID 			VARCHAR(128)
+	CREATE TEMPORARY TABLE Temp_Account( 	 
+			AccountID 		BIGINT UNSIGNED
+		,	RawID 			VARCHAR(128)
 		,	ParticipantID	INT
 		,	FullName 		VARCHAR(128)
 		,	Phone 			VARCHAR(128)
@@ -51,12 +53,39 @@ sp :BEGIN
 		,	Email 			VARCHAR(128)
 		,	DocumentID  	VARCHAR(128)
 		,	DocumentTypeID  INT
-		,	BankName		VARCHAR(128)
-		,	BankAccountID	VARCHAR(128)
+		,	BankInfo		JSON
 		,	FraudID			JSON
 	);
     
-	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID)
+    DROP TEMPORARY TABLE IF EXISTS Temp_BankInfo;    
+	CREATE TEMPORARY TABLE Temp_BankInfo( 	
+			ID				INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+		,	RawID 			VARCHAR(128)
+		,	ParticipantID	INT
+		,	BankName		VARCHAR(128)
+		,	BankAccountID	VARCHAR(128)
+        ,	INDEX			IX_Temp_BankInfo_RawID(RawID,ParticipantID)
+	);
+    
+    DROP TEMPORARY TABLE IF EXISTS Temp_CurrBankInfo;    
+	CREATE TEMPORARY TABLE Temp_CurrBankInfo( 	
+			ID				INT NOT NULL AUTO_INCREMENT PRIMARY KEY
+		,	RawID 			VARCHAR(128)
+		,	ParticipantID	INT
+		,	BankName		VARCHAR(128)
+		,	BankAccountID	VARCHAR(128)
+        ,	INDEX			IX_Temp_BankInfo_RawID(RawID,ParticipantID)
+	);
+    
+    DROP TEMPORARY TABLE IF EXISTS Temp_BankInfoHasChange;    
+	CREATE TEMPORARY TABLE Temp_BankInfoHasChange( 	
+			RawID 			VARCHAR(128)
+		,	ParticipantID	INT
+        ,	PRIMARY KEY	(RawID,ParticipantID)
+	);
+
+    
+	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID)
 	SELECT	RawID
 		, 	ip_ParticipantID
 		, 	FullName
@@ -65,8 +94,7 @@ sp :BEGIN
         , 	Email
         , 	DocumentID
         , 	DocumentTypeID
-        , 	BankName
-        , 	BankAccountID
+        , 	BankInfo
         , 	FraudID
 	FROM JSON_TABLE(ip_AccountInfo,
 		 "$[*]" COLUMNS(
@@ -77,8 +105,7 @@ sp :BEGIN
 			,	Email 			VARCHAR(128)	PATH "$.Email" 			NULL ON EMPTY
 			,	DocumentID  	VARCHAR(128)	PATH "$.DocumentID" 	NULL ON EMPTY
 			,	DocumentTypeID  INT				PATH "$.DocumentTypeID" NULL ON EMPTY
-			,	BankName		VARCHAR(128)	PATH "$.BankName" 		NULL ON EMPTY
-			,	BankAccountID	VARCHAR(128)	PATH "$.BankAccountID" 	NULL ON EMPTY
+			,	BankInfo		JSON			PATH "$.BankInfo"  		NULL ON EMPTY
 			,	FraudID			JSON			PATH "$.FraudID" 		NULL ON EMPTY
 		)
 	) AS info;
@@ -140,7 +167,59 @@ sp :BEGIN
         LEAVE sp;
     END IF;
     
-    INSERT INTO Temp_AccountNoChange(RawID)
+	UPDATE Temp_Account 
+	SET BankInfo = '[{}]'
+	WHERE JSON_LENGTH(BankInfo) =  0;
+    
+    INSERT INTO Temp_BankInfo(RawID, ParticipantID, BankName, BankAccountID) 
+    SELECT 	tmp.RawID
+		,	tmp.ParticipantID
+        ,	tbl.BankName
+        ,	tbl.BankAccountID
+    FROM Temp_Account AS tmp
+    JOIN JSON_TABLE(tmp.BankInfo, 
+		'$[*]' COLUMNS( 
+			NESTED PATH '$' COLUMNS (
+											BankName 		VARCHAR(128) PATH '$.BankName'
+										,	BankAccountID 	VARCHAR(128) PATH '$.BankAccountID'
+									)
+		)
+	) AS tbl;
+    
+    INSERT INTO Temp_CurrBankInfo(RawID, ParticipantID, BankName, BankAccountID)
+    SELECT 	acc.RawID
+		, 	acc.ParticipantID
+        , 	acc.BankName
+        , 	acc.BankAccountID
+    FROM AFC_DataCenter.BankAccount AS acc
+    WHERE EXISTS (SELECT 1 FROM Temp_BankInfo AS tmp WHERE acc.RawID = tmp.RawID AND acc.ParticipantID = tmp.ParticipantID);
+    
+    INSERT IGNORE INTO Temp_BankInfoHasChange(RawID, ParticipantID)
+    SELECT 	crr.RawID
+		,	crr.ParticipantID
+	FROM Temp_CurrBankInfo AS crr
+		LEFT JOIN Temp_BankInfo AS upd ON	 crr.RawID = upd.RawID 
+										AND  crr.ParticipantID = upd.ParticipantID
+										AND  crr.BankName = upd.BankName
+										AND  crr.BankAccountID = upd.BankAccountID
+	WHERE upd.RawID IS NULL;
+    
+    INSERT IGNORE INTO Temp_BankInfoHasChange(RawID, ParticipantID)
+    SELECT 	upd.RawID
+		,	upd.ParticipantID
+	FROM Temp_CurrBankInfo AS crr
+		RIGHT JOIN Temp_BankInfo AS upd  ON	 crr.RawID = upd.RawID 
+										AND  crr.ParticipantID = upd.ParticipantID
+										AND  crr.BankName = upd.BankName
+										AND  crr.BankAccountID = upd.BankAccountID
+	WHERE crr.RawID IS NULL AND upd.BankName IS NOT NULL ; 
+    
+    INSERT IGNORE INTO Temp_AccountNoChange(RawID)
+    SELECT tmp.RawID
+    FROM Temp_BankInfo AS tmp
+    WHERE  NOT EXISTS (SELECT 1 FROM Temp_BankInfoHasChange AS chg WHERE tmp.RawID = chg.RawID AND tmp.ParticipantID = chg.ParticipantID);
+    
+    INSERT IGNORE INTO Temp_AccountNoChange(RawID)
     SELECT 	tmp.RawID 
 	FROM AFC_DataCenter.Account AS acc
 		INNER JOIN Temp_Account AS tmp ON acc.ParticipantID = tmp.ParticipantID
@@ -150,8 +229,8 @@ sp :BEGIN
 									 AND (tmp.Email 	IS NULL	OR acc.Email = tmp.Email)
 									 AND (tmp.Phone 	IS NULL	OR (acc.Phone = tmp.Phone AND acc.CountryCode = tmp.CountryCode))
 									 AND (tmp.DocumentID 	IS NULL	OR (acc.DocumentID = tmp.DocumentID AND  acc.DocumentTypeID = tmp.DocumentTypeID))
-									 AND (tmp.BankAccountID IS NULL	 OR (acc.BankAccountID = tmp.BankAccountID AND  acc.BankName = tmp.BankName));
-                                     
+                                     AND tmp.BankInfo IS NULL;
+	
     
     DELETE 
     FROM Temp_Account AS acc
@@ -161,7 +240,7 @@ sp :BEGIN
 					AND acc.RawID = tmp.RawID);
     
     
-	INSERT INTO Account_Log(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID, IsUpdated)
+	INSERT INTO Account_Log(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID, IsUpdated)
     SELECT 	acc.RawID
 		, 	acc.ParticipantID
         , 	acc.FullName
@@ -170,8 +249,10 @@ sp :BEGIN
         , 	acc.Email
         , 	acc.DocumentID
         , 	acc.DocumentTypeID
-        , 	acc.BankName
-        , 	acc.BankAccountID
+        , 	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankAccountID)) 
+			 FROM BankAccount AS bank 
+             WHERE  bank.RawID = acc.RawID 
+				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
         , 	acc.FraudID
         ,	1
 	FROM AFC_DataCenter.Account AS acc
@@ -185,10 +266,20 @@ sp :BEGIN
         ,	acc.Email			= CASE WHEN tmp.Email 			IS NULL THEN acc.Email 			ELSE  tmp.Email END
         ,	acc.DocumentID 		= CASE WHEN tmp.DocumentID	 	IS NULL THEN acc.DocumentID 	ELSE  tmp.DocumentID END
         ,	acc.DocumentTypeID 	= CASE WHEN tmp.DocumentTypeID 	IS NULL THEN acc.DocumentTypeID ELSE  tmp.DocumentTypeID END
-        ,	acc.BankName 		= CASE WHEN tmp.BankName 		IS NULL THEN acc.BankName 		ELSE  tmp.BankName END
-        ,	acc.BankAccountID 	= CASE WHEN tmp.BankAccountID 	IS NULL THEN acc.BankAccountID 	ELSE  tmp.BankAccountID END
         ,	acc.FraudID 		= CASE WHEN tmp.FraudID 		IS NULL THEN acc.FraudID 		ELSE  tmp.FraudID END;
+	
+    DELETE acc
+    FROM AFC_DataCenter.BankAccount AS acc
+    WHERE EXISTS (SELECT 1 FROM Temp_BankInfo AS tmp WHERE acc.RawID = tmp.RawID AND acc.ParticipantID = tmp.ParticipantID);
     
+    INSERT IGNORE INTO AFC_DataCenter.BankAccount(RawID,ParticipantID,BankName,BankAccountID)
+    SELECT 	tmp.RawID
+		,	tmp.ParticipantID
+		,	tmp.BankName
+        ,	tmp.BankAccountID
+    FROM Temp_BankInfo AS tmp
+    WHERE tmp.BankName IS NOT NULL; 
+	
 END$$
 DELIMITER ;
 

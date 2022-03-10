@@ -21,6 +21,7 @@ sp: BEGIN
 		Original:
 		Revisions:
 			- 20211227@Aries.Nguyen: Created [Redmine ID: #164149]
+			- 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
             
         Param's Explanation (filtered by):
         
@@ -46,8 +47,7 @@ sp: BEGIN
 		,	Email				VARCHAR(128)
 		,	DocumentID 			VARCHAR(128) 
 		,	DocumentTypeID 		INT 
-		,	BankName 			VARCHAR(128)
-		,	BankAccountID 		VARCHAR(128) 
+		,	BankInfo 			JSON
 		,	FraudID 			VARCHAR(200)  
 		,	Created 			DATETIME 
 		,	Modified 			DATETIME 
@@ -99,7 +99,7 @@ sp: BEGIN
     
     SET op_IsContinue = 0;
 	
-    INSERT INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID, Modified, Created)
+    INSERT INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID, Modified, Created)
     SELECT 	acc.ID
 		,	acc.RawID AS AccountID
 		,	par.ParticipantName
@@ -109,8 +109,10 @@ sp: BEGIN
 		,	acc.Email
 		,	acc.DocumentID
 		,	acc.DocumentTypeID
-		,	acc.BankName
-		,	acc.BankAccountID
+		,	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankAccountID)) 
+			 FROM BankAccount AS bank 
+             WHERE  bank.RawID = acc.RawID 
+				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
 		,	REGEXP_REPLACE(JSON_UNQUOTE(acc.FraudID), '[\\[\\] ]', '') AS FraudID
 		,	acc.Modified
 		,	acc.Created
@@ -149,7 +151,7 @@ sp: BEGIN
         SET op_IsContinue = 1;
     END IF;
     
-    INSERT IGNORE INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankName, BankAccountID, FraudID, Modified, Created)
+    INSERT IGNORE INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID, Modified, Created)
     SELECT 	acc.ID
 		,	acc.RawID AS AccountID
 		,	par.ParticipantName
@@ -159,8 +161,10 @@ sp: BEGIN
 		,	acc.Email
 		,	acc.DocumentID
 		,	acc.DocumentTypeID
-		,	acc.BankName
-		,	acc.BankAccountID
+		,	(SELECT JSON_ARRAYAGG(JSON_OBJECT('BankName', bank.BankName,'BankAccountID', bank.BankAccountID)) 
+			 FROM BankAccount AS bank 
+             WHERE  bank.RawID = acc.RawID 
+				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
 		,	REGEXP_REPLACE(JSON_UNQUOTE(acc.FraudID), '[\\[\\] ]', '') AS FraudID
 		,	acc.Modified
 		,	acc.Created
@@ -178,8 +182,7 @@ sp: BEGIN
         , 	Email
         , 	DocumentID
         , 	DocumentTypeID
-        , 	BankName
-        , 	BankAccountID
+        , 	BankInfo
         , 	FraudID
         , 	Modified
         , 	Created

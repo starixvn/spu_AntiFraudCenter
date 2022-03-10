@@ -15,6 +15,7 @@ sp: BEGIN
 		Revisions:
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
             - 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
+            - 20220310@Aries.Nguyen: Remove condition BankName, filter base on BankAccountID [Redmine ID: #164149]
             
         Param's Explanation (filtered by):
         
@@ -58,8 +59,7 @@ sp: BEGIN
         SELECT  acc.RawID
 			,	acc.ParticipantID
         FROM BankAccount AS acc
-        WHERE 	acc.BankAccountID = lv_BankAccountID
-			AND acc.BankName = lv_BankName;
+        WHERE 	acc.BankAccountID = lv_BankAccountID;
     END IF;
     
     SELECT 	acc.RawID AS AccountID

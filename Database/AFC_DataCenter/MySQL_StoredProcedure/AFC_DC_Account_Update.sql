@@ -19,6 +19,7 @@ sp :BEGIN
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
 			- 20211201@Aries.Nguyen: Update data from B2C to AFC [Redmine ID: #164079]
             - 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
+            - 20220310@Aries.Nguyen: Fix bug can't update account [Redmine ID: #164149]
             
         Param's Explanation (filtered by):
         
@@ -215,21 +216,16 @@ sp :BEGIN
 	WHERE crr.RawID IS NULL AND upd.BankName IS NOT NULL ; 
     
     INSERT IGNORE INTO Temp_AccountNoChange(RawID)
-    SELECT tmp.RawID
-    FROM Temp_BankInfo AS tmp
-    WHERE  NOT EXISTS (SELECT 1 FROM Temp_BankInfoHasChange AS chg WHERE tmp.RawID = chg.RawID AND tmp.ParticipantID = chg.ParticipantID);
-    
-    INSERT IGNORE INTO Temp_AccountNoChange(RawID)
     SELECT 	tmp.RawID 
 	FROM AFC_DataCenter.Account AS acc
 		INNER JOIN Temp_Account AS tmp ON acc.ParticipantID = tmp.ParticipantID
 									 AND acc.RawID = tmp.RawID
-                                     AND tmp.FraudID 	IS NULL
+                                     AND tmp.FraudID 	IS NULL OR (JSON_CONTAINS(tmp.FraudID, acc.FraudID) AND JSON_LENGTH(tmp.FraudID) = JSON_LENGTH(acc.FraudID))
 									 AND (tmp.FullName	IS NULL OR acc.FullName = tmp.FullName)
 									 AND (tmp.Email 	IS NULL	OR acc.Email = tmp.Email)
 									 AND (tmp.Phone 	IS NULL	OR (acc.Phone = tmp.Phone AND acc.CountryCode = tmp.CountryCode))
 									 AND (tmp.DocumentID 	IS NULL	OR (acc.DocumentID = tmp.DocumentID AND  acc.DocumentTypeID = tmp.DocumentTypeID))
-                                     AND tmp.BankInfo IS NULL;
+                                     AND (tmp.BankInfo IS NULL OR NOT EXISTS (SELECT 1 FROM Temp_BankInfoHasChange AS chg WHERE tmp.RawID = chg.RawID AND tmp.ParticipantID = chg.ParticipantID));
 	
     
     DELETE 

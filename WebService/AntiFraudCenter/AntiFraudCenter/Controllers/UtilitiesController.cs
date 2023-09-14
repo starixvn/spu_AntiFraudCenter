@@ -4,6 +4,7 @@
     using AntiFraudCenterService.Shares;
     using Microsoft.AspNetCore.Mvc;
     using Sentry;
+    using System;
     using static AntiFraudCenterService.Shares.Constants;
 
     [Route("api/Utilities")]
@@ -48,6 +49,14 @@
             var result = this.participantService.GetConventionInfo();
 
             return StatusCode((int)result.StatusCode, result);
+        }
+
+        [HttpGet("CheckHealth")]
+        public IActionResult CheckHealth()
+        {
+            sentryClient.CaptureMessage("AFC - Check Health OK! ", Sentry.Protocol.SentryLevel.Info);
+
+            return StatusCode((int)HttpStatus.OK, $"{DateTime.UtcNow} UTC");
         }
     }
 }

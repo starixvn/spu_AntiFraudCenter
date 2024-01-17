@@ -1,4 +1,6 @@
 /*<info serverAlias="AFC-AFC_DataCenter" databaseType="2" executers="afcExtAPIAdmin,afcAPIAdmin,afcWebAdmin,afcServiceAdmin" isFunction="0" isNested="0"></info>*/
+USE AFC_DataCenter;
+
 DROP PROCEDURE IF EXISTS `AFC_DC_Account_Scan`;
 
 DELIMITER $$
@@ -22,6 +24,7 @@ sp: BEGIN
 		Revisions:
 			- 20211227@Aries.Nguyen: Created [Redmine ID: #164149]
 			- 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
+            - 20230109@Long.Luu: Support Account's IP & Device [Redmine ID: #0000]
             
         Param's Explanation (filtered by):
         
@@ -48,6 +51,8 @@ sp: BEGIN
 		,	DocumentID 			VARCHAR(128) 
 		,	DocumentTypeID 		INT 
 		,	BankInfo 			JSON
+		,	IP 					LONGTEXT
+		,	Device	 			LONGTEXT
 		,	FraudID 			VARCHAR(200)  
 		,	Created 			DATETIME 
 		,	Modified 			DATETIME 
@@ -80,9 +85,7 @@ sp: BEGIN
 		FROM AFC_DataCenter.Account;
 		
 		SET lv_LastScanDate =  DATE_SUB(lv_LastScanDate, INTERVAL 1 DAY);  
-
 	END IF;
-    
     
     IF ip_ParticipantList IS NOT NULL AND ip_ParticipantList != '' THEN
 		SET @sql = CONCAT("INSERT IGNORE INTO Temp_ParticipantName (ParticipantName) VALUES ('", REPLACE(ip_ParticipantList, ",", "'),('"),"');");
@@ -99,7 +102,7 @@ sp: BEGIN
     
     SET op_IsContinue = 0;
 	
-    INSERT INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID, Modified, Created)
+    INSERT INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, IP, Device, FraudID, Modified, Created)
     SELECT 	acc.ID
 		,	acc.RawID AS AccountID
 		,	par.ParticipantName
@@ -113,18 +116,22 @@ sp: BEGIN
 			 FROM BankAccount AS bank 
              WHERE  bank.RawID = acc.RawID 
 				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
+		,	GROUP_CONCAT (ip.IP) AS IP
+		,	GROUP_CONCAT (ip.Device) AS Device
 		,	REGEXP_REPLACE(JSON_UNQUOTE(acc.FraudID), '[\\[\\] ]', '') AS FraudID
 		,	acc.Modified
 		,	acc.Created
 	FROM AFC_DataCenter.Account AS acc
 		INNER JOIN AFC_DataCenter.Participant AS par ON acc.ParticipantID = par.ParticipantID
+		INNER JOIN AFC_DataCenter.AccountIP AS ip ON ip.RawID = acc.RawID AND ip.ParticipantID = acc.ParticipantID
+		INNER JOIN AFC_DataCenter.AccountDevice AS d ON d.RawID = acc.RawID AND d.ParticipantID = acc.ParticipantID
 	WHERE   ((ip_FromDate IS NULL AND acc.Modified > lv_LastScanDate) 
 			OR (ip_FromDate IS NOT NULL AND acc.Modified > ip_FromDate))
 		AND (ip_ToDate IS NULL OR (ip_ToDate IS NOT NULL AND acc.Modified <= ip_ToDate))
         AND (lv_IsFilterAllPar = 1 OR (lv_IsFilterAllPar = 0 AND acc.ParticipantID IN (SELECT pa.ParticipantID FROM Temp_ParticipantID AS pa)))
 	ORDER BY acc.Modified ASC
 	LIMIT lv_BatchSize; 
-    
+
     IF NOT EXISTS (SELECT 1 FROM Temp_Account) THEN
 		SET op_IsContinue = 0;
         
@@ -151,7 +158,7 @@ sp: BEGIN
         SET op_IsContinue = 1;
     END IF;
     
-    INSERT IGNORE INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID, Modified, Created)
+    INSERT IGNORE INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, IP, Device, FraudID, Modified, Created)
     SELECT 	acc.ID
 		,	acc.RawID AS AccountID
 		,	par.ParticipantName
@@ -165,12 +172,16 @@ sp: BEGIN
 			 FROM BankAccount AS bank 
              WHERE  bank.RawID = acc.RawID 
 				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
+		,	GROUP_CONCAT (ip.IP) AS IP
+		,	GROUP_CONCAT (ip.Device) AS Device
 		,	REGEXP_REPLACE(JSON_UNQUOTE(acc.FraudID), '[\\[\\] ]', '') AS FraudID
 		,	acc.Modified
 		,	acc.Created
 	FROM AFC_DataCenter.Account AS acc
 		INNER JOIN AFC_DataCenter.Participant AS par ON acc.ParticipantID = par.ParticipantID
-	WHERE  acc.Modified= op_ToDate
+		INNER JOIN AFC_DataCenter.AccountIP AS ip ON ip.RawID = acc.RawID AND ip.ParticipantID = acc.ParticipantID
+		INNER JOIN AFC_DataCenter.AccountDevice AS d ON d.RawID = acc.RawID AND d.ParticipantID = acc.ParticipantID
+	WHERE  acc.Modified = op_ToDate
         AND (lv_IsFilterAllPar = 1 OR acc.ParticipantID IN (SELECT pa.ParticipantID FROM Temp_ParticipantID AS pa));
 	
     SELECT 	ID
@@ -183,6 +194,8 @@ sp: BEGIN
         , 	DocumentID
         , 	DocumentTypeID
         , 	BankInfo
+        ,	IP
+        ,	Device
         , 	FraudID
         , 	Modified
         , 	Created

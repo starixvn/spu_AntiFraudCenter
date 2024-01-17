@@ -16,6 +16,7 @@ BEGIN
 		Revisions:
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
             - 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
+            - 20230109@Long.Luu: Support Account's IP & Device [Redmine ID: #0000]
               
         Param's Explanation (filtered by):
         
@@ -59,6 +60,14 @@ BEGIN
     
     DELETE 
     FROM AFC_DataCenter.BankAccount AS acc
+    WHERE EXISTS (SELECT 1 FROM Temp_RawID AS tmp WHERE tmp.RawID = acc.RawID AND acc.ParticipantID = ip_ParticipantID);
+    
+    DELETE 
+    FROM AFC_DataCenter.AccountIP AS acc
+    WHERE EXISTS (SELECT 1 FROM Temp_RawID AS tmp WHERE tmp.RawID = acc.RawID AND acc.ParticipantID = ip_ParticipantID);
+    
+    DELETE 
+    FROM AFC_DataCenter.AccountDevice AS acc
     WHERE EXISTS (SELECT 1 FROM Temp_RawID AS tmp WHERE tmp.RawID = acc.RawID AND acc.ParticipantID = ip_ParticipantID);
     
 END$$

@@ -18,19 +18,22 @@ sp :BEGIN
 		Revisions:
 			- 20211111@Aries.Nguyen: Created [Redmine ID: #164149]
             - 20220228@Aries.Nguyen: Multiple bank account [Redmine ID: #164149]
+            - 20230109@Long.Luu: Support Account's IP & Device [Redmine ID: #0000]
             
         Param's Explanation (filtered by):
         
         Example:
-			- CALL AFC_DC_Account_Insert(1,'[{"AccountID": "AccountID_Vaule_Test",
-											  "FullName": "FullName_Vaule_Test",
-                                              "Phone":  "Phone_Vaule_Test",
-                                              "CountryCode":"CountryCode_Vaule_Test",
-                                              "Email": "Email_Vaule_Test",
-                                              "DocumentID": "DocumentID_Vaule_Test",
+			- CALL AFC_DC_Account_Insert(1,'[{"AccountID": "1234",
+											  "FullName": "FullName_Value",
+                                              "Phone":  "Phone_Value",
+                                              "CountryCode":"CountryCode_Value",
+                                              "Email": "Email_Value",
+                                              "DocumentID": "DocumentID_Value",
                                               "DocumentTypeID": 1,
                                               "BankInfo": [{"BankName": "BankName_Vaule_Test","BankAccountID": "BankAccountID_Vaule_Test"}],
-                                              "FraudID": [1,2,3]}]', @mess);
+                                              "IP": "10.40.40.22,10.90.90.9",
+                                              "Device": "AOHKFJKSGFYI,AIOU1689IUAGKL,UIQGC0AH1KJH78A",
+                                              "FraudID": [1,2,3]}]', @mess); select @mess;
 	*/  
     DECLARE lv_CheckValid INT;
     
@@ -45,8 +48,9 @@ sp :BEGIN
 	);
     
 	DROP TEMPORARY TABLE IF EXISTS Temp_Account;    
-	CREATE TEMPORARY TABLE Temp_Account( 	  
-			RawID 			VARCHAR(128)
+	CREATE TEMPORARY TABLE Temp_Account( 	   
+			ID   			BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY
+		,	RawID 			VARCHAR(128)
 		,	ParticipantID	INT
 		,	FullName 		NVARCHAR(128)
 		,	Phone 			VARCHAR(128)
@@ -55,6 +59,8 @@ sp :BEGIN
 		,	DocumentID  	VARCHAR(128)
 		,	DocumentTypeID  INT
         ,	BankInfo		JSON
+        ,	IP				LONGTEXT
+        ,	Device			LONGTEXT
 		,	FraudID			JSON
 	);
     
@@ -65,9 +71,9 @@ sp :BEGIN
 		,	ParticipantID	INT
 		,	BankName		VARCHAR(128)
 		,	BankAccountID	VARCHAR(128)
-	);
+	);    
     
-	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID)
+	INSERT IGNORE INTO Temp_Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, IP, Device, FraudID)
 	SELECT	RawID
 		, 	ip_ParticipantID
 		, 	FullName
@@ -77,6 +83,8 @@ sp :BEGIN
         , 	DocumentID
         , 	DocumentTypeID
         , 	BankInfo
+        ,	IP
+        ,	Device
         , 	FraudID
 	FROM JSON_TABLE(ip_AccountInfo,
 		 "$[*]" COLUMNS(
@@ -88,6 +96,8 @@ sp :BEGIN
 			,	DocumentID  	VARCHAR(128)	PATH "$.DocumentID" 
 			,	DocumentTypeID  TINYINT			PATH "$.DocumentTypeID" 
             ,	BankInfo		JSON			PATH "$.BankInfo" 
+            ,	IP				LONGTEXT		PATH "$.IP" 
+            ,	Device			LONGTEXT		PATH "$.Device" 
 			,	FraudID			JSON			PATH "$.FraudID" 
 		)
 	) AS info;
@@ -161,8 +171,7 @@ sp :BEGIN
 										,	BankAccountID 	VARCHAR(128) PATH '$.BankAccountID'
 									)
 		)
-	) AS tbl;
-    
+	) AS tbl;    
     
     INSERT INTO AFC_DataCenter.Account(RawID, ParticipantID, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, FraudID)
     SELECT 	RawID
@@ -184,6 +193,43 @@ sp :BEGIN
     FROM Temp_BankInfo AS temp
     WHERE 	temp.BankName IS NOT NULL 
 		AND temp.BankAccountID IS NOT NULL;
+        
+	INSERT IGNORE INTO AFC_DataCenter.AccountIP(RawID,ParticipantID,IP)
+    SELECT a.RawID, ip_ParticipantID,
+		REPLACE(substring(substring_index(IP, ',', i),
+			   length(substring_index(IP, ',', i - 1)) + 1), ',', '') AS IP
+	FROM (
+		SELECT a.*, @i := if((@id = a.ID), @i + 1, 1) AS i, @id := a.ID
+		FROM (
+				SELECT a.ID, a.RawID, a.IP
+				FROM Temp_Account AS a
+					INNER JOIN mysql.user AS b ON 1 = 1
+				WHERE a.IP IS NOT NULL 
+					AND a.IP <> ''
+				ORDER BY a.ID
+			) AS a
+		INNER JOIN (SELECT @i := 0, @id := NULL) AS x
+	) AS a
+	WHERE i <= LENGTH(IP) - LENGTH(REPLACE(IP, ',', '')) + 1;
+        
+	INSERT IGNORE INTO AFC_DataCenter.AccountDevice(RawID,ParticipantID,Device)
+    SELECT a.RawID, ip_ParticipantID,
+		REPLACE(substring(substring_index(Device, ',', i),
+			   length(substring_index(Device, ',', i - 1)) + 1), ',', '') AS Device
+	FROM (
+		SELECT a.*, @i := if((@id = a.ID), @i + 1, 1) AS i, @id := a.ID
+		FROM (
+				SELECT a.ID, a.RawID, a.Device
+				FROM Temp_Account AS a
+					INNER JOIN mysql.user AS b ON 1 = 1
+				WHERE a.Device IS NOT NULL 
+					AND a.Device <> ''
+				ORDER BY a.ID
+			) AS a
+		INNER JOIN (SELECT @i := 0, @id := NULL) AS x
+	) AS a
+	WHERE i <= LENGTH(Device) - LENGTH(REPLACE(Device, ',', '')) + 1;
+    
 END$$
 DELIMITER ;
 

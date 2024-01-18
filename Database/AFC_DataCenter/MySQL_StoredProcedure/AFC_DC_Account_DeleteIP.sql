@@ -66,7 +66,7 @@ sp :BEGIN
         LEAVE sp;
     END IF;
     
-    IF EXISTS (SELECT 1 FROM Temp_AccountExisted)	THEN
+    IF EXISTS (SELECT 1 FROM Temp_AccountNotExisted)	THEN
 		SELECT GROUP_CONCAT(RawID)
         INTO op_ErrorMessage
         FROM Temp_AccountNotExisted;
@@ -97,7 +97,7 @@ sp :BEGIN
     DELETE ip
     FROM Temp_AccountIP AS t
 		INNER JOIN AFC_DataCenter.AccountIP AS ip ON t.RawID = ip.RawID 
-			AND t.ParticipantID = ip.ParticipantID AND t.IP = ip.IP;
+			AND ip.ParticipantID = ip_ParticipantID AND t.IP = ip.IP;
     
 END$$
 DELIMITER ;

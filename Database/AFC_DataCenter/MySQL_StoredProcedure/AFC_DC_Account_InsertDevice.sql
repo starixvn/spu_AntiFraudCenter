@@ -58,7 +58,7 @@ sp :BEGIN
         LEAVE sp;
     END IF;
     
-    IF EXISTS (SELECT 1 FROM Temp_AccountExisted)	THEN
+    IF EXISTS (SELECT 1 FROM Temp_AccountNotExisted)	THEN
 		SELECT GROUP_CONCAT(RawID)
         INTO op_ErrorMessage
         FROM Temp_AccountNotExisted;

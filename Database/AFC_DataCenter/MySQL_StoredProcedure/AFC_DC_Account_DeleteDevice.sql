@@ -22,9 +22,9 @@ sp :BEGIN
         
         Example:
 			- CALL AFC_DC_Account_DeleteDevice(1,'[{"AccountID": "1234",
-                                              "IP": "10.40.40.22,10.90.90.9"},
+                                              "Device": "AOHKFJKSGFYI"},
                                               {"AccountID": "5678",
-                                              "IP": "10.40.40.14,10.90.90.5"}]', @mess); select @mess;
+                                              "Device": "UIQGC0AH1KJH78A,XZYZAH1KABC8A"}]', @mess); select @mess;
 	*/  
     DROP TEMPORARY TABLE IF EXISTS Temp_AccountNotExisted;    
 	CREATE TEMPORARY TABLE Temp_AccountNotExisted( 	  
@@ -35,7 +35,7 @@ sp :BEGIN
 	CREATE TEMPORARY TABLE Temp_Account( 	   
 			ID   			BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY
 		,	RawID 			VARCHAR(128)
-        ,	IP				LONGTEXT
+        ,	Device			LONGTEXT
 	);
     
     DROP TEMPORARY TABLE IF EXISTS Temp_AccountDevice;    
@@ -66,7 +66,7 @@ sp :BEGIN
         LEAVE sp;
     END IF;
     
-    IF EXISTS (SELECT 1 FROM Temp_AccountExisted)	THEN
+    IF EXISTS (SELECT 1 FROM Temp_AccountNotExisted)	THEN
 		SELECT GROUP_CONCAT(RawID)
         INTO op_ErrorMessage
         FROM Temp_AccountNotExisted;
@@ -96,8 +96,8 @@ sp :BEGIN
     
     DELETE d
     FROM Temp_AccountDevice AS t
-		INNER JOIN AFC_DataCenter.AccountDevice AS d ON t.RawID = ip.RawID 
-			AND t.ParticipantID = ip.ParticipantID AND t.Device = ip.Device;
+		INNER JOIN AFC_DataCenter.AccountDevice AS d ON t.RawID = d.RawID 
+			AND d.ParticipantID = ip_ParticipantID AND t.Device = d.Device;
     
 END$$
 DELIMITER ;

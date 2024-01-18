@@ -29,7 +29,7 @@ sp: BEGIN
         Param's Explanation (filtered by):
         
         Example:
-			- CALL AFC_DataCenter.AFC_DC_Account_Scan(9,'par7','2021-12-01 00:00:00', '2021-12-02 22:02:20',@op_IsContinue, @op_FromDate, @op_ToDate);;
+			- CALL AFC_DataCenter.AFC_DC_Account_Scan(9,'par7','2021-12-01 00:00:00', '2021-12-02 22:02:20',@op_IsContinue, @op_FromDate, @op_ToDate);
 	*/ 
     DECLARE CONS_SysID_BatchSize 	INT DEFAULT 1;
     
@@ -51,8 +51,6 @@ sp: BEGIN
 		,	DocumentID 			VARCHAR(128) 
 		,	DocumentTypeID 		INT 
 		,	BankInfo 			JSON
-		,	IP 					LONGTEXT
-		,	Device	 			LONGTEXT
 		,	FraudID 			VARCHAR(200)  
 		,	Created 			DATETIME 
 		,	Modified 			DATETIME 
@@ -102,7 +100,7 @@ sp: BEGIN
     
     SET op_IsContinue = 0;
 	
-    INSERT INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, IP, Device, FraudID, Modified, Created)
+    INSERT INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID, Modified, Created)
     SELECT 	acc.ID
 		,	acc.RawID AS AccountID
 		,	par.ParticipantName
@@ -116,15 +114,11 @@ sp: BEGIN
 			 FROM BankAccount AS bank 
              WHERE  bank.RawID = acc.RawID 
 				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
-		,	GROUP_CONCAT (ip.IP) AS IP
-		,	GROUP_CONCAT (ip.Device) AS Device
 		,	REGEXP_REPLACE(JSON_UNQUOTE(acc.FraudID), '[\\[\\] ]', '') AS FraudID
 		,	acc.Modified
 		,	acc.Created
 	FROM AFC_DataCenter.Account AS acc
 		INNER JOIN AFC_DataCenter.Participant AS par ON acc.ParticipantID = par.ParticipantID
-		INNER JOIN AFC_DataCenter.AccountIP AS ip ON ip.RawID = acc.RawID AND ip.ParticipantID = acc.ParticipantID
-		INNER JOIN AFC_DataCenter.AccountDevice AS d ON d.RawID = acc.RawID AND d.ParticipantID = acc.ParticipantID
 	WHERE   ((ip_FromDate IS NULL AND acc.Modified > lv_LastScanDate) 
 			OR (ip_FromDate IS NOT NULL AND acc.Modified > ip_FromDate))
 		AND (ip_ToDate IS NULL OR (ip_ToDate IS NOT NULL AND acc.Modified <= ip_ToDate))
@@ -134,7 +128,7 @@ sp: BEGIN
 
     IF NOT EXISTS (SELECT 1 FROM Temp_Account) THEN
 		SET op_IsContinue = 0;
-        
+        #SELECT 'No Data';
         LEAVE sp; 
     END IF;
     
@@ -158,7 +152,7 @@ sp: BEGIN
         SET op_IsContinue = 1;
     END IF;
     
-    INSERT IGNORE INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, IP, Device, FraudID, Modified, Created)
+    INSERT IGNORE INTO Temp_Account(ID, AccountID, ParticipantName, FullName, Phone, CountryCode, Email, DocumentID, DocumentTypeID, BankInfo, FraudID, Modified, Created)
     SELECT 	acc.ID
 		,	acc.RawID AS AccountID
 		,	par.ParticipantName
@@ -172,35 +166,50 @@ sp: BEGIN
 			 FROM BankAccount AS bank 
              WHERE  bank.RawID = acc.RawID 
 				AND bank.ParticipantID = acc.ParticipantID) AS BankInfo
-		,	GROUP_CONCAT (ip.IP) AS IP
-		,	GROUP_CONCAT (ip.Device) AS Device
 		,	REGEXP_REPLACE(JSON_UNQUOTE(acc.FraudID), '[\\[\\] ]', '') AS FraudID
 		,	acc.Modified
 		,	acc.Created
 	FROM AFC_DataCenter.Account AS acc
 		INNER JOIN AFC_DataCenter.Participant AS par ON acc.ParticipantID = par.ParticipantID
-		INNER JOIN AFC_DataCenter.AccountIP AS ip ON ip.RawID = acc.RawID AND ip.ParticipantID = acc.ParticipantID
-		INNER JOIN AFC_DataCenter.AccountDevice AS d ON d.RawID = acc.RawID AND d.ParticipantID = acc.ParticipantID
 	WHERE  acc.Modified = op_ToDate
         AND (lv_IsFilterAllPar = 1 OR acc.ParticipantID IN (SELECT pa.ParticipantID FROM Temp_ParticipantID AS pa));
 	
-    SELECT 	ID
-		, 	AccountID
-        , 	ParticipantName
-        , 	FullName
-        , 	Phone
-        , 	CountryCode
-        , 	Email
-        , 	DocumentID
-        , 	DocumentTypeID
-        , 	BankInfo
-        ,	IP
-        ,	Device
-        , 	FraudID
-        , 	Modified
-        , 	Created
-    FROM Temp_Account
-    ORDER BY Modified ASC;
+    SELECT 	t.ID
+		, 	t.AccountID
+        , 	t.ParticipantName
+        , 	t.FullName
+        , 	t.Phone
+        , 	t.CountryCode
+        , 	t.Email
+        , 	t.DocumentID
+        , 	t.DocumentTypeID
+        , 	t.BankInfo
+        ,	t.IP
+        ,	t.Device
+        , 	t.FraudID
+        , 	t.Modified
+        , 	t.Created
+		,	GROUP_CONCAT(ip.IP) AS IP
+		,	GROUP_CONCAT(d.Device) AS Device
+    FROM Temp_Account AS t		
+		INNER JOIN AFC_DataCenter.AccountIP AS ip ON ip.RawID = t.RawID AND ip.ParticipantID = t.ParticipantID
+		INNER JOIN AFC_DataCenter.AccountDevice AS d ON d.RawID = t.RawID AND d.ParticipantID = t.ParticipantID
+	GROUP BY t.ID
+		, 	t.AccountID
+        , 	t.ParticipantName
+        , 	t.FullName
+        , 	t.Phone
+        , 	t.CountryCode
+        , 	t.Email
+        , 	t.DocumentID
+        , 	t.DocumentTypeID
+        , 	t.BankInfo
+        ,	t.IP
+        ,	t.Device
+        , 	t.FraudID
+        , 	t.Modified
+        , 	t.Created
+    ORDER BY t.Modified ASC;
     
     IF ip_FromDate IS NULL THEN
 		UPDATE AFC_DataCenter.Participant

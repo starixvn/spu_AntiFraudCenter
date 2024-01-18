@@ -67,6 +67,31 @@ sp: BEGIN
 			Device			VARCHAR(128) NOT NULL PRIMARY KEY
 	);
     
+    DROP TEMPORARY TABLE IF EXISTS Temp_Account;    
+    CREATE TEMPORARY TABLE Temp_Account (
+		ParticipantID 		INT NOT NULL,
+		ParticipantName 	VARCHAR(100),
+		RawID 				VARCHAR(128) NOT NULL,
+		FullName 			VARCHAR(128),
+		Phone 				VARCHAR(128),
+		CountryCode 		VARCHAR(5),
+		Email 				VARCHAR(128),
+		DocumentID 			VARCHAR(128),
+		DocumentTypeID 		INT,
+		FraudID 			JSON,
+        BankInfo			JSON,
+		Created 			DATETIME,
+		Modified 			DATETIME,
+		PRIMARY KEY (RawID,ParticipantID)
+	);
+    
+    DROP TEMPORARY TABLE IF EXISTS Temp_DistinctedAccount;    
+    CREATE TEMPORARY TABLE Temp_DistinctedAccount (
+		ParticipantID 		INT NOT NULL,
+		RawID 				VARCHAR(128) NOT NULL,
+		PRIMARY KEY (RawID,ParticipantID)
+	);
+    
     SELECT JSON_VALUE(ip_AccountInfo, "$.AccountID")		INTO lv_AccountID;
     SELECT JSON_VALUE(ip_AccountInfo, "$.FullName")			INTO lv_FullName;
     SELECT JSON_VALUE(ip_AccountInfo, "$.Phone") 			INTO lv_Phone;
@@ -104,7 +129,7 @@ sp: BEGIN
         FROM Temp_IP AS t
 			INNER JOIN AccountIP AS acc	ON t.IP = acc.IP;
     END IF;
-    
+   
     IF (lv_Device IS NOT NULL) THEN
 		SET @sql = CONCAT("INSERT INTO Temp_Device (Device) VALUES ('", REPLACE(lv_Device, ",", "'),('"),"');");
 		PREPARE stmt1 FROM @sql;
@@ -117,9 +142,11 @@ sp: BEGIN
 			INNER JOIN AccountDevice AS acc	ON t.Device = acc.Device;
     END IF;
     
-    SELECT 	acc.RawID AS AccountID
+    #INSERT INTO Temp_Account (RawID,FullName,ParticipantName,ParticipantID,Phone,CountryCode,Email,DocumentID,DocumentTypeID,BankInfo,FraudID,Created,Modified)
+    SELECT 	acc.RawID
 		,	acc.FullName 
         ,	par.ParticipantName
+        ,	par.ParticipantID
         ,	acc.Phone
         ,	acc.CountryCode
         ,	acc.Email
@@ -140,9 +167,42 @@ sp: BEGIN
 		AND	(lv_Phone 		IS NULL	OR (acc.Phone = lv_Phone AND  acc.CountryCode = lv_CountryCode))
         AND	(lv_DocumentID 	IS NULL	OR (acc.DocumentID = lv_DocumentID AND  acc.DocumentTypeID = lv_DocumentTypeID))
         AND	(lv_BankAccountID 	IS NULL	 OR ((acc.RawID,acc.ParticipantID) IN (SELECT tmp.RawID, tmp.ParticipantID FROM Temp_AccountIDByBankAccount AS tmp)))
-        AND	(lv_IP 			IS NULL	OR ((acc.RawID,acc.ParticipantID) IN (SELECT tmp.RawID, tmp.ParticipantID FROM Temp_AccountIDByIP AS tmp)))
-        AND	(lv_Device 		IS NULL	OR ((acc.RawID,acc.ParticipantID) IN (SELECT tmp.RawID, tmp.ParticipantID FROM Temp_AccountIDByDevice AS tmp)));
-
+		AND	(lv_IP 			IS NULL	OR ((acc.RawID,acc.ParticipantID) IN (SELECT tmp.RawID, tmp.ParticipantID FROM Temp_AccountIDByIP AS tmp)))
+		AND	(lv_Device 		IS NULL	OR ((acc.RawID,acc.ParticipantID) IN (SELECT tmp.RawID, tmp.ParticipantID FROM Temp_AccountIDByDevice AS tmp)));
+    
+    INSERT INTO Temp_DistinctedAccount(RawID, ParticipantID)
+    SELECT DISTINCT RawID, ParticipantID
+    FROM Temp_Account;
+     /*
+    WITH cte_CustIPDevice AS
+    (
+		SELECT 	a.RawID
+            ,	a.ParticipantID
+			,	GROUP_CONCAT(ip.IP) AS IP
+			,	GROUP_CONCAT(d.Device) AS Device
+		FROM Temp_DistinctedAccount AS a			
+			INNER JOIN AccountIP AS ip ON a.RawID = ip.RawID AND a.ParticipantID = ip.ParticipantID
+			INNER JOIN AccountDevice AS d ON a.RawID = d.RawID AND a.ParticipantID = d.ParticipantID
+		GROUP BY a.RawID
+            ,	a.ParticipantID
+	)
+    select 	a.RawID
+		,	a.FullName
+        ,	a.ParticipantID
+        ,	a.Phone
+        ,	a.CountryCode
+        ,	a.Email
+        ,	a.DocumentID
+        ,	a.DocumentTypeID
+        ,	a.BankInfo
+        ,	cte.IP
+        ,	cte.Device
+        ,	a.FraudID
+        ,	a.Created
+        ,	a.Modified
+    from cte_CustIPDevice AS cte
+		INNER JOIN Temp_Account AS a ON cte.RawID = a.RawID AND cte.ParticipantID = a.ParticipantID;
+*/
 END$$
 DELIMITER ;
 

@@ -36,7 +36,11 @@
         {
             Insert = 1,
             Update = 2,
-            Delete = 3
+            Delete = 3,
+            InsertIP = 4,
+            InsertDevice = 5,
+            DeleteIP = 6,
+            DeleteDevice = 7
         };
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace AntiFraudCenterService.Features.Accounts.Criteria
+﻿namespace AntiFraudCenterService.Features.Authorization.Criteria
 {
     using Fanex.Data;
     using Fanex.Data.Repository;

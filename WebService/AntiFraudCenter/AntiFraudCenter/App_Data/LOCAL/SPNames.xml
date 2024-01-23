@@ -40,4 +40,18 @@
 
 		<Setting Key="Ext_AFC_DC_ErrorLog_Insert" SpName="AFC_DC_ErrorLog_Insert" DbName="MySQL.AFC_DataCenter.afcExtAPIAdmin" />
 	</Function>
+
+	<Function Name="IpAndDevice">
+		<!--Internal request-->
+		<Setting Key="AFC_DC_Account_DeleteDevice" SpName="AFC_DC_Account_DeleteDevice" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
+		<Setting Key="AFC_DC_Account_DeleteIP" SpName="AFC_DC_Account_DeleteIP" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
+		<Setting Key="AFC_DC_Account_InsertDevice" SpName="AFC_DC_Account_InsertDevice" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
+		<Setting Key="AFC_DC_Account_InsertIP" SpName="AFC_DC_Account_InsertIP" DbName="MySQL.AFC_DataCenter.afcAPIAdmin" />
+
+		<!--External request-->
+		<Setting Key="Ext_AFC_DC_Account_DeleteDevice" SpName="AFC_DC_Account_DeleteDevice" DbName="MySQL.AFC_DataCenter.afcExtAPIAdmin" />
+		<Setting Key="Ext_AFC_DC_Account_DeleteIP" SpName="AFC_DC_Account_DeleteIP" DbName="MySQL.AFC_DataCenter.afcExtAPIAdmin" />
+		<Setting Key="Ext_AFC_DC_Account_InsertDevice" SpName="AFC_DC_Account_InsertDevice" DbName="MySQL.AFC_DataCenter.afcExtAPIAdmin" />
+		<Setting Key="Ext_AFC_DC_Account_InsertIP" SpName="AFC_DC_Account_InsertIP" DbName="MySQL.AFC_DataCenter.afcExtAPIAdmin" />
+	</Function>
 </Functions>

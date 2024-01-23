@@ -1,4 +1,4 @@
-﻿namespace AntiFraudCenterService.Features.Accounts
+﻿namespace AntiFraudCenterService.Features.Authorization
 {
     public class CheckAccountModel
     {

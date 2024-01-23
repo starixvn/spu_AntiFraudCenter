@@ -1,5 +1,6 @@
 ﻿namespace AntiFraudCenterService.Features.Accounts
 {
+    using AntiFraudCenterService.Features.Authorization;
     using AntiFraudCenterService.Shares;
     using AntiFraudCenterService.Shares.Model;
     using Newtonsoft.Json;
@@ -33,7 +34,7 @@
 
         IEnumerable<GetAccountResultModel> DecryptAccount(IEnumerable<GetAccountResultModel> fraudCusts);
 
-        AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest);
+        AccountDBResult CheckAccountValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest);
 
         void LogErrorToDB(int? participantID, string errMessage, string dataJson, bool isInternalRequest);
     }
@@ -41,10 +42,14 @@
     public class AccountDBService : IAccountDBService
     {
         private readonly IAccountDataAccess accountDataAccess;
+        private readonly IAuthorizationDBService authorizationDBService;
 
-        public AccountDBService(IAccountDataAccess accountDataAccess)
+        public AccountDBService(
+                IAccountDataAccess accountDataAccess,
+                IAuthorizationDBService authorizationDBService)
         {
             this.accountDataAccess = accountDataAccess;
+            this.authorizationDBService = authorizationDBService;
         }
 
         public IEnumerable<GetAccountResultModel> GetAccounts(GetAccountParasModel encryptedData, bool isInternalRequest)
@@ -246,7 +251,7 @@
             return fraudCusts;
         }
 
-        public AccountDBResult CheckDataValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest)
+        public AccountDBResult CheckAccountValidation(IEnumerable<AccountValidationParaModel> data, int? participantID, RequestAction action, bool isInternalRequest)
         {
             var result = new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
 
@@ -259,7 +264,9 @@
 
                 if (result.StatusCode == HttpStatus.OK && (action == RequestAction.Update || action == RequestAction.Delete))
                 {
-                    result = IsAccountValid(data, participantID, isInternalRequest);
+                    var accounts = data.Select(c => new AccountsModel { AccountID = c.AccountID });
+
+                    result = authorizationDBService.CheckAccountPermisson(accounts, participantID, isInternalRequest);
                 }
             }
 
@@ -272,56 +279,6 @@
         }
 
         #region Private methods
-
-        private AccountDBResult IsAccountValid(IEnumerable<AccountValidationParaModel> data, int? participantID, bool isInternalRequest)
-        {
-            if (data != null && data.Any())
-            {
-                var accountList = data.Select(c => new DeleteAccountParasModel { AccountID = c.AccountID });
-
-                var result = accountDataAccess.CheckAccountValidation(participantID, accountList, isInternalRequest);
-
-                return MappingErrorValidaion(result);
-            }
-
-            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
-        }
-
-        private AccountDBResult MappingErrorValidaion(IEnumerable<CheckAccountModel> checkAccountModels)
-        {
-            var notPermissionList = new List<string>();
-            var notFoundList = new List<string>();
-
-            if (checkAccountModels != null && checkAccountModels.Any())
-            {
-                checkAccountModels.ToList().ForEach(account =>
-                {
-                    if (account.Status.Contains("No Permission Account"))
-                    {
-                        notPermissionList.Add(account.AccountID);
-                    }
-                    else if (account.Status.Contains("Not Exist"))
-                    {
-                        notFoundList.Add(account.AccountID);
-                    }
-                });
-            }
-
-            var errorMessage = notPermissionList.Any() ? string.Format($"{NoPermissionAccount} : {{{{{string.Join(", ", notPermissionList)}}}}}; ") : string.Empty;
-            errorMessage += notFoundList.Any() ? string.Format($" {NotExist} : {{{{{string.Join(", ", notFoundList)}}}}}") : string.Empty;
-
-            if ((notPermissionList.Any() && notFoundList.Any()) || notPermissionList.Any())
-            {
-                return new AccountDBResult { StatusCode = HttpStatus.BadRequest, ErrorMessage = errorMessage };
-            }
-
-            if (notFoundList.Any())
-            {
-                return new AccountDBResult { StatusCode = HttpStatus.NotFound, ErrorMessage = errorMessage };
-            }
-
-            return new AccountDBResult { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
-        }
 
         private AccountDBResult IsCountryCodeValid(IEnumerable<AccountValidationParaModel> data)
         {

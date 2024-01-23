@@ -150,7 +150,7 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                LogMonitorRequest(isInternalRequest, RequestAction.Insert, participant.ParticipantName, data?.Count());
+                Utilities.LogMonitorRequest(isInternalRequest, RequestAction.Insert, participant.ParticipantName, data?.Count(), sentryClient);
 
                 var dataValid = CheckValidation(participant, RequestAction.Insert, isInternalRequest, data.Select(c => new AccountValidationParaModel
                 {
@@ -201,7 +201,7 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                LogMonitorRequest(isInternalRequest, RequestAction.Update, participant.ParticipantName, data?.Count());
+                Utilities.LogMonitorRequest(isInternalRequest, RequestAction.Update, participant.ParticipantName, data?.Count(), sentryClient);
 
                 var dataValid = CheckValidation(participant, RequestAction.Update, isInternalRequest, data.Select(c => new AccountValidationParaModel
                 {
@@ -252,7 +252,7 @@
                     return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidKey };
                 }
 
-                LogMonitorRequest(isInternalRequest, RequestAction.Update, participant.ParticipantName, accountIDs?.Count());
+                Utilities.LogMonitorRequest(isInternalRequest, RequestAction.Update, participant.ParticipantName, accountIDs?.Count(), sentryClient);
 
                 var dataValid = CheckValidation(participant, RequestAction.Delete, isInternalRequest, accountIDs.Select(c => new AccountValidationParaModel
                 {
@@ -285,25 +285,9 @@
                 return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
             }
 
-            var result = accountDBService.CheckDataValidation(data, participant.ParticipantID, action, isInternalRequest);
+            var result = accountDBService.CheckAccountValidation(data, participant.ParticipantID, action, isInternalRequest);
 
             return result;
         }
-
-        #region Private Methods
-
-        private void LogMonitorRequest(bool isInternalRequest, RequestAction requestAction, string participantName, int? recordNumber)
-        {
-            if (isInternalRequest)
-            {
-                return;
-            }
-
-            var message = $"Monitor - {Enum.GetName(typeof(RequestAction), requestAction)} - {participantName} - Counter:{recordNumber} - DateTime:{DateTime.UtcNow}";
-
-            sentryClient.CaptureMessage(message, Sentry.Protocol.SentryLevel.Info);
-        }
-
-        #endregion Private Methods
     }
 }

@@ -7,6 +7,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using static AntiFraudCenterService.Shares.Constants;
 
     public static class Utilities
     {
@@ -39,6 +40,18 @@
                 .AddMessage($"{message} - { DateTime.Now}").ToString();
 
             sentryClient.CaptureMessage(logMessage, Sentry.Protocol.SentryLevel.Error);
+        }
+
+        public static void LogMonitorRequest(bool isInternalRequest, RequestAction requestAction, string participantName, int? recordNumber, ISentryClient sentryClient)
+        {
+            if (isInternalRequest)
+            {
+                return;
+            }
+
+            var message = $"Monitor - {Enum.GetName(typeof(RequestAction), requestAction)} - {participantName} - Counter:{recordNumber} - DateTime:{DateTime.UtcNow}";
+
+            sentryClient.CaptureMessage(message, Sentry.Protocol.SentryLevel.Info);
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿namespace AntiFraudCenter
 {
+    using AntiFraudCenterService.Features.AccountMaterials;
     using AntiFraudCenterService.Features.Accounts;
+    using AntiFraudCenterService.Features.Authorization;
     using AntiFraudCenterService.Features.Participants;
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,8 @@
             RegisterInitService(services);
             RegisterFraudCustomerService(services);
             RegisterParticipantService(services);
+            RegisterAuthorizationService(services);
+            RegisterAccountMaterialService(services);
         }
 
         private static void RegisterInitService(this IServiceCollection services)
@@ -31,6 +35,19 @@
             services.AddSingleton<IParticipantInfoDataAccess, ParticipantInfoDataAccess>();
             services.AddSingleton<IParticipantInfoDBService, ParticipantInfoDBService>();
             services.AddSingleton<IParticipantService, ParticipantService>();
+        }
+
+        private static void RegisterAuthorizationService(this IServiceCollection services)
+        {
+            services.AddSingleton<IAuthorizationDataAccess, AuthorizationDataAccess>();
+            services.AddSingleton<IAuthorizationDBService, AuthorizationDBService>();
+        }
+
+        private static void RegisterAccountMaterialService(this IServiceCollection services)
+        {
+            services.AddSingleton<IAccountMaterialDataAccess, AccountMaterialDataAccess>();
+            services.AddSingleton<IAccountMaterialDBService, AccountMaterialDBService>();
+            services.AddSingleton<IAccountMaterialService, AccountMaterialService>();
         }
     }
 }

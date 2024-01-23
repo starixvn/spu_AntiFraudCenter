@@ -31,5 +31,11 @@
 
         [JsonProperty(PropertyName = "FraudID")]
         public IEnumerable<int> FraudID { get; set; }
+
+        [JsonProperty(PropertyName = "IP")]
+        public string IP { get; set; }
+
+        [JsonProperty(PropertyName = "Device")]
+        public string Device { get; set; }
     }
 }

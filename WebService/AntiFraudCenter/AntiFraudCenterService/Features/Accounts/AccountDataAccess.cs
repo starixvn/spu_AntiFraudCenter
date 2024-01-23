@@ -18,7 +18,7 @@
 
         AccountDBResult InsertAccounts(int? participantID, IEnumerable<InsertAccountModel> encryptedData, bool isInternalRequest);
 
-        AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountModel> encryptedData, bool isInternalRequest);
+        AccountDBResult UpdateAccounts(int? participantID, IEnumerable<UpdateAccountModel> encryptedData, bool isInternalRequest);
 
         AccountDBResult DeleteAccounts(int? participantID, IEnumerable<DeleteAccountParasModel> accountIDs, bool isInternalRequest);
 
@@ -91,7 +91,7 @@
             };
         }
 
-        public AccountDBResult UpdateAccounts(int? participantID, IEnumerable<InsertAccountModel> encryptedData, bool isInternalRequest)
+        public AccountDBResult UpdateAccounts(int? participantID, IEnumerable<UpdateAccountModel> encryptedData, bool isInternalRequest)
         {
             var criteria = new AccountUpdateCriteria(isInternalRequest)
             {

@@ -31,6 +31,12 @@ namespace AntiFraudCenterService.Features.Accounts
         [JsonProperty(PropertyName = "DocumentTypeID")]
         public int DocumentTypeID { get; set; }
 
+        [JsonProperty(PropertyName = "IP")]
+        public string IP { get; set; }
+
+        [JsonProperty(PropertyName = "Device")]
+        public string Device { get; set; }
+
         [IgnoreDataMember]
         public string BankInfo { get; set; }
 

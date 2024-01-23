@@ -19,7 +19,7 @@
 
         AccountDBResult InsertAccounts(string key, IEnumerable<InsertAccountParasModel> data);
 
-        AccountDBResult UpdateAccounts(string key, IEnumerable<InsertAccountParasModel> data);
+        AccountDBResult UpdateAccounts(string key, IEnumerable<UpdateAccountParasModel> data);
 
         AccountDBResult DeleteAccounts(string key, IEnumerable<DeleteAccountParasModel> accountIDs);
     }
@@ -180,7 +180,7 @@
             return rs;
         }
 
-        public AccountDBResult UpdateAccounts(string key, IEnumerable<InsertAccountParasModel> data)
+        public AccountDBResult UpdateAccounts(string key, IEnumerable<UpdateAccountParasModel> data)
         {
             var rs = new AccountDBResult() { StatusCode = HttpStatus.OK, ErrorMessage = string.Empty };
             ParticipantModel participant = null;

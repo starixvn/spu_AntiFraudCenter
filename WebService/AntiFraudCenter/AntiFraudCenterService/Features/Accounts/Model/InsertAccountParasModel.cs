@@ -36,5 +36,9 @@
 
         [Required]
         public IEnumerable<int> FraudID { get; set; }
+
+        public string IP { get; set; }
+
+        public string Device { get; set; }
     }
 }

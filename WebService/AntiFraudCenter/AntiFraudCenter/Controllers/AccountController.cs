@@ -67,7 +67,7 @@
         }
 
         [HttpPost("Update")]
-        public IActionResult UpdateAccounts([FromBody] InsertAccountParasViewModel paras)
+        public IActionResult UpdateAccounts([FromBody] UpdatetAccountParasViewModel paras)
         {
             if (UMHelper.IsUnderMaintaince(appSettings.IsUnderMaintenanceTime, appSettings.UMFrom, appSettings.UMTo))
             {

@@ -33,5 +33,9 @@
         [MaxLength(Constants.MaxLenght)]
         //[RequiredDependencyAttribute("BankName")]
         public string BankAccountID { get; set; }
+
+        public string IP { get; set; }
+
+        public string Device { get; set; }
     }
 }

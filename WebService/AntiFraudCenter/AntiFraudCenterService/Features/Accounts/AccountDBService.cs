@@ -21,11 +21,13 @@
 
         AccountDBResult InsertAccounts(IEnumerable<InsertAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
-        AccountDBResult UpdateAccounts(IEnumerable<InsertAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
+        AccountDBResult UpdateAccounts(IEnumerable<UpdateAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize);
 
         AccountDBResult DeleteAccounts(IEnumerable<DeleteAccountParasModel> accountIDs, int? participantID, bool isInternalRequest, int batchSize);
 
         IEnumerable<InsertAccountModel> EncryptAccount(IEnumerable<InsertAccountParasModel> data);
+
+        IEnumerable<UpdateAccountModel> EncryptAccount(IEnumerable<UpdateAccountParasModel> data);
 
         GetAccountParasModel EncryptAccount(GetAccountParasModel data);
 
@@ -112,7 +114,7 @@
             return new AccountDBResult() { StatusCode = HttpStatus.BadRequest, ErrorMessage = InvalidInput };
         }
 
-        public AccountDBResult UpdateAccounts(IEnumerable<InsertAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
+        public AccountDBResult UpdateAccounts(IEnumerable<UpdateAccountModel> encryptedData, int? participantID, bool isInternalRequest, int batchSize)
         {
             if (encryptedData != null && participantID != null)
             {
@@ -188,7 +190,9 @@
                             DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey),
                             DocumentTypeID = c.DocumentTypeID,
                             BankAccount = EncryptBankAccount(c.BankAccount),
-                            FraudID = c.FraudID
+                            FraudID = c.FraudID,
+                            IP = c.IP,
+                            Device = c.Device
                         });
                     });
 
@@ -196,6 +200,34 @@
             }
 
             return Enumerable.Empty<InsertAccountModel>();
+        }
+
+        public IEnumerable<UpdateAccountModel> EncryptAccount(IEnumerable<UpdateAccountParasModel> data)
+        {
+            if (data != null && data.Any())
+            {
+                var result = new List<UpdateAccountModel>();
+
+                data.ToList().ForEach(c =>
+                {
+                    result.Add(new UpdateAccountModel
+                    {
+                        B2CCustId = c.AccountID,
+                        FullName = c.FullName,
+                        CountryCode = c.CountryCode,
+                        Email = string.IsNullOrEmpty(c.Email) ? null : CryptographicHelper.AESEncrypt(c.Email, EncryptedKey, IVKey),
+                        Phone = string.IsNullOrEmpty(c.Phone) ? null : CryptographicHelper.AESEncrypt(c.Phone, EncryptedKey, IVKey),
+                        DocumentID = string.IsNullOrEmpty(c.DocumentID) ? null : CryptographicHelper.AESEncrypt(c.DocumentID, EncryptedKey, IVKey),
+                        DocumentTypeID = c.DocumentTypeID,
+                        BankAccount = EncryptBankAccount(c.BankAccount),
+                        FraudID = c.FraudID
+                    });
+                });
+
+                return result;
+            }
+
+            return Enumerable.Empty<UpdateAccountModel>();
         }
 
         public IEnumerable<GetAccountResultModel> DecryptAccount(IEnumerable<GetAccountResultModel> fraudCusts)
